@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="http://localhost:8000/pyodide.js"></script>
+    <script src="https://thehowland.github.io/InskaLE/pyodide.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <title>Circuit Simplification</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -469,7 +469,7 @@
     async function load_packages(pyodide, optAddNames){
         createProgressBar("Loading Pyodide packages, please wait ...");
         updateProgressBar(0);
-        let packageAddress = "http://localhost:8000/Packages/";
+        let packageAddress = "https://thehowland.github.io/InskaLE/Packages/";
         let packages = await fetchDirectoryListing(packageAddress, ".whl");
 
         if(Array.isArray(optAddNames)){
@@ -485,7 +485,7 @@
         };
 
         let packagePromises = packages.map(async function(packageName) {
-            let pkgArrBuff = await (await fetch("http://localhost:8000/Packages/" + packageName)).arrayBuffer();
+            let pkgArrBuff = await (await fetch("https://thehowland.github.io/InskaLE/Packages/" + packageName)).arrayBuffer();
             let packageExtension = packageName.slice(packageName.lastIndexOf("."), packageName.length);
             await pyodide.unpackArchive(pkgArrBuff, packageExtension);
             updateProgress();
@@ -519,7 +519,7 @@
         infoText.textContent += "Loading circuits from server... ";
         console.time(loadCircuits);
 
-        let cirArrBuff = await (await fetch("http://localhost:8000/Circuits.zip")).arrayBuffer();
+        let cirArrBuff = await (await fetch("https://thehowland.github.io/InskaLE/Circuits.zip")).arrayBuffer();
         await pyodide.unpackArchive(cirArrBuff, ".zip");
 
         circuitFiles = pyodide.FS.readdir("Circuits");
@@ -527,7 +527,7 @@
         console.log("Circuits Files: " + circuitFiles);
         populateCircuitSelector();
 
-        pyodide.FS.writeFile("/home/pyodide/solve.py", await (await fetch("http://localhost:8000/solve.py")).text());
+        pyodide.FS.writeFile("/home/pyodide/solve.py", await (await fetch("https://thehowland.github.io/InskaLE/solve.py")).text());
         infoText.textContent += "done\r\n";
         console.timeEnd(loadCircuits);
 
