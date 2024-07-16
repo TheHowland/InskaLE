@@ -496,8 +496,7 @@
         console.log(typeof pyPackages)
         if(Array.isArray(optAddNames)){
             for(let i = 0; i < optAddNames.length; i++){
-                //ToDo figure out why it does not work with i instead of 0
-                pyPackages.push(optAddNames[0]);
+                pyPackages.push(optAddNames[i]);
             }
         }
 
