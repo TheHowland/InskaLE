@@ -65,7 +65,7 @@
         infoText.setAttribute('style', 'white-space: pre;');
 
         infoText.textContent = "Loading Pyodide environment... ";
-        let pyodide = await loadPyodide({makeMemorySnapshot: true});
+        let pyodide = await loadPyodide();
         infoText.textContent += "done\r\n";
 
         let loadCircuits = "Load Circuits";
@@ -143,7 +143,6 @@
             document.getElementById('menu-toggle').style.display = 'block';
             document.getElementById('initial-message').style.display = 'block';
         });
-        let snapShot = pyodide.makeMemorySnapshot()
     }
 
     async function solveCircuit(circuit, pyodide) {
