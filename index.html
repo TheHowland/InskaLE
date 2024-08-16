@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Circuit Simplification</title>
 
-    <script src="https://thehowland.github.io/InskaLE/pyodide.js"></script>
+    <script src="http://localhost:8000/pyodide.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="solutionObject.js"></script>
     <script src="fetchDirectoryListing.js"></script>
@@ -53,7 +53,7 @@
     let mode = '';
     //--------------------------------------------------------------
     let pyodideReady = false;
-    let serverAddress = "https://thehowland.github.io/InskaLE"
+    let serverAddress = "http://localhost:8000"
 
 
     async function main() {
@@ -87,6 +87,15 @@
 
         document.getElementById('menu-toggle').style.display = 'block';
         document.getElementById('initial-message').style.display = 'block';
+        const menuBar = document.getElementById('menu-bar');
+        const simplificationDiv = document.getElementById('simplification');
+        if (menuBar.style.left === '0px') {
+            menuBar.style.left = '-250px';
+            simplificationDiv.style.width = '90vw';
+        } else {
+            menuBar.style.left = '0px';
+            simplificationDiv.style.width = 'calc(90vw - 250px)';
+        }
 
         document.getElementById('menu-toggle').addEventListener('click', () => {
             const menuBar = document.getElementById('menu-bar');
