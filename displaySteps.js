@@ -1,28 +1,44 @@
-function display_step(pyodide, jsonFilePath, svgFilePath, contentDivName = 'simplification') {
+/*
+Displays the current step of the circuit simplification process using the provided JSON and SVG files.
+ */
+function display_step(pyodide, jsonFilePath_Z,svgFilePath,jsonFilePath_VC=null, contentDivName = 'simplification') {
     const contentDiv = document.getElementById(contentDivName);
     contentDiv.innerHTML = '';
-
+    console.log(jsonFilePath_VC);
     try {
-        let jsonDataString = pyodide.FS.readFile(jsonFilePath, { encoding: "utf8" });
+        // Lade die JSON-Datei und logge den Inhalt
+        let jsonDataString = pyodide.FS.readFile(jsonFilePath_Z, { encoding: "utf8" });
         const jsonData = JSON.parse(jsonDataString);
-        let data = new SolutionObject(jsonData.name1, jsonData.name2, jsonData.newName, jsonData.value1, jsonData.value2,
-            jsonData.result, jsonData.relation, jsonData.latexEquation);
 
-        const svgData = pyodide.FS.readFile(svgFilePath, { encoding: "utf8" });
 
-        let relationText = "";
-        if (!data.isNull()) {
-            if (data.noFormat().relation === "parallel") {
-                relationText = "Die Elemente sind parallel zueinander";
-            } else if (data.noFormat().relation === "series") {
-                relationText = "Die Elemente sind in Reihe zueinander";
-            } else if (data.noFormat().relation === null) {
-                relationText = "Keine Beziehung zwischen den Elementen";
-            } else {
-                throw Error("Unknown relation type");
-            }
+        // Instanziiere SolutionObject und SolutionObject_UI
+        let data = new SolutionObject(
+            jsonData.name1, jsonData.name2, jsonData.newName,
+            jsonData.value1, jsonData.value2, jsonData.result,
+            jsonData.relation, jsonData.latexEquation
+        );
+
+        let data_vc=null;
+
+        if(jsonFilePath_VC != null){
+            //Lade UI-JSON-Datei und logge den Inhalt
+            let jsonDataString_VC = pyodide.FS.readFile(jsonFilePath_VC, { encoding: "utf8" });
+            let jsonData_VC = JSON.parse(jsonDataString_VC);
+            data_vc = new SolutionObject_VC(
+                jsonData_VC.oldNames, jsonData_VC.names1, jsonData_VC.names2,
+                jsonData_VC.oldValues, jsonData_VC.values1, jsonData_VC.values2,
+                jsonData_VC.convOldValue, jsonData_VC.convValue1, jsonData_VC.convValue2,
+                jsonData_VC.relation, jsonData_VC.equation
+            );
+        }
+        else{
+            data_vc = new SolutionObject_VC();
         }
 
+        // Lade die SVG-Datei
+        const svgData = pyodide.FS.readFile(svgFilePath, { encoding: "utf8" });
+
+        // Baue das UI auf
         const circuitContainer = document.createElement('div');
         circuitContainer.className = 'circuit-container';
 
@@ -36,20 +52,6 @@ function display_step(pyodide, jsonFilePath, svgFilePath, contentDivName = 'simp
         const descriptionContainer = document.createElement('div');
         descriptionContainer.className = 'description-container';
 
-        // Only append the paragraph if it's not a step0.json file
-        if (!jsonFilePath.toLowerCase().includes('step0.json')) {
-            const paragraph = document.createElement('p');
-            paragraph.innerHTML = `Die Elemente ${data.inline().name1} und ${data.inline().name2}<br>
-              wurden zu ${data.inline().newName} zusammengefasst<br>
-              ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
-              ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
-              ${data.inline().newName}&nbsp= ${data.inline().result}<br>
-              ${relationText}<br>
-              Rechnung:<br>
-              ${data.inline().latexEquation}`;
-            descriptionContainer.appendChild(paragraph);
-        }
-
         const contentContainer = document.createElement('div');
         contentContainer.className = 'content-container';
         contentContainer.appendChild(circuitContainer);
@@ -61,14 +63,14 @@ function display_step(pyodide, jsonFilePath, svgFilePath, contentDivName = 'simp
             clickedElementsContainer.className = 'clicked-elements-container';
             clickedElementsContainer.innerHTML = `<h3>Ausgew&auml;hlte Elemente</h3><ul id="clicked-elements-list-${sanitizedSvgFilePath}"></ul>`;
 
-            // Count path elements with id different from 'default_id'
+            paragraph_Z(data, jsonFilePath_Z, descriptionContainer);
+
             const pathElements = svgDiv.querySelectorAll('path');
             const filteredPaths = Array.from(pathElements).filter(path => path.getAttribute('class') !== 'na');
 
             if (filteredPaths.length === 1) {
-                // If there is only one path element left, display a congratulatory message
                 const congratsMessage = document.createElement('p');
-                congratsMessage.innerHTML = 'Herzlichen Gl\u00FCckwunsch! Sie haben den Schaltkreis vollst&auml;ndig vereinfacht.';
+                congratsMessage.innerHTML = 'Herzlichen Glueckwunsch! Sie haben den Schaltkreis vollsaendig vereinfacht.';
                 clickedElementsContainer.appendChild(congratsMessage);
             }
 
@@ -85,21 +87,20 @@ function display_step(pyodide, jsonFilePath, svgFilePath, contentDivName = 'simp
             checkButton.addEventListener('click', async () => {
                 setTimeout(() => {
                     resetClickedElements(svgDiv, clickedElementsContainer);
-                }, 100);  // Kurze Verzögerung, um sicherzustellen, dass das DOM bereit ist
+                }, 100);
                 if (selectedElements.length === 2) {
                     const canSimplify = await stepSolve.simplifyTwoCpts(selectedElements).toJs();
                     if (canSimplify[0]) {
-                        display_step(pyodide, canSimplify[1], canSimplify[2]);
+                        display_step(pyodide, canSimplify[1][0], canSimplify[2],canSimplify[1][1]);
                     } else {
-                        showMessage("Die ausgew\u00E4hlten Elemente k\u00F6nnen nicht vereinfacht werden.");
+                        showMessage("Die ausgewaehlten Elemente konnten nicht vereinfacht werden.");
                     }
                 } else {
-                    showMessage('Bitte w\u00E4hlen Sie genau zwei Elemente aus!');
+                    showMessage('Bitte waehlen Sie genau zwei Elemente aus!');
                 }
                 MathJax.typeset();
             });
 
-            // Append the buttons after the congratulatory message
             clickedElementsContainer.appendChild(resetButton);
             clickedElementsContainer.appendChild(checkButton);
 
@@ -145,7 +146,31 @@ function display_step(pyodide, jsonFilePath, svgFilePath, contentDivName = 'simp
                 });
             }
         }
+
         MathJax.typeset();
+
+        if (mode === 'pre_calculated') {
+            const pathElements = svgDiv.querySelectorAll('path');
+            const filteredPaths = Array.from(pathElements).filter(path => path.getAttribute('class') !== 'na');
+            const congratsMessage = document.createElement('p');
+
+            if (filteredPaths.length === 1) {
+                congratsMessage.innerHTML = 'Die Komponenten sind nun vollstaendig vereinfacht. Es folgt nun die Berechnung der Spannungen und Stroeme.';
+                descriptionContainer.appendChild(congratsMessage);
+                congratsDisplayed = true;
+                paragraph_Z(data, jsonFilePath_Z, descriptionContainer);
+                document.querySelector('.nav-buttons-container').style.display = 'none';
+                document.getElementById('continue-button').style.display = 'flex';
+            } else if (congratsDisplayed === false) {
+                paragraph_Z(data, jsonFilePath_Z, descriptionContainer);
+            } else {
+                paragraph_VC(data_vc, descriptionContainer);
+            }
+            MathJax.typeset();
+        }
+
+        MathJax.typeset();
+
     } catch (error) {
         console.error('Error fetching data:', error);
         contentDiv.textContent = 'Error loading content';
