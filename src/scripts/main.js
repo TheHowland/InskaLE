@@ -26,7 +26,7 @@ let congratsDisplayed = false;
 //Boolean to track if the Pyodide environment is ready.
 let pyodideReady = false;
 //Stores the server address for fetching resources.
-let serverAddress = "https://thehowland.github.io/InskaLE/"
+let serverAddress = "https://thehowland.github.io/InskaLE"
 
 /*
 Initializes the Pyodide environment, loads circuit and solution files,
