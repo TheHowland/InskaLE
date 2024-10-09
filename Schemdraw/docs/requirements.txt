@@ -1,4 +1,0 @@
-pyparsing
-matplotlib
-ipykernel
-jupyter_sphinx
