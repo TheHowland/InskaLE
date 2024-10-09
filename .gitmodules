@@ -1,0 +1,3 @@
+[submodule "lcapy-inskale"]
+	path = lcapy-inskale
+	url = https://github.com/prof-sky/lcapy.git

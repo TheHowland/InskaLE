@@ -1,6 +1,10 @@
-﻿Lcapy-Stripped/Non-Lcapy-Files/Solutions
+﻿.idea
+Lcapy-Stripped/build
+Lcapy-Stripped/dist
 Lcapy-Stripped/lcapy.egg-info
+Lcapy-Stripped/Non-Lcapy-Files/Solutions
 Lcapy-Stripped/lcapy/__pycache__
-.idea
-test_schematic.svg
-Pyodide/Packages/_package_names.txt
+Pyodide/fonts
+Pyodide/server.pid
+Lcapy-Stripped/lcapy-1.22+inskale.0.6dev/doc
+Schemdraw/test_schematic.svg

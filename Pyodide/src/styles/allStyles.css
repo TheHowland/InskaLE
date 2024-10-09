@@ -1,0 +1,58 @@
+body, html {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Landing page shadows*/
+#bootstrap-overrides #yellow-image-container {
+    box-shadow: 0 6px 6px 0px lightgray;
+}
+
+#bootstrap-overrides #feature-container {
+    box-shadow: 0 4px 4px 0px lightgray;
+    z-index: 1;
+    position: relative;
+}
+
+/* navbar */
+#bootstrap-overrides #logo {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: large;
+    font-weight: bold;
+    color: #FFC107;
+}
+
+#bootstrap-overrides .nav-link {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: x-large;
+    font-weight: normal;
+    color: white;
+}
+#bootstrap-overrides #nav-link-circuit {
+    color: #FFC107;
+}
+
+/* Hero section */
+#bootstrap-overrides #start-button {
+    font-weight: bolder;
+    border-color: #222222;
+    border-radius: 20px;
+}
+
+#bootstrap-overrides #heading-logo {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Feature section */
+#bootstrap-overrides #features {
+    list-style-type: none;
+    font-weight: bold;
+}
+
+#bootstrap-overrides #circuit-selector-explanation-container {
+    background-color: #FFE7AD;
+    z-index: 0;
+    position: relative;
+}
