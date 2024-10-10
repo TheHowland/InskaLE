@@ -93,6 +93,7 @@ function display_step(pyodide, jsonFilePath_Z,svgFilePath,jsonFilePath_VC=null) 
                 const canSimplify = await stepSolve.simplifyTwoCpts(selectedElements).toJs();
                 if (canSimplify[0]) {
                     display_step(pyodide, canSimplify[1][0], canSimplify[2],canSimplify[1][1]);
+                    contentCol.removeChild(clickedElementsContainer);
                 } else {
                     showMessage(contentCol, "Can not simplify those elements");
                 }
@@ -100,8 +101,6 @@ function display_step(pyodide, jsonFilePath_Z,svgFilePath,jsonFilePath_VC=null) 
                 showMessage(contentCol, 'Please choose exactly 2 elements');
             }
             MathJax.typeset();
-            contentCol.removeChild(clickedElementsContainer)
-
         });
 
         contentCol.appendChild(clickedElementsContainer);
