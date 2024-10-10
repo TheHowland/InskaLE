@@ -286,4 +286,14 @@ async function solveCircuit(circuit, pyodide) {
     else{
         display_step(pyodide, `Solutions/${jsonFiles_Z[currentStep]}`, `Solutions/${svgFiles[currentStep]}`,`Solutions/${jsonFiles_VC[currentStep]}`);
     }
+<<<<<<< HEAD
 }
+=======
+
+    if (mode === 'pre_calculated') {
+        document.querySelector('.nav-buttons-container').style.display = 'flex';
+    } else {
+        document.querySelector('.nav-buttons-container').style.display = 'none';
+    }
+}
+>>>>>>> cf87a0c93f94f333002ea2aece601be636f11eb6
