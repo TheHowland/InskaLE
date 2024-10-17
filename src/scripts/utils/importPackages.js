@@ -1,7 +1,15 @@
+function enableStartButtonsOnCircuitSelectors() {
+    document.getElementById(Resistor1.btn).disabled = false;
+    document.getElementById(Resistor2.btn).disabled = false;
+    document.getElementById(Resistor3.btn).disabled = false;
+}
+
 async function import_packages(pyodide) {
     let packages = ["matplotlib", "numpy", "sympy", "networkx", "IPython", "schemdraw", "ordered_set", "lcapy"];
     progressBar = document.getElementById("pgr-bar");
     progressBarContainer = document.getElementById("pgr-bar-container");
+    // set the bar to 40% because we already did some stuff
+    // this will enable us to start the new calculation from a fixed point
     progressBar.style.width = "40%";
 
     let progress = 0;
@@ -17,6 +25,5 @@ async function import_packages(pyodide) {
 
     progressBarContainer.style.display = "none";
     pyodideReady = true;
-    document.getElementById("res1-btn").disabled = false;
-    document.getElementById('start-button').disabled = false;
+    //enableStartButtonsOnCircuitSelectors();
 }

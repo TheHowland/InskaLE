@@ -5,47 +5,26 @@ function sanitizeSelector(selector) {
     return selector.replace(/[^\w-]/g, '_');
 }
 
-/*
- Removes all bounding boxes and clears the list of clicked elements in the SVG and the clicked elements container.
- */
-function resetClickedElements(svgDiv, clickedElementsContainer) {
-    const boundingBoxes = svgDiv.querySelectorAll('.bounding-box');
-    if (boundingBoxes.length > 0) {
-        boundingBoxes.forEach(box => box.remove());
-    }
 
-    const clickedElementsList = clickedElementsContainer.querySelector('ul');
-    if (clickedElementsList) {
-        clickedElementsList.innerHTML = '';
-    } else {
-        console.warn('clickedElementsContainer ul-Liste nicht gefunden');
-    }
-    selectedElements = [];
-}
 
 /*
 Displays a temporary message to the user in a message box.
  */
-function showMessage(container, message) {
+function showMessage(container, message, prio = "warning") {
     const msg = document.createElement('div');
     msg.classList.add("alert");
-    msg.classList.add("alert-warning");
+    msg.classList.add(`alert-${prio}`);
     msg.classList.add("fixed-bottom");
     msg.classList.add("m-5");
     msg.innerHTML = message;
-    container.appendChild(svgDiv);
+    container.appendChild(msg);
     setTimeout(() => {
         msg.style.display = 'none';
     }, 3000);
 }
 
-/*
-Generates and appends a paragraph describing the resistance (Z=general term for complex resistance)  simplification step,
-excluding step0.json files.
- */
-function paragraph_Z(data, jsonFilePath,descriptionContainer) {
 
-
+function getRelationText(data) {
     let relationText = "";
     if (!data.isNull()) {
         if (data.noFormat().relation === "parallel") {
@@ -58,27 +37,27 @@ function paragraph_Z(data, jsonFilePath,descriptionContainer) {
             throw Error("Unknown relation type");
         }
     }
-
-    // Only append the paragraph if it's not a step0.json file
-    if (!jsonFilePath.toLowerCase().includes('step0.json')) {
-        const paragraph_Z = document.createElement('p');
-        paragraph_Z.innerHTML = `Die Elemente ${data.inline().name1} und ${data.inline().name2}<br>
-              wurden zu ${data.inline().newName} zusammengefasst<br>
-              ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
-              ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
-              ${data.inline().newName}&nbsp= ${data.inline().result}<br>
-              ${relationText}<br>
-              Rechnung:<br>
-              ${data.inline().latexEquation}`;
-        descriptionContainer.appendChild(paragraph_Z);
-    }
+    return relationText;
 }
 
-/*
-Generates and appends a paragraph describing the voltage and current (VC= voltage and current) simplification step
-based on the provided data.
- */
-function paragraph_VC(data, descriptionContainer) {
+// Generates and appends a paragraph describing the resistance simplification step
+function generateTextForZ(data) {
+    let relationText = getRelationText(data);
+    const text = document.createElement('p');
+    text.innerHTML = `
+        Die Elemente ${data.inline().name1} und ${data.inline().name2}<br>
+        wurden zu ${data.inline().newName} zusammengefasst<br>
+        ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
+        ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
+        ${data.inline().newName}&nbsp= ${data.inline().result}<br>
+        ${relationText}<br>
+        Rechnung:<br>
+        ${data.inline().latexEquation}
+    `;
+    return text;
+}
+
+function generateTextForVoltageCurrent(data) {
     let relationText = "";
     let relation = data.noFormat().relation[0]
     console.log("Relation: " + data.noFormat().relation[0])
@@ -94,9 +73,9 @@ function paragraph_VC(data, descriptionContainer) {
         relationText = "Keine Beziehung zwischen den Elementen";
     }
 
-    const paragraph_VC = document.createElement('p');
+    const text = document.createElement('p');
 
-    paragraph_VC.innerHTML = `
+    text.innerHTML = `
         Das Element ${data.inline().oldNames[0]} setzt sich aus den Elementen ${data.inline().names1[0]} und ${data.inline().names2[0]} zusammen.<br>
         ${data.inline().oldNames[0]}&nbsp= ${data.inline().oldValues[0]}<br>
         ${data.inline().oldNames[1]}&nbsp= ${data.inline().oldValues[1]}<br>
@@ -111,13 +90,6 @@ function paragraph_VC(data, descriptionContainer) {
         Rechnung:<br>
         ${data.inline().equation[0]}<br>
         ${data.inline().equation[1]}<br>`;
-    descriptionContainer.appendChild(paragraph_VC);
-}
 
-/*
-Sets the global variable congratsDisplayed to false.
-This is used to reset a state indicating whether a congratulatory message has been displayed.
- */
-function resetCongratsDisplayed() {
-    congratsDisplayed = false;
+    return text;
 }
