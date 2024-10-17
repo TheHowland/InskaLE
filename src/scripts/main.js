@@ -1,5 +1,6 @@
 //ToDo this could be an Object better than global variables
 //--------------------------------------------------------------
+let currentLang;
 //Tracks the current step in the circuit simplification process.
 let currentStep = 0;
 //Array to store JSON file paths for Z simplification steps.
@@ -33,6 +34,61 @@ let solveFilePath = serverAddress + "/solve.py";
 
 // ####################################################################################################################
 // ########################################################## MAIN ####################################################
+// ####################################################################################################################
+async function main() {
+
+    // ############################################################################################
+    // The navigation for this website is not via different html files, but by showing and not
+    // showing different containers that act as pages
+    // In the functions below all callbacks to buttons and links are set.
+    // The functionality of the simplifier is then called via these functions
+    // ############################################################################################
+
+    currentLang = english;
+
+    // First statement to make sure nothing else is shown at start
+    let pageManager = new PageManager(document);
+    setupLandingPage(pageManager);
+    pageManager.showLandingPage();
+
+    // Get the pyodide instance and setup pages with functionality
+    let pyodide = await loadPyodide();
+    // Setup up first page
+    setupNavigation(pageManager, pyodide);
+
+    hideSelectorsWhileLoading();
+
+    await doLoadsAndImports(pyodide);
+    await importSolverModule(pyodide);
+    await createSvgsForSelectors(pyodide);
+
+    showSelectorsAfterLoading();
+    setupSelectPage(pageManager, pyodide);
+}
+
+// ####################################################################################################################
+// ############################################# Helper functions #####################################################
+// ####################################################################################################################
+
+function hideSelectorsWhileLoading() {
+    const resCarousel = document.getElementById("resistor-carousel");
+    const resHeading = document.getElementById("resistor-heading");
+    const note = document.getElementById("progress-bar-note");
+    resCarousel.hidden = true;
+    resHeading.hidden = true;
+    note.style.color = "white";
+    note.innerHTML = currentLang.selectorWaitingNote;
+}
+
+function showSelectorsAfterLoading() {
+    const resCarousel = document.getElementById("resistor-carousel");
+    const resHeading = document.getElementById("resistor-heading");
+    const note = document.getElementById("progress-bar-note");
+    resCarousel.hidden = false;
+    resHeading.hidden = false;
+    note.remove();
+}
+
 async function createSvgsForSelectors(pyodide) {
     try {
         //An array of file names representing the solution files in the Solutions directory.
@@ -53,37 +109,6 @@ async function createSvgsForSelectors(pyodide) {
     stepSolve = solve.SolveInUserOrder(Resistor3.circuitFile, "Circuits/", "Solutions/");
     await stepSolve.createStep0().toJs();
 }
-
-// ####################################################################################################################
-async function main() {
-
-    // ############################################################################################
-    // The navigation for this website is not via different html files, but by showing and not
-    // showing different containers that act as pages
-    // In the functions below all callbacks to buttons and links are set.
-    // The functionality of the simplifier is then called via these functions
-    // ############################################################################################
-
-    // First statement to make sure nothing else is shown at start
-    let pageManager = new PageManager(document);
-    pageManager.showLandingPage();
-
-    // Get the pyodide instance and setup pages with functionality
-    let pyodide = await loadPyodide();
-    // Setup up first page
-    setupNavigation(pageManager, pyodide);
-    setupLandingPage(pageManager);
-
-    await doLoadsAndImports(pyodide);
-    await importSolverModule(pyodide);
-
-    await createSvgsForSelectors(pyodide);
-    setupSelectPage(pageManager, pyodide);
-}
-
-// ####################################################################################################################
-// ############################################# Helper functions #####################################################
-// ####################################################################################################################
 
 async function importSolverModule(pyodide) {
     pyodide.FS.writeFile("/home/pyodide/solve.py", await (await fetch(solveFilePath)).text());
@@ -157,14 +182,14 @@ function setupSpecificCircuitSelector(circuitMap, pageManager, pyodide) {
     const circuitDiv = document.getElementById(circuitMap.circuitDivID);
     const startBtn = document.getElementById(circuitMap.btn);
     const btnOverlay = document.getElementById(circuitMap.btnOverlay);
-    //startBtn.disabled = true;
+    //startBtn.disabled = true; currently not necessary because it's only shown when all is ready
 
 
     // Fill div with svg
     let svgData = pyodide.FS.readFile(circuitMap.svgFile, {encoding: "utf8"});
-    svgData = svgData.replaceAll("black", "white");
+    svgData = setSvgWidthTo(svgData, "100%");
+    svgData = setSvgDarkMode(svgData);
     circuitDiv.innerHTML = svgData;
-
 
     setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
     startBtn.addEventListener("click", () =>
@@ -219,12 +244,31 @@ function checkIfSimplifierPageNeedsReset(pyodide) {
     }
 }
 
+function updateLanguageLandingAndSelectPage() {
+    const greeting = document.getElementById("landing-page-greeting");
+    greeting.innerHTML = currentLang.landingPageGreeting;
+    const keyFeature1 = document.getElementById("key-feature1");
+    keyFeature1.innerHTML = currentLang.keyFeature1;
+    const keyFeature2 = document.getElementById("key-feature2");
+    keyFeature2.innerHTML = currentLang.keyFeature2;
+    const keyFeature3 = document.getElementById("key-feature3");
+    keyFeature3.innerHTML = currentLang.keyFeature3;
+    const expl1 = document.getElementById("landing-page-explanation1");
+    expl1.innerHTML = currentLang.landingPageExplanation1;
+    const expl2 = document.getElementById("landing-page-explanation2");
+    expl2.innerHTML = currentLang.landingPageExplanation2;
+    const resHeading = document.getElementById("resistor-heading");
+    resHeading.innerHTML = currentLang.resistorCarouselHeading;
+}
+
 function setupNavigation(pageManager, pyodide) {
     const navHomeLink = document.getElementById("nav-home");
     const navSimplifierLink = document.getElementById("nav-select");
     const navLogo = document.getElementById("nav-logo");
+    const selectEnglish = document.getElementById("select-english");
+    const selectGerman = document.getElementById("select-german");
 
-    navHomeLink.addEventListener('click', () => {
+    navHomeLink.addEventListener("click", () => {
         checkIfSimplifierPageNeedsReset(pyodide);  // must be in front of page change
         pageManager.showLandingPage();
     })
@@ -236,6 +280,19 @@ function setupNavigation(pageManager, pyodide) {
         checkIfSimplifierPageNeedsReset(pyodide);  // must be in front of page change
         pageManager.showLandingPage();
     })
+    selectEnglish.addEventListener("click", () => {
+        currentLang = english;
+        const activeFlagIcon = document.getElementById("activeLanguageFlag");
+        activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
+        updateLanguageLandingAndSelectPage();
+    })
+    selectGerman.addEventListener("click", () => {
+        currentLang = german;
+        const activeFlagIcon = document.getElementById("activeLanguageFlag");
+        activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
+        updateLanguageLandingAndSelectPage();
+    })
+
 }
 
 function setupLandingPage(pageManager) {
@@ -243,6 +300,18 @@ function setupLandingPage(pageManager) {
     landingStartButton.addEventListener("click", () => {
         pageManager.showSelectPage();
     })
+    const greeting = document.getElementById("landing-page-greeting");
+    greeting.innerHTML = currentLang.landingPageGreeting;
+    const keyFeature1 = document.getElementById("key-feature1");
+    keyFeature1.innerHTML = currentLang.keyFeature1;
+    const keyFeature2 = document.getElementById("key-feature2");
+    keyFeature2.innerHTML = currentLang.keyFeature2;
+    const keyFeature3 = document.getElementById("key-feature3");
+    keyFeature3.innerHTML = currentLang.keyFeature3;
+    const expl1 = document.getElementById("landing-page-explanation1");
+    expl1.innerHTML = currentLang.landingPageExplanation1;
+    const expl2 = document.getElementById("landing-page-explanation2");
+    expl2.innerHTML = currentLang.landingPageExplanation2;
 }
 
 function twoElementsChosen() {
@@ -307,6 +376,8 @@ async function loadCircuits(pyodide) {
 }
 
 function setupSelectPage(pageManager, pyodide) {
+    const resHeading = document.getElementById("resistor-heading");
+    resHeading.innerHTML = currentLang.resistorCarouselHeading;
     setupResistorSelector(pageManager, pyodide);
 }
 

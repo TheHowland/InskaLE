@@ -11,6 +11,12 @@ body, html {
     color: #FFC107;
 }
 
+#bootstrap-overrides .flag {
+    width: 15px;
+    max-width: 15px;
+    margin-left: 5px;
+}
+
 /* Landing page shadows*/
 #bootstrap-overrides #yellow-image-container {
     box-shadow: 0 6px 6px 0px lightgray;
@@ -128,6 +134,9 @@ body, html {
 /* Simplifier page */
 #bootstrap-overrides svg{
     height: 400px; /* set an absolute height, so changing images always have the same size */
+}
+
+#bootstrap-overrides .svg-container {
     border: 1px solid #eeeeee;
     border-radius: 6px;
 }

@@ -1,8 +1,3 @@
-const showCalcBtnText = "impedance";
-const hideCalcBtnText = "hide"
-const showVCBtnText = "voltage/current";
-const hideVCBtnText = "hide"
-
 // ####################################################################################################################
 // #################################### Key function for displaying new svgs ##########################################
 // ####################################################################################################################
@@ -45,13 +40,13 @@ function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths) {
     nextElementsContainer.classList.add("mb-3");
     if (onlyOneElementLeft(filteredPaths)) {
         nextElementsContainer.innerHTML = `
-        <p>You can now check how to calculate the voltages and currents</p>
+        <p>${currentLang.msgVoltAndCurrentAvailable}</p>
         <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1" id="check-btn">check</button>
     `;
     } else {
         nextElementsContainer.innerHTML = `
-        <h3>Next elements</h3>
+        <h3>${currentLang.nextElementsHeading}</h3>
         <ul class="px-0" id="next-elements-list-${sanitizedSvgFilePath}"></ul>
         <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1" id="check-btn">check</button>
@@ -80,12 +75,10 @@ function setupSvgDivContainer(svgData) {
     svgDiv.style.maxWidth = "350px";  // To make the border limit for tablets and bigger screens
 
     // Svg manipulation - set width and color for dark mode
-    let match = svgData.match(/width="(\d*.\d*pt)"/);
-    let foundWidth = match[1];
-    svgData = svgData.replace(foundWidth, "100%");
-    let whiteSvgData = svgData.replaceAll("black", "white");
+    svgData = setSvgWidthTo(svgData, "100%");
+    svgData = setSvgDarkMode(svgData);
 
-    svgDiv.innerHTML = whiteSvgData;
+    svgDiv.innerHTML = svgData;
     return svgDiv;
 }
 
@@ -93,13 +86,6 @@ function getElementsFromSvgContainer(svgContainer) {
     const pathElements = svgContainer.querySelectorAll('path');
     const filteredPaths = Array.from(pathElements).filter(path => path.getAttribute('class') !== 'na');
     return {pathElements, filteredPaths};
-}
-
-function showCongratsMessage(nextElementsContainer) {
-    const congratsMessage = document.createElement('p');
-    congratsMessage.id = "congrats-msg";
-    congratsMessage.innerHTML = 'Well done, you finished the circuit!';
-    nextElementsContainer.appendChild(congratsMessage);
 }
 
 function setupBboxRect(bbox, bboxId) {
@@ -152,7 +138,7 @@ function setupVoltageCurrentBtn() {
     vcBtn.classList.add("mx-2");
     vcBtn.style.color = "white";
     vcBtn.style.borderColor = "#eeeeee";
-    vcBtn.textContent = "voltage/current";
+    vcBtn.textContent = currentLang.showVoltageBtn;
     vcBtn.disabled = true;
     return vcBtn;
 }
@@ -165,7 +151,7 @@ function setupCalculationBtn() {
     calcBtn.classList.add("mx-2");
     calcBtn.style.color = "white";
     calcBtn.style.borderColor = "#eeeeee";
-    calcBtn.textContent = "impedance";
+    calcBtn.textContent = currentLang.showImpedanceBtn;
     calcBtn.disabled = true;
     return calcBtn;
 }
@@ -224,7 +210,7 @@ async function checkAndSimplifyNext(pyodide, newCalcBtn, newVCBtn){
         const simplifyObject = await stepSolve.simplifyTwoCpts(selectedElements).toJs();
         checkAndSimplify(simplifyObject, pyodide, contentCol, newCalcBtn, newVCBtn);
     } else {
-        showMessage(contentCol, 'Please choose exactly 2 elements');
+        showMessage(contentCol, currentLang.alertChooseTwoElements);
     }
     MathJax.typeset();
 }
@@ -244,7 +230,7 @@ function checkAndSimplify(simplifyObject, pyodide, contentCol, newCalcBtn, newVC
         }
         display_step(pyodide, jsonFilePathZ, svgFilePath, jsonFilePathVC);
     } else {
-        showMessage(contentCol, "Can not simplify those elements");
+        showMessage(contentCol, currentLang.alertCanNotSimplify);
     }
 }
 
@@ -253,16 +239,16 @@ function addVoltageCurrentButtonBetweenPictures(vcText, contentCol, stepCalculat
     const lastVCBtn = document.getElementById(`vcBtn${pictureCounter - 1}`);
 
     lastVCBtn.addEventListener("click", () => {
-        if (lastVCBtn.textContent === showVCBtnText) {
-            lastVCBtn.textContent = hideVCBtnText;
+        if (lastVCBtn.textContent === currentLang.showVoltageBtn) {
+            lastVCBtn.textContent = currentLang.hideVoltageBtn;
             lastVCBtn.insertAdjacentElement("afterend", vcText);
-            if (lastStepCalcBtn.textContent === hideCalcBtnText) {
-                lastStepCalcBtn.textContent = showCalcBtnText;
+            if (lastStepCalcBtn.textContent === currentLang.hideImpedanceBtn) {
+                lastStepCalcBtn.textContent = currentLang.showImpedanceBtn;
                 contentCol.removeChild(stepCalculationText);
             }
             MathJax.typeset();
         } else {
-            lastVCBtn.textContent = showVCBtnText;
+            lastVCBtn.textContent = currentLang.showVoltageBtn;
             contentCol.removeChild(vcText);
         }
     })
@@ -273,16 +259,16 @@ function addCalculationButtonBetweenPictures(stepCalculationText, contentCol, vc
     const lastVCBtn = document.getElementById(`vcBtn${pictureCounter - 1}`);
 
     lastStepCalcBtn.addEventListener("click", () => {
-        if (lastStepCalcBtn.textContent === showCalcBtnText) {
-            lastStepCalcBtn.textContent = hideCalcBtnText;
+        if (lastStepCalcBtn.textContent === currentLang.showImpedanceBtn) {
+            lastStepCalcBtn.textContent = currentLang.hideImpedanceBtn;
             lastVCBtn.insertAdjacentElement("afterend", stepCalculationText);
-            if (lastVCBtn.textContent === hideVCBtnText) {
-                lastVCBtn.textContent = showVCBtnText;
+            if (lastVCBtn.textContent === currentLang.hideVoltageBtn) {
+                lastVCBtn.textContent = currentLang.showVoltageBtn;
                 contentCol.removeChild(vcText);
             }
             MathJax.typeset();
         } else {
-            lastStepCalcBtn.textContent = showCalcBtnText;
+            lastStepCalcBtn.textContent = currentLang.showImpedanceBtn;
             contentCol.removeChild(stepCalculationText);
         }
     })
@@ -331,7 +317,7 @@ function generateTexts(data, vcData) {
 
 function finishCircuit(contentCol) {
     document.getElementById("check-btn").disabled = true;
-    showMessage(contentCol, "Well done, you finished the circuit!", "success");
+    showMessage(contentCol, currentLang.msgCongratsFinishedCircuit, "success");
     enableVoltageCurrentBtns();
 }
 
