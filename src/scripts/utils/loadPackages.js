@@ -3,7 +3,7 @@ async function load_packages(pyodide, optAddNames) {
     progressBar.style.width = "0%";
 
     let packageAddress = serverAddress + "/Packages/";
-    let packages = await fetchGitHubDirectoryContents('TheHowland', 'InskaLE', 'Packages', ".whl");
+    let packages = await fetchGitHubDirectoryContents('TheHowland', 'InskaLE', 'Packages', '.whl');
 
     if(Array.isArray(optAddNames)){
         for(let i = 0; i < optAddNames.length; i++){

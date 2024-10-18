@@ -10,7 +10,7 @@ function display_step(pyodide, jsonFilePath_Z,svgFilePath,jsonFilePath_VC=null) 
     const {circuitContainer, svgContainer} = setupCircuitContainer(svgData);
     const {newCalcBtn, newVCBtn} = setupExplanationButtons();
     const {pathElements, filteredPaths} = getElementsFromSvgContainer(svgContainer);
-    const nextElementsContainer = setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths);
+    const nextElementsContainer = setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths, vcData);
     const contentCol = document.getElementById("content-col");
     contentCol.append(circuitContainer);
 
@@ -30,7 +30,7 @@ function display_step(pyodide, jsonFilePath_Z,svgFilePath,jsonFilePath_VC=null) 
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
 
-function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths) {
+function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths, vcData) {
     const nextElementsContainer = document.createElement('div');
     nextElementsContainer.className = 'next-elements-container';
     nextElementsContainer.id = "nextElementsContainer";
@@ -40,7 +40,8 @@ function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths) {
     nextElementsContainer.classList.add("mb-3");
     if (onlyOneElementLeft(filteredPaths)) {
         nextElementsContainer.innerHTML = `
-        <p>${currentLang.msgVoltAndCurrentAvailable}</p>
+        <p>${currentLang.msgVoltAndCurrentAvailable}.<br></p>
+        <p>${currentLang.msgShowVoltage}<br>V1 = ${vcData.inline().oldValues[1]}</p>
         <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1" id="check-btn">check</button>
     `;
@@ -71,9 +72,6 @@ function setupSvgDivContainer(svgData) {
     svgDiv.id = `svgDiv${pictureCounter}`;
     svgDiv.classList.add("svg-container");
     svgDiv.classList.add("p-2");
-    svgDiv.style.width = "350px";
-    svgDiv.style.maxWidth = "350px";  // To make the border limit for tablets and bigger screens
-
     // Svg manipulation - set width and color for dark mode
     svgData = setSvgWidthTo(svgData, "100%");
     svgData = setSvgDarkMode(svgData);
