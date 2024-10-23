@@ -1,3 +1,41 @@
+// Generates and appends a paragraph describing the resistance simplification step
+function generateTextForZ(data, componentTypes) {
+    let relation = data.noFormat().relation;
+    const paragraphElement = document.createElement('p');
+    const firstPart = getElementsAndRelationDescription(data);
+
+    // Calculation descriptions are swapped for R/L and C
+    if (componentTypes === "R" || componentTypes === "L") {
+        if (relation === "series") {
+            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data)
+        } else if (relation === "parallel") {
+            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data)
+        }
+    } else if (componentTypes === "C") {
+        if (relation === "parallel") {
+            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data);
+        } else if (relation === "series") {
+            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data);
+        }
+    }
+    return paragraphElement;
+}
+
+function generateTextForVoltageCurrent(data) {
+    let relation = data.noFormat().relation[0]
+    const text = document.createElement('p');
+
+    if (relation === "series") {
+        text.innerHTML = getSeriesVCDescription(data);
+    } else if (relation === "parallel") {
+        text.innerHTML = getParallelVCDescription(data);
+    } else {
+        text.innerHTML = currentLang.relationTextNoRelation;
+    }
+    MathJax.typeset();
+    return text;
+}
+
 function getRelationText(data) {
     let relationText = "";
     if (!data.isNull()) {
@@ -14,109 +52,88 @@ function getRelationText(data) {
     return relationText;
 }
 
-
-// Generates and appends a paragraph describing the resistance simplification step
-function generateTextForZ(data) {
+function getElementsAndRelationDescription(data) {
     let relationText = getRelationText(data);
-    const text = document.createElement('p');
-    text.innerHTML = `
-        ${currentLang.calcBeforeFirstElement} ${data.inline().name1} ${currentLang.calcBetweenElements} ${data.inline().name2}<br>
-        ${currentLang.calcAfterSecondElement} ${data.inline().newName} ${currentLang.calcAfterSimplifiedElement}<br>
-        <br>
-        ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
-        ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
-        ${data.inline().newName}&nbsp= ${data.inline().result}<br>
-        <br>
-        ${relationText}<br>
-        <br>
-        ${currentLang.calculationHeading}:<br>
-        ${data.inline().latexEquation}
-    `;
-    return text;
+    return `
+            ${currentLang.calcBeforeFirstElement} ${data.inline().name1} ${currentLang.calcBetweenElements} ${data.inline().name2}<br>
+            ${currentLang.calcAfterSecondElement} ${data.inline().newName} ${currentLang.calcAfterSimplifiedElement}<br>
+            <br>
+            ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
+            ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
+            <br>
+            ${relationText}<br>
+            <br>`;
 }
 
-function generateTextForVoltageCurrent(data) {
-    let relation = data.noFormat().relation[0]
-    console.log("Relation: " + data.noFormat().relation[0])
+function getReciprocialCalculation(data) {
+    // creates 1/X = 1/X1 + 1/X2
+    return `$$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().name1}} + \\frac{1}{${data.noFormat().name2}}$$
+             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().value1}} + \\frac{1}{${data.noFormat().value2}}$$
+             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().result}}$$
+             <br>
+             $$${data.noFormat().newName} = ${data.noFormat().result}$$
+            `;
+}
 
-    // For a better understanding which fields are what value :)
-    let simZName = data.inline().oldNames[0];
-    let simZValue = data.inline().oldValues[0];
-    let simUName = data.inline().oldNames[1];
-    let simUValue = data.inline().oldValues[1];
-    let simIName = data.inline().oldNames[2];
-    let simIValue = data.inline().oldValues[2];
+function getAdditionCalculation(data) {
+    // creates X = X1 + X2
+    return `$$${data.noFormat().newName} = ${data.noFormat().name1} + ${data.noFormat().name2}$$
+             $$${data.noFormat().newName} = ${data.noFormat().value1} + ${data.noFormat().value2}$$
+             $$${data.noFormat().newName} = ${data.noFormat().result}$$
+            `;
+}
 
-    let firstZName = data.inline().names1[0];
-    let firstZValue = data.inline().values1[0];
-    let firstUName = data.inline().names1[1];
-    let firstUValue = data.inline().values1[1];
-    let firstIName = data.inline().names1[2];
-    let firstIValue = data.inline().values1[2];
-
-    let secondZName = data.inline().names2[0];
-    let secondZValue = data.inline().values2[0];
-    let secondUName = data.inline().names2[1];
-    let secondUValue = data.inline().values2[1];
-    let secondIName =data.inline().names2[2];
-    let secondIValue = data.inline().values2[2];
-
-
-    const text = document.createElement('p');
-
-    if (relation === "series") {
-        text.innerHTML = `
-            ${currentLang.currentCalcHeading} ${simZName}<br>
+function getSeriesVCDescription(data) {
+    return `${currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
             <br>
-            ${simIName} = ${simUName} / ${simZName}<br>
-            = ${simUValue} / ${simZValue}<br>
-            = ${simIValue}<br>
+            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
+            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
+            $$= ${data.noFormat().oldValues[2]}$$
             <br>
             ${currentLang.relationTextSeries}.<br>
             ${currentLang.currentStaysTheSame}.<br>
-            ${simIName} = ${firstIName} = ${secondIName} = ${simIValue}<br>
+            $$${data.noFormat().oldNames[2]} = ${data.noFormat().names1[2]} = ${data.noFormat().names2[2]}$$
+            $$= ${data.noFormat().oldValues[2]}$$
             <br>
             ${currentLang.voltageSplits}.<br>
-            ${firstUName} = ?<br>
-            ${secondUName} = ?<br>
+            $$${data.noFormat().names1[1]} = ?$$
+            $$${data.noFormat().names2[1]} = ?$$
             <br>
-            ${firstUName} = ${firstZName} • ${firstIName}<br>
-            = ${firstZValue} • ${firstIValue}<br>
-            = ${firstUValue}<br>
+            $$${data.noFormat().names1[1]} = ${data.noFormat().names1[0]} \\cdot  ${data.noFormat().names1[2]}$$
+            $$= ${data.noFormat().values1[0]} \\cdot ${data.noFormat().values1[2]}$$
+            $$= ${data.noFormat().values1[1]}$$
             <br>
-            ${secondUName} = ${secondZName} • ${secondIName}<br>
-            = ${secondZValue} • ${secondIValue}<br>
-            = ${secondUValue}
+            $$${data.noFormat().names2[1]} = ${data.noFormat().names2[0]} \\cdot  ${data.noFormat().names2[2]}$$
+            $$= ${data.noFormat().values2[0]} \\cdot ${data.noFormat().values2[2]}$$
+            $$= ${data.noFormat().values2[1]}$$
             <br>
         `;
-    } else if (relation === "parallel") {
-        text.innerHTML = `
-            ${currentLang.currentCalcHeading} ${simZName}<br>
+}
+
+function getParallelVCDescription(data) {
+    return `
+            ${currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
             <br>
-            ${simIName} = ${simUName} / ${simZName}<br>
-            = ${simUValue} / ${simZValue}<br>
-            = ${simIValue}<br>
+            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
+            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
+            $$= ${data.noFormat().oldValues[2]}$$
             <br>
             ${currentLang.relationTextParallel}.<br>
             ${currentLang.voltageStaysTheSame}.<br>
-            ${simUName} = ${firstUName} = ${secondUName} = ${simUValue}<br>
+            $$${data.noFormat().oldNames[1]} = ${data.noFormat().names1[1]} = ${data.noFormat().names2[1]}$$
+            $$= ${data.noFormat().oldValues[1]}$$
             <br>
             ${currentLang.currentSplits}.<br>
-            ${firstIName} = ?<br>
-            ${secondIName} = ?<br>
+            $$${data.noFormat().names1[2]} = ?$$
+            $$${data.noFormat().names2[2]} = ?$$
             <br>
-            ${firstIName} = ${firstUName} / ${firstZName}<br>
-            = ${firstUValue} / ${firstZValue}<br>
-            = ${firstIValue}<br>
+            $$${data.noFormat().names1[2]} = \\frac{${data.noFormat().names1[1]}}{${data.noFormat().names1[0]}}$$
+            $$= \\frac{${data.noFormat().values1[1]}}{${data.noFormat().values1[0]}}$$
+            $$= ${data.noFormat().values1[2]}$$
             <br>
-            ${secondIName} = ${secondUName} / ${secondZName}<br>
-            = ${secondUValue} / ${secondZValue}<br>
-            = ${secondIValue}
+            $$${data.noFormat().names2[2]} = \\frac{${data.noFormat().names2[1]}}{${data.noFormat().names2[0]}}$$
+            $$= \\frac{${data.noFormat().values2[1]}}{${data.noFormat().values2[0]}}$$
+            $$= ${data.noFormat().values2[2]}$$
             <br>
         `;
-    } else {
-        text.innerHTML = currentLang.relationTextNoRelation;
-    }
-
-    return text;
 }

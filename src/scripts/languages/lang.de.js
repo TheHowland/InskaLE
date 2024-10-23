@@ -29,14 +29,15 @@ const german = {
         "sowohl f&uumlr den Gesamtwiderstand, als auch f&uumlr Spannungen und Str&oumlme.",
     landingPageExplanation2:
         "In kommenden Versionen kannst du außerdem zwischen einen Dark- und Light-Mode w&aumlhlen",
+    landingPageExplanation3:
+        "In kommenden Versionen kannst du außerdem zwischen einen Dark- und Light-Mode w&aumlhlen",
 
     // Selector page text
     carouselHeadings:
         {
-            "res": "WIDERST&AumlNDE",
-            "cap": "KONDENSATOREN",
-            "ind": "SPULEN",
-            "mix": "GEMISCHT",
+            "sub":  "ERSATZSCHALTUNGEN",
+            "acdc": "GLEICH-/WECHSELSTROMKREISE",
+            "mix": "GEMISCHTE SCHALTUNGEN",
         },
 
 
@@ -44,13 +45,13 @@ const german = {
     nextElementsHeading:
         "N&aumlchste Elemente",
     showImpedanceBtn:
-        "widerstand",
+        "Rechnung",
     hideImpedanceBtn:
-        "ausblenden",
+        "Ausblenden",
     showVoltageBtn:
-        "spannung/strom",
+        "Spannung/Strom",
     hideVoltageBtn:
-        "ausblenden",
+        "Ausblenden",
     msgVoltAndCurrentAvailable:
         "Du kannst nun zur&uumlckscrollen und schauen wie die Spannungen und Str&oumlme berechnet werden k&oumlnnen",
     msgShowVoltage:

@@ -11,7 +11,7 @@ const english = {
     keyFeature1heading:
         "Understanding",
     keyFeature1:
-        "Get a intuitive understanding how electrical circuits are simplified",
+        "Get an intuitive understanding for how electrical circuits are simplified",
     keyFeature2heading:
         "Browser based",
     keyFeature2:
@@ -36,23 +36,22 @@ const english = {
     // Selector page text
     carouselHeadings:
         {
-            "res": "RESISTORS",
-            "cap": "CAPACITORS",
-            "ind": "INDUCTORS",
-            "mix": "MIXED",
+            "sub":  "SUBSTITUTE CIRCUITS",
+            "acdc": "AC/DC CIRCUITS",
+            "mix": "MIXED CIRCUITS",
         },
 
     // Simplifier page text
     nextElementsHeading:
         "Next elements",
     showImpedanceBtn:
-        "impedance",
+        "Calculation",
     hideImpedanceBtn:
-        "hide",
+        "Hide",
     showVoltageBtn:
-        "voltage/current",
+        "Voltage/Current",
     hideVoltageBtn:
-        "hide",
+        "Hide",
     msgVoltAndCurrentAvailable:
         "You can now go back and check how to calculate the voltages and currents",
     msgShowVoltage:
