@@ -1,0 +1,215 @@
+/* COLORS
+key-yellow: #FFC107
+*/
+
+body, html {
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+}
+
+p {
+    font-family: 'Roboto', sans-serif;
+    font-size: medium;
+    font-weight: normal;
+}
+
+img {
+    max-height: 375px;
+}
+
+mjx-container {
+    overflow-x: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+th, td {
+    vertical-align: middle;
+    text-align: center
+}
+
+
+#bootstrap-overrides #nav-select{
+    color: #FFC107;
+}
+
+#bootstrap-overrides .flag {
+    width: 25px;
+    max-width: 25px;
+    margin-left: 0;
+}
+
+/* Landing page shadows*/
+#bootstrap-overrides #landing-page-container {
+    background-color: white;
+}
+
+#bootstrap-overrides #yellow-image-container {
+    box-shadow: 0 6px 6px 0 lightgray;
+    z-index: 2;
+    position: relative;
+}
+
+#bootstrap-overrides .feature-heading {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: x-large;
+    font-weight: bold;
+}
+
+#bootstrap-overrides .feature-body {
+    font-family: 'Roboto', sans-serif;
+    font-size: medium;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+#bootstrap-overrides .feature-container {
+    height: 220px;
+}
+
+#bootstrap-overrides #feature-container1 {
+    background-color: #222222;
+    color: white;
+}
+#bootstrap-overrides #key-feature1heading {
+    color: white;
+}
+#bootstrap-overrides #feature-container2 {
+    background-color: white;
+    color: black;
+}
+#bootstrap-overrides #feature-container3 {
+    background-color: #FFC107;
+    color: black;
+}
+
+
+/* navbar */
+#bootstrap-overrides #nav-logo {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: large;
+    font-weight: bold;
+    color: #FFC107;
+}
+
+#bootstrap-overrides .nav-link {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: x-large;
+    font-weight: normal;
+    color: white;
+}
+#bootstrap-overrides #nav-link-circuit {
+    color: #FFC107;
+}
+
+/* Hero section */
+#bootstrap-overrides #start-button {
+    font-weight: bolder;
+    background-color: white;
+    border-color: #222222;
+    border-radius: 20px;
+}
+
+#bootstrap-overrides #darkmode-label {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: small;
+    color: white;
+}
+
+#bootstrap-overrides #start-button:hover {
+    font-weight: bolder;
+    background-color: #eeeeee;
+    border-color: black;
+    border-radius: 20px;
+}
+
+#bootstrap-overrides #heading-logo {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+}
+
+#bootstrap-overrides #start-container {
+    background-color: white;
+}
+#bootstrap-overrides #containerCalculationExplanation {
+    background-color: #222222;
+    color: white;
+}
+
+
+/* Selection page */
+
+#bootstrap-overrides .selector-container {
+    max-width: 500px; /* to limit the distance of the next/prev buttons from the picture */
+}
+#bootstrap-overrides .carousel-control-next {
+    z-index: 3;
+}
+#bootstrap-overrides .carousel-control-prev {
+    z-index: 3;
+}
+
+
+#bootstrap-overrides .big-heading {
+    color: #FFC107;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 24px;
+}
+
+#bootstrap-overrides .svg-selector {
+    z-index: 2;
+    border: 1px solid white;
+    border-radius: 10px;
+    position: relative;
+    width: 350px;
+    max-width: 350px;
+}
+
+#bootstrap-overrides .img-overlay {
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    display: none;  /* don't show button overlay at start */
+}
+
+#bootstrap-overrides .img-overlay:before {
+    z-index: 5;
+    content: ' ';
+    display: block;
+    height: 45%; /* height position of the start button in container */
+}
+
+/* applies to every start button overlay on the circuits */
+#bootstrap-overrides .circuitStartBtn {
+    font-weight: bold;
+    border-radius: 40px;
+    z-index: 10;
+}
+
+/* Simplifier page */
+#bootstrap-overrides svg{
+    height: 400px; /* set an absolute height, so changing images always have the same size */
+}
+
+#bootstrap-overrides ul {
+    list-style-type: none;
+}
+
+#bootstrap-overrides #check-btn {
+    background-color: #FFC107;
+    border: none;
+    color: #222222;
+}
+
+#bootstrap-overrides #reset-btn {
+    background-color: #b61117;
+    border: none;
+    color: white;
+}
+
