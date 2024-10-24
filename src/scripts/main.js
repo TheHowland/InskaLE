@@ -29,7 +29,7 @@ let pyodideReady = false;
 let pictureCounter = 0;
 
 //Stores the server address for fetching resources.
-let serverAddress = "http://localhost:8000"
+let serverAddress = "https://thehowland.github.io/InskaLE";
 let circuitPath = serverAddress + "/Circuits.zip";
 let solveFilePath = serverAddress + "/solve.py";
 
