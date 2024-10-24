@@ -4,9 +4,7 @@ const english = {
         "a free browser tool for learning<br>" +
         "how to simplify electrical circuits",
     selectorWaitingNote:
-        "This will take a few seconds.<br>\n" +
-        "After that, you will be able<br>\n" +
-        "to choose different circuits below",
+        "This will take a few seconds",
 
     keyFeature1heading:
         "Understanding",
@@ -30,15 +28,14 @@ const english = {
         "impedance values, but you can also see how to calculate each of the voltages " +
         "and currents for the elements.",
     landingPageExplanation3:
-        "You can also choose between a light and dark mode in a further version. " +
-        "Just use the button in the navigation.",
+        "",
 
     // Selector page text
     carouselHeadings:
         {
             "sub":  "SUBSTITUTE CIRCUITS",
             "acdc": "AC/DC CIRCUITS",
-            "mix": "MIXED CIRCUITS",
+            "mixed": "MIXED CIRCUITS",
         },
 
     // Simplifier page text
@@ -94,6 +91,27 @@ const english = {
         "The voltage stays the same",
     currentSplits:
         "The current splits up",
+
+    // Cheat sheet
+    resistanceColHeading:
+        "Resistance R",
+    reactanceColHeading:
+        "Reactance X",
+    resistorRowHeading:
+        "Resistor R",
+    capacitorRowHeading:
+        "Capacitor C",
+    inductorRowHeading:
+        "Inductor L",
+    subTableSeriesHeading:
+        "Series",
+    subTableParallelHeading:
+        "Parallel",
+    subTableHeading:
+        "SUBSTITUTION FORMULAS",
+    resReaTableHeading:
+        "COMPLEX IMPEDANCE"
+
 
 
 }

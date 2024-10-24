@@ -33,8 +33,23 @@ let serverAddress = "https://thehowland.github.io/InskaLE"
 let circuitPath = serverAddress + "/Circuits.zip";
 let solveFilePath = serverAddress + "/solve.py";
 
+let foregroundColor = "white";
+let backgroundColor = "black";
+let bsColorSchemeLight = "light";
+let bsColorSchemeDark = "dark";
+
+
+
 // ####################################################################################################################
 // ########################################################## MAIN ####################################################
+
+
+function updateNavigationColorsTo(navigationToggleBgColor, navLinkColor, languagesBgColor) {
+    document.getElementById("navbarSupportedContent").style.backgroundColor = navigationToggleBgColor;
+    updateNavLinkColorTo(navLinkColor);
+    updateLanguageSelectorColor(languagesBgColor);
+}
+
 // ####################################################################################################################
 async function main() {
 
@@ -51,11 +66,48 @@ async function main() {
     let pageManager = new PageManager(document);
     setupLandingPage(pageManager);
     pageManager.showLandingPage();
+    let selectorBuilder = new SelectorBuilder();
+    selectorBuilder.buildSelectorsForAllCircuitSets();
 
     // Get the pyodide instance and setup pages with functionality
     let pyodide = await loadPyodide();
     // Setup up first page
     setupNavigation(pageManager, pyodide);
+
+    setupCheatSheet();
+
+    const darkModeSwitch = document.getElementById("darkmode-switch");
+    darkModeSwitch.checked = true;
+
+    darkModeSwitch.addEventListener("change", () => {
+
+        const bootstrapWhite = "#f8f9fa";
+        const bootstrapDark = "#212529";
+        const languagesDarkBg = "#33393f";
+        const languagesLightBg = "#efefef";
+
+        let changeToDark = darkModeSwitch.checked;
+
+        if (changeToDark) {
+            foregroundColor = "white";
+            backgroundColor = "black";
+            updateAvailableBsClassesTo(bsColorSchemeDark);
+            updateNavigationColorsTo(bootstrapDark, foregroundColor, languagesDarkBg);
+            updateCheatSheetPageColorsTo(bsColorSchemeDark);
+            updateSelectorPageColor("black", "white");
+        } else {
+            foregroundColor = "black";
+            backgroundColor = "white";
+
+            updateAvailableBsClassesTo(bsColorSchemeLight);
+            updateNavigationColorsTo(bootstrapWhite, foregroundColor, languagesLightBg);
+            updateCheatSheetPageColorsTo(bsColorSchemeLight);
+            updateSelectorPageColor("white", "black");
+        }
+
+    });
+
+
 
     hideSelectorsWhileLoading();
     const note = showWaitingNote();
@@ -67,15 +119,88 @@ async function main() {
     showSelectorsAfterLoading();
     note.remove();
     setupSelectPage(pageManager, pyodide);
+
+
 }
+
+
 
 // ####################################################################################################################
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
 
+
+function updateAvailableBsClassesTo(colorScheme) {
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("bootstrap-overrides"));  // body
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("navbar"));
+    updateBsClassesTo(colorScheme, "navbar", document.getElementById("navbar"));
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("cheat-sheet-container"));
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("simplifier-page-container"));
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("select-page-container"));
+}
+
+
+function updateBsClassesTo(colorScheme, className, element) {
+    if (colorScheme === bsColorSchemeLight) {
+        switchBsClassToLight(className, element);
+    } else if (colorScheme === bsColorSchemeDark) {
+        switchBsClassToDark(className, element);
+    } else {
+        throw Error("Only light or dark colorScheme");
+    }
+}
+
+function updateNavLinkColorTo(color) {
+    const navLinks = document.getElementsByClassName("nav-link");
+    for (const navLink of navLinks) {
+        navLink.style.color = color;
+    }
+}
+
+function updateCheatSheetPageColorsTo(bsColorScheme) {
+    const tables = document.getElementsByClassName("table");
+    for (const table of tables) {
+        updateBsClassesTo(bsColorScheme, "table", table);
+    }
+}
+function updateSelectorPageColor(fromSvgColor, toSvgColor) {
+    // Change border color of selectors
+    const svgSelectors = document.getElementsByClassName("svg-selector");
+    for (const svgSelector of svgSelectors) {
+        svgSelector.style.borderColor = foregroundColor;
+    }
+    // Change svg color
+    for (const circuitSet of CircuitSets) {
+        for (const circuit of circuitSet.set) {
+            let svgData = document.getElementById(circuit.circuitDivID).innerHTML;
+            svgData = svgData.replaceAll(fromSvgColor, toSvgColor);
+            document.getElementById(circuit.circuitDivID).innerHTML = svgData;
+        }
+    }
+}
+
+function updateLanguageSelectorColor(languagesBackground) {
+    document.getElementById("darkmode-label").style.color = foregroundColor;
+    document.getElementById("Dropdown").style.color = foregroundColor;
+    document.getElementById("languagesDropdown").style.color = foregroundColor;
+    document.getElementById("select-english").style.color = foregroundColor;
+    document.getElementById("select-german").style.color = foregroundColor;
+    document.getElementById("languagesDropdown").style.backgroundColor = languagesBackground;
+}
+
+function switchBsClassToLight(field, container) {
+    container.classList.remove(`${field}-dark`);
+    container.classList.add(`${field}-light`);
+}
+
+function switchBsClassToDark(field, container) {
+    container.classList.remove(`${field}-light`);
+    container.classList.add(`${field}-dark`);
+}
+
 function showWaitingNote() {
     const note = document.getElementById("progress-bar-note");
-    note.style.color = "white";
+    note.style.color = foregroundColor;
     note.innerHTML = currentLang.selectorWaitingNote;
     return note;
 }
@@ -148,7 +273,7 @@ function showCircuitAsSelected(circuit, btnOverlay) {
     btnOverlay.style.display = "block"
 }
 function showCircuitAsUnselected(circuit, btnOverlay) {
-    circuit.style.borderColor = "white";
+    circuit.style.borderColor = foregroundColor;
     circuit.style.opacity = "1";
     btnOverlay.style.display = "none"
 }
@@ -161,7 +286,7 @@ function setupSelectionCircuit(circuit, startBtn, startBtnOverlay) {
 function resetSelection(circuitMap) {
     const circuit = document.getElementById(circuitMap.circuitDivID);
     const overlay = document.getElementById(circuitMap.btnOverlay);
-    circuit.style.borderColor = "white";
+    circuit.style.borderColor = foregroundColor;
     circuit.style.opacity = "1";
     overlay.style.display = "none";
 }
@@ -188,7 +313,7 @@ function setupSpecificCircuitSelector(circuitMap, pageManager, pyodide) {
     // Fill div with svg
     let svgData = pyodide.FS.readFile(circuitMap.svgFile, {encoding: "utf8"});
     svgData = setSvgWidthTo(svgData, "100%");
-    svgData = setSvgDarkMode(svgData);
+    svgData = setSvgColorMode(svgData);
     circuitDiv.innerHTML = svgData;
 
     setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
@@ -257,7 +382,7 @@ function checkIfSimplifierPageNeedsReset(pyodide) {
     }
 }
 
-function updateLanguageLandingAndSelectPage() {
+function updateLanguageLandingPage() {
     const greeting = document.getElementById("landing-page-greeting");
     greeting.innerHTML = currentLang.landingPageGreeting;
     const keyFeature1heading = document.getElementById("key-feature1heading");
@@ -278,12 +403,43 @@ function updateLanguageLandingAndSelectPage() {
     expl2.innerHTML = currentLang.landingPageExplanation2;
     const expl3 = document.getElementById("landing-page-explanation3");
     expl3.innerHTML = currentLang.landingPageExplanation3;
+}
 
-
+function updateLanguageSelectorPage() {
     for (const circuitSet of CircuitSets) {
         const heading = document.getElementById(`${circuitSet.identifier}-heading`);
         heading.innerHTML = currentLang.carouselHeadings[circuitSet.identifier];
     }
+}
+
+function updateLanguageCheatSheetPage() {
+
+    const subHeading = document.getElementById("substitutionTableHeading");
+    subHeading.innerHTML = currentLang.subTableHeading;
+    const series = document.getElementById("seriesHeading");
+    series.innerHTML = currentLang.subTableSeriesHeading;
+    const parallel = document.getElementById("parallelHeading");
+    parallel.innerHTML = currentLang.subTableParallelHeading;
+    const subResCol = document.getElementById("subTableResHeading");
+    subResCol.innerHTML = currentLang.resistorRowHeading;
+    const subCapCol = document.getElementById("subTableCapHeading");
+    subCapCol.innerHTML = currentLang.capacitorRowHeading;
+    const subIndCol = document.getElementById("subTableIndHeading");
+    subIndCol.innerHTML = currentLang.inductorRowHeading;
+
+    const resReaHeading = document.getElementById("resistanceReactanceTableHeading");
+    resReaHeading.innerHTML = currentLang.resReaTableHeading;
+    const resCol = document.getElementById("resistance");
+    resCol.innerHTML = currentLang.resistanceColHeading;
+    const reaCol = document.getElementById("reactance");
+    reaCol.innerHTML = currentLang.reactanceColHeading;
+    const res = document.getElementById("resistor");
+    res.innerHTML = currentLang.resistorRowHeading;
+    const cap = document.getElementById("capacitor");
+    cap.innerHTML = currentLang.capacitorRowHeading;
+    const ind = document.getElementById("inductor");
+    ind.innerHTML = currentLang.inductorRowHeading;
+
 }
 
 function closeNavbar() {
@@ -326,14 +482,18 @@ function setupNavigation(pageManager, pyodide) {
         const activeFlagIcon = document.getElementById("activeLanguageFlag");
         activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
         closeNavbar();
-        updateLanguageLandingAndSelectPage();
+        updateLanguageLandingPage();
+        updateLanguageSelectorPage();
+        updateLanguageCheatSheetPage();
     })
     selectGerman.addEventListener("click", () => {
         currentLang = german;
         const activeFlagIcon = document.getElementById("activeLanguageFlag");
         activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
         closeNavbar();
-        updateLanguageLandingAndSelectPage();
+        updateLanguageLandingPage();
+        updateLanguageSelectorPage();
+        updateLanguageCheatSheetPage();
     })
 
 }
@@ -343,7 +503,7 @@ function setupLandingPage(pageManager) {
     landingStartButton.addEventListener("click", () => {
         pageManager.showSelectPage();
     })
-    updateLanguageLandingAndSelectPage();
+    updateLanguageLandingPage();
 }
 
 function twoElementsChosen() {
@@ -419,6 +579,53 @@ function setupSelectPage(pageManager, pyodide) {
     }
 }
 
+function setupCheatSheet() {
+    updateLanguageCheatSheetPage();
+
+    // Substitution table
+    const resSer = document.getElementById("resistorSeries");
+    const resPar = document.getElementById("resistorParallel");
+    const capSer = document.getElementById("capacitorSeries");
+    const capPar = document.getElementById("capacitorParallel");
+    const indSer = document.getElementById("inductorSeries");
+    const indPar = document.getElementById("inductorParallel");
+
+    resSer.innerHTML = "$$R = R1 + R2 + ...$$";
+    resPar.innerHTML = "$$\\frac{1}{R} = \\frac{1}{R1} + \\frac{1}{R2} + ...$$";
+
+    capSer.innerHTML = "$$\\frac{1}{C} = \\frac{1}{C1} + \\frac{1}{C2} + ...$$";
+    capPar.innerHTML = "$$C = C1 + C2 + ...$$";
+
+    indSer.innerHTML = "$$L = L1 + L2 + ...$$";
+    indPar.innerHTML = "$$\\frac{1}{L} = \\frac{1}{L1} + \\frac{1}{L2} + ...$$";
+
+    const pSub = document.getElementById("pSub");
+    pSub.innerHTML = "<br><br><br>"
+
+
+    // Complex R X table
+    const resRes = document.getElementById("resistorResistance");
+    resRes.innerHTML = "$$R$$";
+    const resRea = document.getElementById("resistorReactance");
+    resRea.innerHTML = "$$0$$";
+
+    const capRes = document.getElementById("capacitorResistance");
+    capRes.innerHTML = "$$0$$";
+    const capRea = document.getElementById("capacitorReactance");
+    capRea.innerHTML = "$$-\\frac{1}{ \\omega \\cdot C}$$";
+
+    const indRes = document.getElementById("inductorResistance");
+    indRes.innerHTML = "$$0$$";
+    const indRea = document.getElementById("inductorReactance");
+    indRea.innerHTML = "$$ \\omega \\cdot L$$";
+
+    const pRX = document.getElementById("pRX");
+    pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
+    pRX.style.color = "white";
+
+    MathJax.typeset();
+}
+
 async function importPyodidePackages(pyodide) {
     await load_packages(pyodide, ["sqlite3-1.0.0.zip"]);
     await import_packages(pyodide);
@@ -427,7 +634,7 @@ async function importPyodidePackages(pyodide) {
 
 function circuitIsNotSubstituteCircuit(circuitMap) {
     let showVoltageButton = true;
-    if (circuitMap.selectorGroup === substituteSelector) {
+    if (circuitMap.selectorGroup === substituteSelectorIdentifier) {
         showVoltageButton = false;
     }
     return showVoltageButton;

@@ -23,6 +23,11 @@ mjx-container {
     padding-bottom: 5px;
 }
 
+th, td {
+    vertical-align: middle;
+    text-align: center
+}
+
 
 #bootstrap-overrides #nav-select{
     color: #FFC107;
@@ -125,7 +130,6 @@ mjx-container {
     color: white;
 }
 
-/* Feature section */
 #bootstrap-overrides #start-container {
     background-color: white;
 }
@@ -133,6 +137,8 @@ mjx-container {
     background-color: #222222;
     color: white;
 }
+
+
 /* Selection page */
 
 #bootstrap-overrides .selector-container {
@@ -146,7 +152,7 @@ mjx-container {
 }
 
 
-#bootstrap-overrides .element-heading {
+#bootstrap-overrides .big-heading {
     color: #FFC107;
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 24px;
@@ -189,13 +195,6 @@ mjx-container {
 /* Simplifier page */
 #bootstrap-overrides svg{
     height: 400px; /* set an absolute height, so changing images always have the same size */
-}
-
-#bootstrap-overrides .svg-container {
-    border: 1px solid #eeeeee;
-    border-radius: 6px;
-    width: 350px;
-    max-width: 350px;  /* To make the box limit in width for tablets and bigger screens */
 }
 
 #bootstrap-overrides ul {

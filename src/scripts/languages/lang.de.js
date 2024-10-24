@@ -4,9 +4,7 @@ const german = {
         "Ein kostenloses Browsertool um<br>" +
         "zu lernen wie Schaltungsnetze vereinfacht werden",
     selectorWaitingNote:
-        "Das braucht ein paar Sekunden<br>\n" +
-        "Danach kannst du unten verschiedene<br>\n" +
-        "Schaltungen ausw&aumlhlen",
+        "Das kann ein paar Sekunden brauchen",
 
     keyFeature1heading:
         "Verstehen",
@@ -28,16 +26,16 @@ const german = {
         "Es kann f&uumlr jeden Schritt die Rechnung angezeigt werden, " +
         "sowohl f&uumlr den Gesamtwiderstand, als auch f&uumlr Spannungen und Str&oumlme.",
     landingPageExplanation2:
-        "In kommenden Versionen kannst du außerdem zwischen einen Dark- und Light-Mode w&aumlhlen",
+        "",
     landingPageExplanation3:
-        "In kommenden Versionen kannst du außerdem zwischen einen Dark- und Light-Mode w&aumlhlen",
+        "",
 
     // Selector page text
     carouselHeadings:
         {
             "sub":  "ERSATZSCHALTUNGEN",
             "acdc": "GLEICH-/WECHSELSTROMKREISE",
-            "mix": "GEMISCHTE SCHALTUNGEN",
+            "mixed": "GEMISCHTE SCHALTUNGEN",
         },
 
 
@@ -94,6 +92,26 @@ const german = {
         "Die Spannung bleibt gleich",
     currentSplits:
         "Der Strom teilt sich auf",
+
+    // Cheat sheet
+    resistanceColHeading:
+        "Widerstand R",
+    reactanceColHeading:
+        "Blindwiderstand X",
+    resistorRowHeading:
+        "Widerstand R",
+    capacitorRowHeading:
+        "Kondensator C",
+    inductorRowHeading:
+        "Spule L",
+    subTableSeriesHeading:
+        "Serie",
+    subTableParallelHeading:
+        "Parallel",
+    subTableHeading:
+        "ZUSAMMENFASSUNGS-FORMELN",
+    resReaTableHeading:
+        "KOMPLEXER WIDERSTAND"
 
 
 
