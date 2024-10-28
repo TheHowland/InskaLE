@@ -4,41 +4,55 @@ const english = {
         "a free browser tool for learning<br>" +
         "how to simplify electrical circuits",
     selectorWaitingNote:
-        "This will take a few seconds.<br>\n" +
-        "After that, you will be able<br>\n" +
-        "to choose different circuits below",
+        "This will take a few seconds",
+
+    keyFeature1heading:
+        "Understanding",
     keyFeature1:
-        "Soooooo good",
+        "Get an intuitive understanding for how electrical circuits are simplified",
+    keyFeature2heading:
+        "Browser based",
     keyFeature2:
-        "Incredible",
+        "No need for an additional app on your phone, this tool works completely inside your browser",
+    keyFeature3heading:
+        "Variety",
     keyFeature3:
-        "Amazing",
+        "Not only can you simplify resistors, but capacitors, inductors and even mixed circuits",
     landingPageExplanation1:
-        "There are circuits that you can use. You can try different electrical " +
-        "components (resistors, capacitors and coils). More advanced circuits combine " +
+        "There are pre-made circuits that you can use. You can try different electrical " +
+        "components (resistors, capacitors and inductors). More advanced circuits combine " +
         "these elements and can also provide you with voltages and currents, even " +
         "for alternating currents!",
     landingPageExplanation2:
-        "You can also choose between a light and dark mode in a further version. " +
-        "Just use the button in the navigation.",
+        "If you step through the circuits, you can see how to calculate the different " +
+        "impedance values, but you can also see how to calculate each of the voltages " +
+        "and currents for the elements.",
+    landingPageExplanation3:
+        "",
 
     // Selector page text
-    resistorCarouselHeading:
-        "RESISTORS",
+    carouselHeadings:
+        {
+            "sub":  "SUBSTITUTE CIRCUITS",
+            "acdc": "AC/DC CIRCUITS",
+            "mixed": "MIXED CIRCUITS",
+        },
 
     // Simplifier page text
     nextElementsHeading:
         "Next elements",
     showImpedanceBtn:
-        "impedance",
+        "Calculation",
     hideImpedanceBtn:
-        "hide",
+        "Hide",
     showVoltageBtn:
-        "voltage/current",
+        "Voltage/Current",
     hideVoltageBtn:
-        "hide",
+        "Hide",
     msgVoltAndCurrentAvailable:
         "You can now go back and check how to calculate the voltages and currents",
+    msgShowVoltage:
+        "See if you can calculate the voltages and currents yourself, assuming that",
     msgCongratsFinishedCircuit:
         "Well done, you finished the circuit!",
     alertChooseTwoElements:
@@ -47,12 +61,14 @@ const english = {
         "Can not simplify those elements",
 
     // Calculation text
-    calcRelationTextParallel:
+    relationTextParallel:
         "The elements are in parallel",
-    calcRelationTextSeries:
+    relationTextSeries:
         "The elements are in series",
-    calcRelationTextNoRelation:
+    relationTextNoRelation:
         "No relation between those elements",
+
+    // Impedance
     calcBeforeFirstElement:
         "The elements",
     calcBetweenElements:
@@ -64,30 +80,38 @@ const english = {
     calculationHeading:
         "Calculation",
 
-    vcBeforeSeriesCurrent:
-        "The current",
-    vcAfterSeriesCurrent:
-        "stays the same",
-    vcBeforeSeriesVoltage:
-        "The voltage",
-    vcAfterSeriesVoltage:
-        "splits up",
+    // Voltage Current text
+    currentCalcHeading:
+        "Calculate current for",
+    currentStaysTheSame:
+        "The current stays the same",
+    voltageSplits:
+        "The voltage splits up",
+    voltageStaysTheSame:
+        "The voltage stays the same",
+    currentSplits:
+        "The current splits up",
 
-    vcBeforeParallelVoltage:
-        "The voltage",
-    vcAfterParallelVoltage:
-        "stays the same",
-    vcBeforeParallelCurrent:
-        "The current",
-    vcAfterParallelCurrent:
-        "splits up",
+    // Cheat sheet
+    resistanceColHeading:
+        "Resistance R",
+    reactanceColHeading:
+        "Reactance X",
+    resistorRowHeading:
+        "Resistor R",
+    capacitorRowHeading:
+        "Capacitor C",
+    inductorRowHeading:
+        "Inductor L",
+    subTableSeriesHeading:
+        "Series",
+    subTableParallelHeading:
+        "Parallel",
+    subTableHeading:
+        "SUBSTITUTION FORMULAS",
+    resReaTableHeading:
+        "COMPLEX IMPEDANCE"
 
-    vcBeforeSimplifiedElement:
-        "The element",
-    vcAfterSimplifiedElement:
-        "was simplified from",
-    vcBetweenElements:
-        "and",
-    vcAfterSecondElement:
-        "",
+
+
 }
