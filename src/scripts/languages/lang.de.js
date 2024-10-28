@@ -2,58 +2,44 @@ const german = {
     // Landing page text
     landingPageGreeting:
         "Ein kostenloses Browsertool um<br>" +
-        "zu lernen wie Schaltungsnetze vereinfacht werden",
+        "zu lernen wie Schaltungsnetzte vereinfacht werden",
     selectorWaitingNote:
-        "Das kann ein paar Sekunden brauchen",
-
-    keyFeature1heading:
-        "Verstehen",
+        "Das braucht ein paar Sekunden<br>\n" +
+        "Danach kannst du unten verschiedene<br>\n" +
+        "Schaltungen ausw&aumlhlen",
     keyFeature1:
-        "Bekomme ein intuitives Gef&uumlhl daf&uumlr, wie Schaltkreise vereinfacht werden",
-    keyFeature2heading:
-        "Browserbasiert",
+        "Hammer",
     keyFeature2:
-        "Du brauchst keine weitere App auf deinem Smartphone, das Tool l&aumluft komplett in deinem Browser",
-    keyFeature3heading:
-        "Vielfalt",
+        "Irre",
     keyFeature3:
-        "Du kannst nicht nur Widerst&aumlnde nutzen, sondern auch Kondensatoren und Spulen",
+        "Unglaublich",
     landingPageExplanation1:
         "Es gibt vorhandene Schaltungen die benutzt werden k&oumlnnen. " +
         "Du kannst verschiedene elektrische Komponenten vereinfachen, z.B. " +
-        "Widerst&aumlnde, Kondensatoren oder Spulen. " +
-        "Schwierigere Netze kombinieren die verschiedenen Elemente. " +
+        "Widerst&aumlnde, Kondensatoren oder Spulen." +
+        "Schwierigere Netze kombinieren die verschiedenen Elemente." +
         "Es kann f&uumlr jeden Schritt die Rechnung angezeigt werden, " +
         "sowohl f&uumlr den Gesamtwiderstand, als auch f&uumlr Spannungen und Str&oumlme.",
     landingPageExplanation2:
-        "",
-    landingPageExplanation3:
-        "",
+        "In kommenden Versionen kannst du außerdem zwischen einen Dark- und Light-Mode w&aumlhlen",
 
     // Selector page text
-    carouselHeadings:
-        {
-            "sub":  "ERSATZSCHALTUNGEN",
-            "acdc": "GLEICH-/WECHSELSTROMKREISE",
-            "mixed": "GEMISCHTE SCHALTUNGEN",
-        },
-
+    resistorCarouselHeading:
+        "Widerst&aumlnde",
 
     // Simplifier page text
     nextElementsHeading:
         "N&aumlchste Elemente",
     showImpedanceBtn:
-        "Rechnung",
+        "widerstand",
     hideImpedanceBtn:
-        "Ausblenden",
+        "ausblenden",
     showVoltageBtn:
-        "Spannung/Strom",
+        "spannung/strom",
     hideVoltageBtn:
-        "Ausblenden",
+        "ausblenden",
     msgVoltAndCurrentAvailable:
         "Du kannst nun zur&uumlckscrollen und schauen wie die Spannungen und Str&oumlme berechnet werden k&oumlnnen",
-    msgShowVoltage:
-        "Probiere selbst die Spannungen und Str&oumlme auszurechnen, mit der Annahme, dass",
     msgCongratsFinishedCircuit:
         "Bravo, du hast die Schaltung vereinfacht",
     alertChooseTwoElements:
@@ -62,14 +48,12 @@ const german = {
         "Diese Elemente k&oumlnnen nicht vereinfacht werden",
 
     // Calculation text
-    relationTextParallel:
+    calcRelationTextParallel:
         "Die Elemente sind parallel zueinander",
-    relationTextSeries:
+    calcRelationTextSeries:
         "Die Elemente sind in Reihe zueinander",
-    relationTextNoRelation:
+    calcRelationTextNoRelation:
         "Keine Beziehung zwischen den Elementen",
-
-    // Impedance text
     calcBeforeFirstElement:
         "Die Elemente",
     calcBetweenElements:
@@ -81,40 +65,30 @@ const german = {
     calculationHeading:
         "Rechnung",
 
-    // Voltage Current text
-    currentCalcHeading:
-        "Berechnen des Stroms f&uuml",
-    currentStaysTheSame:
-        "Der Strom bleibt gleich",
-    voltageSplits:
-        "Die Spannung teilt sich auf",
-    voltageStaysTheSame:
-        "Die Spannung bleibt gleich",
-    currentSplits:
-        "Der Strom teilt sich auf",
+    vcBeforeSeriesCurrent:
+        "Der Strom",
+    vcAfterSeriesCurrent:
+        "bleibt gleich",
+    vcBeforeSeriesVoltage:
+        "Die Spannung",
+    vcAfterSeriesVoltage:
+        "teilt sich auf",
 
-    // Cheat sheet
-    resistanceColHeading:
-        "Widerstand R",
-    reactanceColHeading:
-        "Blindwiderstand X",
-    resistorRowHeading:
-        "Widerstand R",
-    capacitorRowHeading:
-        "Kondensator C",
-    inductorRowHeading:
-        "Spule L",
-    subTableSeriesHeading:
-        "Serie",
-    subTableParallelHeading:
-        "Parallel",
-    subTableHeading:
-        "ZUSAMMENFASSUNGS-FORMELN",
-    resReaTableHeading:
-        "KOMPLEXER WIDERSTAND"
+    vcBeforeParallelVoltage:
+        "Die Spannung",
+    vcAfterParallelVoltage:
+        "bleibt gleich",
+    vcBeforeParallelCurrent:
+        "Der Strom",
+    vcAfterParallelCurrent:
+        "teilt sich auf",
 
-
-
-
-
+    vcBeforeSimplifiedElement:
+        "Das Element",
+    vcAfterSimplifiedElement:
+        "setzt sich aus den Elementen",
+    vcBetweenElements:
+        "und",
+    vcAfterSecondElement:
+        "zusammen",
 }

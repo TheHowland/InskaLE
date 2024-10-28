@@ -1,10 +1,9 @@
-# for lcapy version: 1.24+inskale.0.16
+# for lcapy version: 1.24+inskale.0.14
 from lcapy import Circuit, FileToImpedance, DrawWithSchemdraw
 from lcapy.solution import Solution
 from lcapy.componentRelation import ComponentRelation
 from lcapy.solutionStep import SolutionStep
 import os
-from lcapy.jsonExportCircuitInfo import JsonExportCircuitInfo
 
 
 def solve_circuit(filename: str, filePath="Circuits/", savePath="Solutions/"):
@@ -83,10 +82,6 @@ class SolveInUserOrder:
         nameStep0Svg = sol.drawStep('step0', filename=self.filename, path=self.savePath)
 
         return True, nameStep0Json, nameStep0Svg
-
-    def createCircuitInfo(self) -> str:
-        sol = Solution(self.steps)
-        return sol.exportCircuitInfo("step0", path=self.savePath, filename=self.filename)
 
     def createStep0(self) -> tuple[bool, tuple[str, str], str]:
         return self.createInitialStep()

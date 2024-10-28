@@ -1,52 +1,12 @@
-// Generates and appends a paragraph describing the resistance simplification step
-function generateTextForZ(data, componentTypes) {
-    let relation = data.noFormat().relation;
-    const paragraphElement = document.createElement('p');
-    paragraphElement.classList.add("explText");
-    const firstPart = getElementsAndRelationDescription(data);
-
-    // Calculation descriptions are swapped for R/L and C
-    if (componentTypes === "R" || componentTypes === "L") {
-        if (relation === "series") {
-            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data)
-        } else if (relation === "parallel") {
-            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data)
-        }
-    } else if (componentTypes === "C") {
-        if (relation === "parallel") {
-            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data);
-        } else if (relation === "series") {
-            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data);
-        }
-    }
-    return paragraphElement;
-}
-
-function generateTextForVoltageCurrent(data) {
-    let relation = data.noFormat().relation[0]
-    const text = document.createElement('p');
-    text.classList.add("explText");
-
-    if (relation === "series") {
-        text.innerHTML = getSeriesVCDescription(data);
-    } else if (relation === "parallel") {
-        text.innerHTML = getParallelVCDescription(data);
-    } else {
-        text.innerHTML = currentLang.relationTextNoRelation;
-    }
-    MathJax.typeset();
-    return text;
-}
-
 function getRelationText(data) {
     let relationText = "";
     if (!data.isNull()) {
         if (data.noFormat().relation === "parallel") {
-            relationText = currentLang.relationTextParallel;
+            relationText = currentLang.calcRelationTextParallel;
         } else if (data.noFormat().relation === "series") {
-            relationText = currentLang.relationTextSeries;
+            relationText = currentLang.calcRelationTextSeries;
         } else if (data.noFormat().relation === null) {
-            relationText = currentLang.relationTextNoRelation;
+            relationText = currentLang.calcRelationTextNoRelation;
         } else {
             throw Error("Unknown relation type");
         }
@@ -54,88 +14,64 @@ function getRelationText(data) {
     return relationText;
 }
 
-function getElementsAndRelationDescription(data) {
+
+// Generates and appends a paragraph describing the resistance simplification step
+function generateTextForZ(data) {
     let relationText = getRelationText(data);
-    return `
-            ${currentLang.calcBeforeFirstElement} ${data.inline().name1} ${currentLang.calcBetweenElements} ${data.inline().name2}<br>
-            ${currentLang.calcAfterSecondElement} ${data.inline().newName} ${currentLang.calcAfterSimplifiedElement}<br>
-            <br>
-            ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
-            ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
-            <br>
-            ${relationText}<br>
-            <br>`;
+    const text = document.createElement('p');
+    text.innerHTML = `
+        ${currentLang.calcBeforeFirstElement} ${data.inline().name1} ${currentLang.calcBetweenElements} ${data.inline().name2}<br>
+        ${currentLang.calcAfterSecondElement} ${data.inline().newName} ${currentLang.calcAfterSimplifiedElement}<br>
+        <br>
+        ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
+        ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
+        ${data.inline().newName}&nbsp= ${data.inline().result}<br>
+        <br>
+        ${relationText}<br>
+        <br>
+        ${currentLang.calculationHeading}:<br>
+        ${data.inline().latexEquation}
+    `;
+    return text;
 }
 
-function getReciprocialCalculation(data) {
-    // creates 1/X = 1/X1 + 1/X2
-    return `$$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().name1}} + \\frac{1}{${data.noFormat().name2}}$$
-             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().value1}} + \\frac{1}{${data.noFormat().value2}}$$
-             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().result}}$$
-             <br>
-             $$${data.noFormat().newName} = ${data.noFormat().result}$$
-            `;
-}
+function generateTextForVoltageCurrent(data) {
+    let relationText = "";
+    let relation = data.noFormat().relation[0]
+    console.log("Relation: " + data.noFormat().relation[0])
 
-function getAdditionCalculation(data) {
-    // creates X = X1 + X2
-    return `$$${data.noFormat().newName} = ${data.noFormat().name1} + ${data.noFormat().name2}$$
-             $$${data.noFormat().newName} = ${data.noFormat().value1} + ${data.noFormat().value2}$$
-             $$${data.noFormat().newName} = ${data.noFormat().result}$$
-            `;
-}
+    // Handle relationText generation based on relation type
+    if (relation === "parallel") {
+        relationText = `${currentLang.calcRelationTextParallel}. ${currentLang.vcBeforeParallelVoltage} ${data.inline().oldValues[1]} ${currentLang.vcAfterParallelVoltage} <br>
+                        ${currentLang.vcBeforeParallelCurrent} ${data.inline().oldValues[2]} ${currentLang.vcAfterParallelCurrent}`;
+    } else if (relation === "series") {
+        relationText = `${currentLang.calcRelationTextSeries}. ${currentLang.vcBeforeSeriesCurrent} ${data.inline().oldValues[2]} ${currentLang.vcAfterSeriesCurrent}. <br>
+                        ${currentLang.vcBeforeSeriesVoltage} ${data.inline().oldValues[1]} ${currentLang.vcAfterSeriesVoltage}.`;
+    } else {
+        relationText = currentLang.calcRelationTextNoRelation;
+    }
 
-function getSeriesVCDescription(data) {
-    return `${currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
-            <br>
-            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
-            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${currentLang.relationTextSeries}.<br>
-            ${currentLang.currentStaysTheSame}.<br>
-            $$${data.noFormat().oldNames[2]} = ${data.noFormat().names1[2]} = ${data.noFormat().names2[2]}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${currentLang.voltageSplits}.<br>
-            $$${data.noFormat().names1[1]} = ?$$
-            $$${data.noFormat().names2[1]} = ?$$
-            <br>
-            $$${data.noFormat().names1[1]} = ${data.noFormat().names1[0]} \\cdot  ${data.noFormat().names1[2]}$$
-            $$= ${data.noFormat().values1[0]} \\cdot ${data.noFormat().values1[2]}$$
-            $$= ${data.noFormat().values1[1]}$$
-            <br>
-            $$${data.noFormat().names2[1]} = ${data.noFormat().names2[0]} \\cdot  ${data.noFormat().names2[2]}$$
-            $$= ${data.noFormat().values2[0]} \\cdot ${data.noFormat().values2[2]}$$
-            $$= ${data.noFormat().values2[1]}$$
-            <br>
-        `;
-}
+    const text = document.createElement('p');
 
-function getParallelVCDescription(data) {
-    return `
-            ${currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
-            <br>
-            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
-            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${currentLang.relationTextParallel}.<br>
-            ${currentLang.voltageStaysTheSame}.<br>
-            $$${data.noFormat().oldNames[1]} = ${data.noFormat().names1[1]} = ${data.noFormat().names2[1]}$$
-            $$= ${data.noFormat().oldValues[1]}$$
-            <br>
-            ${currentLang.currentSplits}.<br>
-            $$${data.noFormat().names1[2]} = ?$$
-            $$${data.noFormat().names2[2]} = ?$$
-            <br>
-            $$${data.noFormat().names1[2]} = \\frac{${data.noFormat().names1[1]}}{${data.noFormat().names1[0]}}$$
-            $$= \\frac{${data.noFormat().values1[1]}}{${data.noFormat().values1[0]}}$$
-            $$= ${data.noFormat().values1[2]}$$
-            <br>
-            $$${data.noFormat().names2[2]} = \\frac{${data.noFormat().names2[1]}}{${data.noFormat().names2[0]}}$$
-            $$= \\frac{${data.noFormat().values2[1]}}{${data.noFormat().values2[0]}}$$
-            $$= ${data.noFormat().values2[2]}$$
-            <br>
-        `;
+    text.innerHTML = `
+        ${currentLang.vcBeforeSimplifiedElement} ${data.inline().oldNames[0]} ${currentLang.vcAfterSimplifiedElement} 
+        ${data.inline().names1[0]} ${currentLang.vcBetweenElements} ${data.inline().names2[0]} ${currentLang.vcAfterSecondElement}.<br>
+        <br>
+        ${data.inline().oldNames[0]}&nbsp= ${data.inline().oldValues[0]}<br>
+        ${data.inline().oldNames[1]}&nbsp= ${data.inline().oldValues[1]}<br>
+        ${data.inline().oldNames[2]}&nbsp= ${data.inline().oldValues[2]}<br>   
+        ${data.inline().names1[0]}&nbsp= ${data.inline().values1[0]}<br>
+        ${data.inline().names1[1]}&nbsp= ${data.inline().values1[1]}<br>
+        ${data.inline().names1[2]}&nbsp= ${data.inline().values1[2]}<br>
+        ${data.inline().names2[0]}&nbsp= ${data.inline().values2[0]}<br>
+        ${data.inline().names2[1]}&nbsp= ${data.inline().values2[1]}<br>
+        ${data.inline().names2[2]}&nbsp= ${data.inline().values2[2]}<br>
+        <br>
+        ${relationText}<br>
+        <br>
+        ${currentLang.calculationHeading}:<br>
+        ${data.inline().equation[0]}<br>
+        ${data.inline().equation[1]}<br>`;
+
+    return text;
 }
