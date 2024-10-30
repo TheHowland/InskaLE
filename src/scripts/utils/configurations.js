@@ -1,10 +1,12 @@
 class Configurations {
-    serverAddress = "http://localhost:8000"
-    sourceCircuitPath = this.serverAddress + "/Circuits.zip"
-    sourceSolvePath = this.serverAddress + "/solve.py"
-    sourcePackageDir = this.serverAddress + "/Packages/"
+    constructor() {
+        this.serverAddress = "https://thehowland.github.io/InskaLE"
+        this.sourceCircuitPath = this.serverAddress + "/Circuits.zip"
+        this.sourceSolvePath = this.serverAddress + "/solve.py"
+        this.sourcePackageDir = this.serverAddress + "/Packages/"
 
-    pyodideCircuitPath = "Circuits"
-    pyodideSolutionsPath = "Solutions"
-    pyodideSolvePath = "/home/pyodide/solve.py"
+        this.pyodideCircuitPath = "Circuits"
+        this.pyodideSolutionsPath = "Solutions"
+        this.pyodideSolvePath = "/home/pyodide/solve.py"
+    }
 }
