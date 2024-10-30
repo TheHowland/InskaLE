@@ -5,26 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>simpliPFy</title>
 
-    <!-- Load languages -->
+    <!-- JS Scripts Import -->
     <script src="src/scripts/languages/lang.en.js"></script>
     <script src="src/scripts/languages/lang.de.js"></script>
-    <!-- JS Scripts Import -->
+    <script src="src/scripts/languages/languageManager.js"></script>
+
     <script src="src/scripts/utils/circuitMapper.js"></script>
+    <script src="src/scripts/utils/configurations.js"></script>
+    <script src="src/scripts/utils/packageManager.js"></script>
+
+    <script src="src/scripts/dataObjects/stateObject.js"></script>
+    <script src="src/scripts/dataObjects/stepDetails.js"></script>
+    <script src="src/scripts/dataObjects/solutionObject.js"></script>
+    <script src="src/scripts/dataObjects/solutionObject_VC.js"></script>
+
+    <script src="src/scripts/visualisation/colorDefinitions.js"></script>
+    <script src="src/scripts/visualisation/darkModeFunctions.js"></script>
+    <script src="src/scripts/visualisation/selectorBuilder.js"></script>
+    <script src="src/scripts/visualisation/pageManager.js"></script>
+    <script src="src/scripts/visualisation/explanationTexts.js"></script>
+    <script src="src/scripts/visualisation/helperFunctions.js"></script>
+    <script src="src/scripts/visualisation/displaySteps.js"></script>
+
     <script src="src/scripts/main.js"></script>
-    <script src="src/scripts/utils/selectorBuilder.js"></script>
-    <script src="src/scripts/utils/stepDetails.js"></script>
-    <script src="src/scripts/utils/pageManager.js"></script>
-    <script src="src/scripts/utils/explanationTexts.js"></script>
-    <script src="src/scripts/utils/solutionObject.js"></script>
-    <script src="src/scripts/utils/solutionObject_VC.js"></script>
-    <script src="src/scripts/utils/fetchDirectoryListing.js"></script>
-    <script src="src/scripts/utils/loadPackages.js"></script>
-    <script src="src/scripts/utils/importPackages.js"></script>
-    <script src="src/scripts/utils/helperFunctions.js"></script>
-    <script src="src/scripts/utils/displaySteps.js"></script>
 
     <!-- Pyodide and MathJax Import -->
-    <script src="https://thehowland.github.io/InskaLE/pyodide.js"></script>
+    <script src="http://localhost:8000/pyodide.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
