@@ -1,12 +1,35 @@
 class Configurations {
     constructor() {
-        this.serverAddress = "https://thehowland.github.io/InskaLE"
-        this.sourceCircuitPath = this.serverAddress + "/Circuits.zip"
-        this.sourceSolvePath = this.serverAddress + "/solve.py"
-        this.sourcePackageDir = this.serverAddress + "/Packages/"
+        if (Configurations.instance){
+            console.log("Successfull access to Configurations")
+            return Configurations.instance;
+        }
+        else {
+            console.log("Access to Configurations before Init")
+            return null;
+        }
+    }
 
-        this.pyodideCircuitPath = "Circuits"
-        this.pyodideSolutionsPath = "Solutions"
-        this.pyodideSolvePath = "/home/pyodide/solve.py"
+    static async initialize(){
+        let conf = await Configurations.loadConf()
+
+        this.sourceCircuitPath = conf.sourceCircuitPath;
+        this.sourceSolvePath = conf.sourceSolvePath;
+        this.sourcePackageDir = conf.sourcePackageDir;
+        this.gitHubUser = conf.gitHubUser;
+        this.gitHubProject = conf.gitHubProject;
+
+        this.pyodideCircuitPath = conf.pyodideCircuitPath;
+        this.pyodideSolutionsPath = conf.pyodideSolutionsPath;
+        this.pyodideSolvePath = conf.pyodideSolvePath;
+
+        Configurations.instance = this;
+    }
+
+    static async loadConf() {
+        let test = await fetch("/src/conf/conf.json");
+        let conf = await test.json()
+        console.log(conf);
+        return conf;
     }
 }
