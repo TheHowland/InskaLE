@@ -16,7 +16,7 @@ class PackageManager {
     }
 
     async initialize(){
-        this.isLocal = conf.gitHubUser.includes("localhost");
+        this.isGitHubPage = conf.isGitHubPage
     }
 
     async doLoadsAndImports(pyodide) {
@@ -113,7 +113,7 @@ class PackageManager {
         console.log("Installed:" + packages);
     }
 
-    async #fetchDirectoryListingLocal(path, extension = "") {
+    async #fetchDirectoryListing(path, extension = "") {
         try {
             const response = await fetch(path);
             if (!response.ok) {
@@ -161,11 +161,12 @@ class PackageManager {
     }
 
     async fetchDirectoryListing(path, extension = ""){
-        if (packageManager.isLocal){
-            return this.#fetchDirectoryListingLocal(path, extension)
+        if (packageManager.isGitHubPage){
+            return this.#fetchGitHubDirectoryContents(path, extension)
         }
         else {
-            return this.#fetchGitHubDirectoryContents(path, extension)
+            return this.#fetchDirectoryListing(path, extension)
+
         }
     }
 }
