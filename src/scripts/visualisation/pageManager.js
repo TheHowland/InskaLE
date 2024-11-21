@@ -240,6 +240,6 @@ class PageManager {
         pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
         pRX.style.color = "white";
 
-        MathJax.typeset();
+        //MathJax.typeset();
     }
 }
