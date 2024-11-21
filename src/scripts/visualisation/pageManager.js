@@ -28,11 +28,7 @@ class PageManager {
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.enableSettings();
-        if (state.pyodideReady) {
-            document.title = "Circuit Selection - Ready";
-        } else {
-            document.title = "Circuit Selection - Loading";
-        }
+        document.title = "Circuit Selection";
     }
 
     showSimplifierPage() {
