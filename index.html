@@ -4,31 +4,40 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg" href="src/resources/navigation/icon.svg"/>
+    <!-- Set default cookies to deny everything-->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        if (localStorage.getItem('consentMode') === null) {
+            console.log("Set consent to default");
+            gtag('consent', 'default', {  // Default, everything is denied
+                'ad_storage': 'denied', // Related to google ads
+                'analytics_storage': 'denied', // Visit duration, pages visited, etc.
+                'personalization_storage': 'denied', // Personalized ads
+                'functionality_storage': 'denied', // Remember user settings, language, etc.
+                'security_storage': 'denied', // Security, Authentication, etc.
+            });
+        } else {
+            gtag('consent', 'default', JSON.parse(localStorage.getItem('consentMode')));
+        }
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KPBMGTJT');</script>
+    <!-- End Google Tag Manager -->
     <title>simpliPFy</title>
 
-    <!-- Copyright (c) 2000-2024 etracker GmbH. All rights reserved. -->
-    <!-- This material may not be reproduced, displayed, modified or distributed -->
-    <!-- without the express prior written permission of the copyright holder. -->
-    <!-- etracker tracklet 5.0 -->
-    <script type="text/javascript">
-        // var et_pagename = "";
-        // var et_areas = "";
-        // var et_tval = 0;
-        // var et_tsale = 0;
-        // var et_tonr = "";
-        // var et_basket = "";
-    </script>
-    <script id="_etLoader" type="text/javascript" charset="UTF-8" data-block-cookies="true" data-secure-code="0pVmNm" src="//code.etracker.com/code/e.js" data-page-changed-detection="title" async></script>
-    <!-- etracker tracklet 5.0 end -->
-
-
     <!-- JS Scripts Import -->
-    <script src="src/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
-
     <script src="src/scripts/languages/lang.en.js"></script>
     <script src="src/scripts/languages/lang.de.js"></script>
     <script src="src/scripts/languages/languageManager.js"></script>
 
+    <script src="src/scripts/utils/cookieBanner.js"></script>
     <script src="src/scripts/utils/circuitMapper.js"></script>
     <script src="src/scripts/utils/configurations.js"></script>
     <script src="src/scripts/utils/packageManager.js"></script>
@@ -48,7 +57,8 @@
 
     <script src="src/scripts/main.js"></script>
 
-    <!--Pyodide Import -->
+    <!--Pyodide and MathJax Import -->
+    <!--script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script-->
     <script src="pyodide.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -102,8 +112,6 @@
                         </ul>
                     </div>
                 </li>
-                <a style="color: gray" class="mt-3 mb-0 pb-0" href="datenschutz.html">Datenschutz</a>
-                <a style="color: gray" class="mt-1 pt-0 mb-0 pb-0" href="impressum.html">Impressum</a>
               </ul>
         </div>
     </nav>
@@ -148,6 +156,27 @@
         <div class="container-fluid pt-5 pb-4">
             <p class="feature-body px-5 pb-5" id="landing-page-explanation3" ></p>
         </div>
+
+        <div class="container-fluid bg-dark text-center fixed-bottom" id="cookie-banner" style="display: none">
+            <p class="mt-1" id="cookie-banner-title"></p>
+            <p class="mb-2 px-4" id="cookie-banner-text"></p>
+            <button class="btn btn-primary my-2" id="btn-cookies-none"></button>
+            <button class="btn btn-primary my-2" id="btn-cookies-some"></button>
+            <button class="btn btn-primary my-2" id="btn-cookies-all"></button>
+            <div class="container-fluid mb-2" style="display: none" id="cookie-options">
+                <div class="cookie-consent-options">
+                    <input class="cookie-checkbox" id="consent-necessary" type="checkbox" value="Necessary" checked disabled>
+                    <label id="label-necessary" for="consent-necessary" class="cookie-selection"></label>
+                    <input class="cookie-checkbox" id="consent-analytics" type="checkbox" value="Analytics" checked>
+                    <label id="label-analytics" for="consent-analytics" class="cookie-selection"></label>
+                    <br>
+                    <input class="cookie-checkbox" id="consent-preferences" type="checkbox" value="Preferences" checked>
+                    <label id="label-pref" for="consent-preferences" class="cookie-selection"></label>
+                    <input class="cookie-checkbox" id="consent-marketing" type="checkbox" value="Marketing">
+                    <label id="label-marketing" for="consent-marketing" class="cookie-selection"></label>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!--####################################################################################################
@@ -158,8 +187,7 @@
         <div id="pgr-bar-container" class="container-fluid">
             <div class="progress my-4">
                 <div id="pgr-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
-                     style="width: 0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                </div>
+                     style="width: 0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
             <div id="progress-bar-note" class="justify-content-center"></div>
         </div>

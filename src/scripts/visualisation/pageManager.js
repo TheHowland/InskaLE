@@ -19,7 +19,7 @@ class PageManager {
         for (let feature of document.querySelectorAll(".feature-container")) {
             feature.classList.remove("visible");
         }
-        document.title = "simpliPFy - Home";
+        document.title = "simpliPFy";
     }
 
     showSelectPage() {
@@ -28,7 +28,7 @@ class PageManager {
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.enableSettings();
-        document.title = "Circuit Selection";
+        document.title = "Selection";
     }
 
     showSimplifierPage() {
@@ -67,11 +67,17 @@ class PageManager {
 
     // ########################## Setups ########################################
     setupLandingPage() {
+        if (localStorage.getItem('consentMode') !== null) {
+            document.getElementById("cookie-banner").style.display = "none";
+        } else {
+            document.getElementById("cookie-banner").style.display = "block";
+            addCookieBtnFunctionality();
+        }
         languageManager.updateLanguageLandingPage();
 
         const landingStartButton = document.getElementById("start-button");
         landingStartButton.addEventListener("click", async () => {
-            await this.landingPageStartBtnClicked(this.pyodide)
+            await this.setupLandingPageStartBtn(this.pyodide)
         })
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -96,24 +102,19 @@ class PageManager {
 
     }
 
-    async landingPageStartBtnClicked(pyodide) {
-        if (state.pyodideLoading || state.pyodideReady) {
-            this.showSelectPage();
-        } else {
-            state.pyodideLoading = true;
-            this.showSelectPage();
-            hideAllSelectors();
-            const note = showWaitingNote();
+    async setupLandingPageStartBtn(pyodide) {
+        this.showSelectPage();
+        hideAllSelectors();
+        const note = showWaitingNote();
 
-            // Import packages/scripts, create selector svgs
-            await packageManager.doLoadsAndImports(pyodide);
-            await createSvgsForSelectors(pyodide);
+        // Import packages/scripts, create selector svgs
+        await packageManager.doLoadsAndImports(pyodide);
+        await createSvgsForSelectors(pyodide);
 
-            showAllSelectors();
-            note.innerHTML = "";
+        showAllSelectors();
+        note.remove();
 
-            pageManager.setupSelectPage();
-        }
+        pageManager.setupSelectPage();
     }
 
     setupSelectPage() {
@@ -141,15 +142,10 @@ class PageManager {
             closeNavbar();
             this.showLandingPage();
         })
-        navSimplifierLink.addEventListener("click", async () => {
+        navSimplifierLink.addEventListener("click", () => {
             checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
-            if (state.pyodideReady) {
-                this.showSelectPage();
-            }
-            else {
-                await this.landingPageStartBtnClicked(this.pyodide);
-            }
+            this.showSelectPage();
         })
         navCheatLink.addEventListener("click", () => {
             checkIfSimplifierPageNeedsReset();

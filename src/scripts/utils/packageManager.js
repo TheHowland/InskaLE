@@ -16,13 +16,25 @@ class PackageManager {
     }
 
     async initialize(){
-        this.isLocal = conf.gitHubUser.includes("localhost");
+        this.isGitHubPage = conf.isGitHubPage
+        this.fetchDirectoryListing = this.isGitHubPage ? this.#fetchGitHubDirectoryContents : this.#fetchDirectoryListing
     }
 
     async doLoadsAndImports(pyodide) {
         await this.loadCircuits(pyodide);
         await this.importPyodidePackages(pyodide);
         await this.importSolverModule(pyodide);
+    }
+
+    loadMathJax() {
+        console.log('Info: Loading MathJax 3');
+        window.MathJax = {options: {enableMenu: false}};  // Disable MathJax menu on right click
+        (function () {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+            script.async = true;
+            document.head.appendChild(script);
+        })();
     }
 
     async loadCircuits(pyodide) {
@@ -69,7 +81,6 @@ class PackageManager {
 
         progressBarContainer.style.display = "none";
         state.pyodideReady = true;
-        state.pyodideLoading = false;
     }
 
     async load_packages(pyodide, optAddNames) {
@@ -103,7 +114,7 @@ class PackageManager {
         console.log("Installed:" + packages);
     }
 
-    async #fetchDirectoryListingLocal(path, extension = "") {
+    async #fetchDirectoryListing(path, extension = "") {
         try {
             const response = await fetch(path);
             if (!response.ok) {
@@ -147,15 +158,6 @@ class PackageManager {
         } catch (error) {
             console.error('Error fetching GitHub directory contents:', error);
             return [];
-        }
-    }
-
-    async fetchDirectoryListing(path, extension = ""){
-        if (packageManager.isLocal){
-            return this.#fetchDirectoryListingLocal(path, extension)
-        }
-        else {
-            return this.#fetchGitHubDirectoryContents(path, extension)
         }
     }
 }
