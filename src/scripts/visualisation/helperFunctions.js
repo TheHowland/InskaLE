@@ -1,6 +1,18 @@
 /*
 Replaces non-alphanumeric characters in a selector string with underscores to ensure it is a valid CSS selector.
  */
+function enableStartBtnAndSimplifierLink() {
+    document.getElementById("nav-select").classList.remove("disabled");
+    document.getElementById("start-button").classList.remove("disabled");
+    document.getElementById("start-button").style.animation = "pulse 2s infinite";
+}
+
+function disableStartBtnAndSimplifierLink() {
+    document.getElementById("nav-select").classList.add("disabled");
+    document.getElementById("start-button").classList.add("disabled");
+    document.getElementById("start-button").style.animation = "";
+}
+
 function sanitizeSelector(selector) {
     return selector.replace(/[^\w-]/g, '_');
 }
