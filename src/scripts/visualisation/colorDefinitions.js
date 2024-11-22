@@ -8,7 +8,7 @@ class ColorDefinitions {
     languagesDarkBg = "#33393f";
     languagesLightBg = "#efefef";
 
-
+    bootstrapBackground = this.bootstrapDark;
     currentForeground = this.keyLight;
     currentBackground = this.keyDark;
 
@@ -23,9 +23,11 @@ class ColorDefinitions {
     setDarkModeColors() {
         this.currentForeground = this.keyLight;
         this.currentBackground = this.keyDark;
+        this.bootstrapBackground = this.bootstrapDark;
     }
     setLightModeColors() {
         this.currentForeground = this.keyDark;
         this.currentBackground = this.keyLight;
+        this.bootstrapBackground = this.bootstrapWhite;
     }
 }

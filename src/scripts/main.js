@@ -42,6 +42,7 @@ async function main() {
 
     pageManager.setupNavigation();
     pageManager.setupCheatSheet();
+    pageManager.setupAboutPage();
 
     setupDarkModeSwitch();
     enableStartBtnAndSimplifierLink();

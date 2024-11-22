@@ -4,10 +4,11 @@ class PageManager {
         this.selectPage = document.getElementById("select-page-container");
         this.simplifierPage = document.getElementById("simplifier-page-container");
         this.cheatSheet = document.getElementById("cheat-sheet-container");
+        this.aboutPage = document.getElementById("about-page-container");
         this.languageSelect = document.getElementById("Dropdown");
         this.darkModeSwitch = document.getElementById("darkmode-switch");
         this.activeLangFlag = document.getElementById("activeLanguageFlag");
-        this.pages = [this.landingPage, this.selectPage, this.simplifierPage, this.cheatSheet]
+        this.pages = [this.landingPage, this.selectPage, this.simplifierPage, this.cheatSheet, this.aboutPage]
     }
 
     showLandingPage() {
@@ -15,6 +16,7 @@ class PageManager {
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "none";
+        this.aboutPage.style.display = "none";
         this.enableSettings();
         for (let feature of document.querySelectorAll(".feature-container")) {
             feature.classList.remove("visible");
@@ -27,6 +29,7 @@ class PageManager {
         this.selectPage.style.display = "block";
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "none";
+        this.aboutPage.style.display = "none";
         this.enableSettings();
         if (state.pyodideReady) {
             document.title = "Circuit Selection - Ready";
@@ -40,6 +43,7 @@ class PageManager {
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "block";
         this.cheatSheet.style.display = "none";
+        this.aboutPage.style.display = "none";
         this.disableSettings();
         document.title = "Simplifier";
     }
@@ -49,9 +53,21 @@ class PageManager {
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "block";
+        this.aboutPage.style.display = "none";
         this.enableSettings();
         document.title = "Cheat Sheet";
     }
+
+    showAboutPage() {
+        this.landingPage.style.display = "none";
+        this.selectPage.style.display = "none";
+        this.simplifierPage.style.display = "none";
+        this.cheatSheet.style.display = "none";
+        this.aboutPage.style.display = "block";
+        this.enableSettings();
+        document.title = "simpliPFy - About";
+    }
+
 
     disableSettings() {
         this.languageSelect.disabled = true;
@@ -127,6 +143,7 @@ class PageManager {
         const navHomeLink = document.getElementById("nav-home");
         const navSimplifierLink = document.getElementById("nav-select");
         const navCheatLink = document.getElementById("nav-cheat");
+        const navAboutLink = document.getElementById("nav-about");
         const navLogo = document.getElementById("nav-logo");
         const selectEnglish = document.getElementById("select-english");
         const selectGerman = document.getElementById("select-german");
@@ -150,6 +167,11 @@ class PageManager {
             checkIfSimplifierPageNeedsReset();
             closeNavbar();
             this.showCheatSheet();
+        })
+        navAboutLink.addEventListener("click", () => {
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
+            closeNavbar();
+            this.showAboutPage();
         })
         navLogo.addEventListener("click", () => {
             checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
@@ -240,5 +262,10 @@ class PageManager {
         pRX.style.color = "white";
 
         MathJax.typeset();
+    }
+
+    setupAboutPage() {
+        languageManager.updateLanguageAboutPage();
+        updateAboutPageColors();
     }
 }

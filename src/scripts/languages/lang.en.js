@@ -134,6 +134,22 @@ const english = {
     resReaTableHeading:
         "COMPLEX IMPEDANCE",
 
+    /* About Page */
+    aboutHeading:
+        "Über",
+    aboutHeading1:
+        "",
+    aboutBody1:
+        "",
+    aboutHeading2:
+        "",
+    aboutBody2:
+        "",
+    aboutHeading3:
+        "",
+    aboutBody3:
+        "",
+
     /* Data Privacy Page */
     dataPrivacyBackBtn:
         "Back to Homepage",

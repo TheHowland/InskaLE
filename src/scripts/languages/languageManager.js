@@ -55,6 +55,16 @@ class LanguageManager {
         ind.innerHTML = this.currentLang.inductorRowHeading;
     }
 
+    updateLanguageAboutPage() {
+        document.getElementById('about-heading').innerHTML = this.currentLang.aboutHeading;
+        document.getElementById("about-heading1").innerHTML = this.currentLang.aboutHeading1;
+        document.getElementById("about-body1").innerHTML = this.currentLang.aboutBody1;
+        document.getElementById("about-heading2").innerHTML = this.currentLang.aboutHeading2;
+        document.getElementById("about-body2").innerHTML = this.currentLang.aboutBody2;
+        document.getElementById("about-heading3").innerHTML = this.currentLang.aboutHeading3;
+        document.getElementById("about-body3").innerHTML = this.currentLang.aboutBody3;
+    }
+
     updateDataPrivacyPage() {
         const backBtn = document.getElementById('back-btn');
         backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;

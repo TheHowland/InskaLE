@@ -1,6 +1,7 @@
 function setupDarkModeSwitch() {
     const darkModeSwitch = document.getElementById("darkmode-switch");
     darkModeSwitch.checked = true;
+    colors.setDarkModeColors();
     darkModeSwitch.addEventListener("change", () => {
         if (darkModeSwitch.checked) {
             changeToDarkMode();
@@ -15,6 +16,7 @@ function changeToDarkMode() {
     updateAvailableBsClassesTo(colors.bsColorSchemeDark);
     updateNavigationColorsTo(colors.bootstrapDark, colors.languagesDarkBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeDark);
+    updateAboutPageColors();
     updateSelectorPageSvgStrokeColor(colors.lightModeSvgStrokeColor, colors.darkModeSvgStrokeColor);
 }
 
@@ -23,6 +25,7 @@ function changeToLightMode() {
     updateAvailableBsClassesTo(colors.bsColorSchemeLight);
     updateNavigationColorsTo(colors.bootstrapWhite, colors.languagesLightBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeLight);
+    updateAboutPageColors();
     updateSelectorPageSvgStrokeColor(colors.darkModeSvgStrokeColor, colors.lightModeSvgStrokeColor);
 }
 
@@ -45,6 +48,7 @@ function updateAvailableBsClassesTo(colorScheme) {
     updateBsClassesTo(colorScheme, "bg", document.getElementById("cheat-sheet-container"));
     updateBsClassesTo(colorScheme, "bg", document.getElementById("simplifier-page-container"));
     updateBsClassesTo(colorScheme, "bg", document.getElementById("select-page-container"));
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("about-page-container"));
 }
 
 
@@ -71,6 +75,26 @@ function updateCheatSheetPageColorsTo(bsColorScheme) {
         updateBsClassesTo(bsColorScheme, "table", table);
     }
 }
+
+function updateAboutPageColors() {
+    const aboutHeading = document.getElementById("about-heading");
+    aboutHeading.style.color = colors.currentForeground;
+    setAboutPageAccordionToCurrentMode();
+}
+
+function setAboutPageAccordionToCurrentMode() {
+    const accordionBtns = document.querySelectorAll(".accordion-button");
+    for (const accordionBtn of accordionBtns) {
+        accordionBtn.style.backgroundColor = colors.bootstrapBackground;
+        accordionBtn.style.color = colors.currentForeground;
+    }
+    const accordionBodies = document.querySelectorAll(".accordion-body");
+    for (const accordionBody of accordionBodies) {
+        accordionBody.style.backgroundColor = colors.bootstrapBackground;
+        accordionBody.style.color = colors.currentForeground;
+    }
+}
+
 function updateSelectorPageSvgStrokeColor(fromSvgColor, toSvgColor) {
     // Change border color of selectors
     const svgSelectors = document.getElementsByClassName("svg-selector");

@@ -137,6 +137,26 @@ const german = {
     resReaTableHeading:
         "KOMPLEXER WIDERSTAND",
 
+    /* About Page */
+    aboutHeading:
+        "Über",
+    aboutHeading1:
+        "Projekt",
+    aboutBody1:
+        "Dieses Tool entstand an der Hochschule Pforzheim im Rahmen eines Projektes. " +
+        "Es wurde finanziert durch die Stiftung " +
+        "Innovation in der Hochschullehre (<a href='https://stiftung-hochschullehre.de/projekt/inskale/'>Stiftung-Hochschullehre Inskale</a>). " +
+        "Es l&aumluft unter einer Open Source Lizenz und kann auf GitHub eingesehen werden. " +
+        "Mehr dazu siehe Code.",
+    aboutHeading2:
+        "Code",
+    aboutBody2:
+        "Der Quellcode liegt auf Github und kann unter folgendem Link eingesehen werden: " +
+        "TODO :) ",
+    aboutHeading3:
+        "Team, etc.",
+    aboutBody3:
+        "",
 
     /* Data Privacy Page */
     dataPrivacyBackBtn:

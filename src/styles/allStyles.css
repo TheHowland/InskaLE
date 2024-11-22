@@ -341,6 +341,17 @@ th, td {
     color: #222222;
 }
 
+/* About Page */
+#bootstrap-overrides #about-page-container {
+    background-color: #212529;
+    color: white;
+}
+
+#bootstrap-overrides #about-accordion {
+    max-width: 500px;
+}
+
+
 /* Data Privacy Page */
 #bootstrap-overrides #data-privacy-container {
     background-color: #212529;
