@@ -132,7 +132,19 @@ const english = {
     subTableHeading:
         "SUBSTITUTION FORMULAS",
     resReaTableHeading:
-        "COMPLEX IMPEDANCE"
+        "COMPLEX IMPEDANCE",
+
+    /* Data Privacy Page */
+    dataPrivacyBackBtn:
+        "Back to Homepage",
+    dataPrivacyHeading:
+        "Data Privacy",
+    dataPrivacyText:
+        "",
+    legalNoticeHeading:
+        "Legal Notice",
+    legalNoticeText:
+        "",
 
 
 

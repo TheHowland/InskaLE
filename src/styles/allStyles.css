@@ -341,3 +341,37 @@ th, td {
     color: #222222;
 }
 
+/* Data Privacy Page */
+#bootstrap-overrides #data-privacy-container {
+    background-color: #212529;
+    color: white;
+}
+
+#bootstrap-overrides #back-btn {
+    background-color: #FFC107;
+    border: none;
+    color: #222222;
+}
+
+#bootstrap-overrides #data-privacy-nav-select {
+    color: #9c7606;
+}
+
+#bootstrap-overrides #data-privacy-nav-cheat {
+    color: #a8a8a8;
+}
+
+/* Legal Notice Page */
+#bootstrap-overrides #legal-notice-container {
+    background-color: #212529;
+    color: white;
+}
+
+#bootstrap-overrides #legal-notice-nav-select {
+    color: #9c7606;
+}
+
+#bootstrap-overrides #legal-notice-nav-cheat {
+    color: #a8a8a8;
+}
+
