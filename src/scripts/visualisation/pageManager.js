@@ -109,9 +109,13 @@ class PageManager {
 
     async landingPageStartBtnClicked(pyodide) {
         if (state.pyodideLoading || state.pyodideReady) {
+            // was already clicked once, just show the page
             this.showSelectPage();
         } else {
+            // First time clicked, load pyodide
             state.pyodideLoading = true;
+            selectorBuilder.buildSelectorsForAllCircuitSets();
+
             this.showSelectPage();
             hideAllSelectors();
             const note = showWaitingNote();
@@ -122,7 +126,6 @@ class PageManager {
 
             showAllSelectors();
             note.innerHTML = "";
-
             pageManager.setupSelectPage();
         }
     }
@@ -164,11 +167,13 @@ class PageManager {
             }
         })
         navCheatLink.addEventListener("click", () => {
+            if (!state.cheatSheetSetup) pageManager.setupCheatSheet();
             checkIfSimplifierPageNeedsReset();
             closeNavbar();
             this.showCheatSheet();
         })
         navAboutLink.addEventListener("click", () => {
+            if (!state.aboutPageSetup) pageManager.setupAboutPage();
             checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             this.showAboutPage();

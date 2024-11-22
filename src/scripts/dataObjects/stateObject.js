@@ -32,4 +32,10 @@ class StateObject {
 
     //To count how many svgs are on the screen right now
     pictureCounter = 0;
+
+    // Boolean to track if the cheat sheet is set up
+    cheatSheetSetup = false;
+
+    // Boolean to track if the about page is set up
+    aboutPageSetup = false;
 }
