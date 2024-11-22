@@ -23,6 +23,9 @@ class StateObject {
     //Stores the currently selected circuit map
     currentCircuitMap;
 
+    //Stores the currently selected circuit file name.
+    currentCircuit;
+
     //The Python module imported from the Pyodide environment for solving circuits.
     solve;
 

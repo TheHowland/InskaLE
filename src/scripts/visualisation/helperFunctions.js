@@ -183,7 +183,7 @@ function resetSimplifierPage(pyodide) {
         startSolving(pyodide);  // Draw the first picture again
     }
     scrollBodyToTop();
-    document.title = "Simplifier " + state.currentCircuit.split(".")[0];
+    document.title = "Simplifier " + state.currentCircuit.split(".")[0] + " " + state.currentCircuitMap.selectorGroup;
 }
 
 function enableLastCalcButton() {
