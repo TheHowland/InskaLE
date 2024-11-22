@@ -26,11 +26,11 @@ const german = {
     keyFeature2heading:
         "Browserbasiert",
     keyFeature2:
-        "Du brauchst keine weitere App auf deinem Smartphone, das Tool l&aumluft komplett in deinem Browser",
+        "Du brauchst keine weitere App auf deinem Smartphone, Tablet oder PC, das Tool l&aumluft vollst&aumlndig in deinem Browser",
     keyFeature3heading:
         "Vielfalt",
     keyFeature3:
-        "Du kannst nicht nur Widerst&aumlnde nutzen, sondern auch Kondensatoren und Spulen",
+        "Du kannst nicht nur mit Widerst&aumlnden arbeiten, sondern auch mit Kondensatoren und Spulen",
     landingPageExplanation1:
         "Es gibt vorhandene Schaltungen die benutzt werden k&oumlnnen. " +
         "Du kannst verschiedene elektrische Komponenten vereinfachen, z.B. " +

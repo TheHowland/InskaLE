@@ -421,6 +421,7 @@ function congratsAndVCDisplayIfFinished(filteredPaths, contentCol, showVoltageBu
         finishCircuit(contentCol, showVoltageButton);
         addFirstVCExplanation(contentCol, showVoltageButton, vcData);
         addBackButton(pyodide, contentCol);
+        document.title = "Simplifier - Finished";
     }
 }
 
