@@ -361,6 +361,10 @@ th, td {
     color: #a8a8a8;
 }
 
+#bootstrap-overrides #switch-container {
+    color: white;
+}
+
 /* Legal Notice Page */
 #bootstrap-overrides #legal-notice-container {
     background-color: #212529;
