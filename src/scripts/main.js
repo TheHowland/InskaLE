@@ -19,6 +19,7 @@ let pageManager;
 // #####################################################################################################################
 
 async function main() {
+    disableStartBtnAndSimplifierLink();
     conf = new Configurations();
     await conf.initialize();
     packageManager = new PackageManager();
@@ -43,6 +44,7 @@ async function main() {
     pageManager.setupCheatSheet();
 
     setupDarkModeSwitch();
+    enableStartBtnAndSimplifierLink();
 }
 
 
