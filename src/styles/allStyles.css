@@ -218,6 +218,7 @@ th, td {
     color: white;
     border-radius: 20px;
     box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    animation: pulse 2s infinite;
 }
 
 #bootstrap-overrides #start-button:hover {
@@ -339,54 +340,5 @@ th, td {
     background-color: #FFC107;
     border: none;
     color: #222222;
-}
-
-/* About Page */
-#bootstrap-overrides #about-page-container {
-    background-color: #212529;
-    color: white;
-}
-
-#bootstrap-overrides #about-accordion {
-    max-width: 500px;
-}
-
-
-/* Data Privacy Page */
-#bootstrap-overrides #data-privacy-container {
-    background-color: #212529;
-    color: white;
-}
-
-#bootstrap-overrides #back-btn {
-    background-color: #FFC107;
-    border: none;
-    color: #222222;
-}
-
-#bootstrap-overrides #data-privacy-nav-select {
-    color: #9c7606;
-}
-
-#bootstrap-overrides #data-privacy-nav-cheat {
-    color: #a8a8a8;
-}
-
-#bootstrap-overrides #switch-container {
-    color: white;
-}
-
-/* Legal Notice Page */
-#bootstrap-overrides #legal-notice-container {
-    background-color: #212529;
-    color: white;
-}
-
-#bootstrap-overrides #legal-notice-nav-select {
-    color: #9c7606;
-}
-
-#bootstrap-overrides #legal-notice-nav-cheat {
-    color: #a8a8a8;
 }
 

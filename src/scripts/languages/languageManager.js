@@ -53,34 +53,7 @@ class LanguageManager {
         cap.innerHTML = this.currentLang.capacitorRowHeading;
         const ind = document.getElementById("inductor");
         ind.innerHTML = this.currentLang.inductorRowHeading;
-    }
 
-    updateLanguageAboutPage() {
-        document.getElementById('about-heading').innerHTML = this.currentLang.aboutHeading;
-        document.getElementById("about-heading1").innerHTML = this.currentLang.aboutHeading1;
-        document.getElementById("about-body1").innerHTML = this.currentLang.aboutBody1;
-        document.getElementById("about-heading2").innerHTML = this.currentLang.aboutHeading2;
-        document.getElementById("about-body2").innerHTML = this.currentLang.aboutBody2;
-        document.getElementById("about-heading3").innerHTML = this.currentLang.aboutHeading3;
-        document.getElementById("about-body3").innerHTML = this.currentLang.aboutBody3;
-    }
-
-    updateDataPrivacyPage() {
-        const backBtn = document.getElementById('back-btn');
-        backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
-        const dataPrivacyHeading = document.getElementById('data-privacy-heading');
-        dataPrivacyHeading.innerHTML = this.currentLang.dataPrivacyHeading;
-        const dataPrivacyText = document.getElementById('data-privacy-text');
-        dataPrivacyText.innerHTML = this.currentLang.dataPrivacyText;
-    }
-
-    updateLegalNoticePage() {
-        const backBtn = document.getElementById('back-btn');
-        backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
-        const legalNoticeHeading = document.getElementById('legal-notice-heading');
-        legalNoticeHeading.innerHTML = this.currentLang.legalNoticeHeading;
-        const legalNoticeText = document.getElementById('legal-notice-text');
-        legalNoticeText.innerHTML = this.currentLang.legalNoticeText;
     }
 
 }
