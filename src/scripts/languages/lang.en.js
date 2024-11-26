@@ -88,7 +88,7 @@ const english = {
     voltageSymbol:
         "V",
     totalSuffix:
-        "total",
+        "tot",
     calcBeforeFirstElement:
         "The elements",
     calcBetweenElements:
