@@ -387,9 +387,9 @@ function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
     });
 }
 
-function getAllElementsAndMakeClickable(nextElementsContainer, sanitizedSvgFilePath, pathElements) {
+function getAllElementsAndMakeClickable(nextElementsContainer, sanitizedSvgFilePath, electricalElements) {
     const nextElementsList = nextElementsContainer.querySelector(`#next-elements-list-${sanitizedSvgFilePath}`);
-    pathElements.forEach(pathElement => setStyleAndEvent(pathElement, nextElementsList));
+    electricalElements.forEach(element => setStyleAndEvent(element, nextElementsList));
 }
 
 function setupExplanationButtons(showVoltageButton) {
@@ -487,11 +487,9 @@ function createTotalCurrentBtn() {
     return totalCurrentBtn;
 }
 
-function setStyleAndEvent(pathElement, nextElementsList) {
-    pathElement.style.pointerEvents = 'bounding-box';
-    pathElement.style.cursor = 'pointer';
-    // Make elements clickable
-    pathElement.addEventListener('click', () =>
-        chooseElement(pathElement, nextElementsList)
+function setStyleAndEvent(element, nextElementsList) {
+    element.style.cursor = 'pointer';
+    element.addEventListener('click', () =>
+        chooseElement(element, nextElementsList)
     );
 }
