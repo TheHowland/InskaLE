@@ -76,7 +76,7 @@ function setSvgWidthTo(svgData, width) {
 }
 
 // Displays a temporary message to the user in a message box.
-function showMessage(container, message, prio = "warning") {
+function showMessage(container, message, prio = "warning", fixedBottom = true) {
     let bootstrapAlert;
     let emoji;
     if (prio === "only2") {
@@ -92,8 +92,10 @@ function showMessage(container, message, prio = "warning") {
     const msg = document.createElement('div');
     msg.classList.add("alert");
     msg.classList.add(`alert-${bootstrapAlert}`);
-    msg.classList.add("fixed-bottom");
-    msg.style.bottom = "170px";
+    if (fixedBottom) {
+        msg.classList.add("fixed-bottom");
+        msg.style.bottom = "170px";
+    }
     msg.classList.add("m-5");
 
     let emojiSpan = document.createElement('span');
