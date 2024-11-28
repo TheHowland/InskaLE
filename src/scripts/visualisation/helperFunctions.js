@@ -76,7 +76,7 @@ function setSvgWidthTo(svgData, width) {
 }
 
 // Displays a temporary message to the user in a message box.
-function showMessage(container, message, prio = "warning", fixedBottom = true) {
+function showMessage(container, message, prio = "warning") {
     let bootstrapAlert;
     let emoji;
     if (prio === "only2") {
@@ -92,10 +92,8 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
     const msg = document.createElement('div');
     msg.classList.add("alert");
     msg.classList.add(`alert-${bootstrapAlert}`);
-    if (fixedBottom) {
-        msg.classList.add("fixed-bottom");
-        msg.style.bottom = "170px";
-    }
+    msg.classList.add("fixed-bottom");
+    msg.style.bottom = "170px";
     msg.classList.add("m-5");
 
     let emojiSpan = document.createElement('span');
@@ -234,7 +232,7 @@ async function createSvgsForSelectors(pyodide) {
         // For all circuits in this set (e.g., Resistor1, Resistor2, ...)
         for (const circuit of circuitSet.set) {
             stepSolve = state.solve.SolveInUserOrder(circuit.circuitFile, `${conf.pyodideCircuitPath}/${circuit.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
-            await stepSolve.createStep0();
+            await stepSolve.createStep0().toJs();
         }
     }
 }

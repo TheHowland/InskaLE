@@ -364,7 +364,7 @@ function generateTexts(data, vcData, componentTypes) {
 
 function finishCircuit(contentCol, showVoltageButton) {
     document.getElementById("check-btn").disabled = true;
-    showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success", false);
+    showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success");
     confetti({
         particleCount: 150,
         angle: 90,
@@ -376,7 +376,6 @@ function finishCircuit(contentCol, showVoltageButton) {
         enableVoltageCurrentBtns();
         showArrows(contentCol);
     }
-    pushPageViewMatomo("Finished");
 }
 
 function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
@@ -388,9 +387,9 @@ function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
     });
 }
 
-function getAllElementsAndMakeClickable(nextElementsContainer, sanitizedSvgFilePath, electricalElements) {
+function getAllElementsAndMakeClickable(nextElementsContainer, sanitizedSvgFilePath, pathElements) {
     const nextElementsList = nextElementsContainer.querySelector(`#next-elements-list-${sanitizedSvgFilePath}`);
-    electricalElements.forEach(element => setStyleAndEvent(element, nextElementsList));
+    pathElements.forEach(pathElement => setStyleAndEvent(pathElement, nextElementsList));
 }
 
 function setupExplanationButtons(showVoltageButton) {
@@ -419,9 +418,9 @@ function checkIfStillNotFinishedAndMakeClickable(electricalElements, nextElement
 
 function congratsAndVCDisplayIfFinished(filteredPaths, contentCol, showVoltageButton, vcData, pyodide) {
     if (onlyOneElementLeft(filteredPaths)) {
+        finishCircuit(contentCol, showVoltageButton);
         addFirstVCExplanation(contentCol, showVoltageButton, vcData);
         addBackButton(pyodide, contentCol);
-        finishCircuit(contentCol, showVoltageButton);
     }
 }
 
@@ -488,10 +487,11 @@ function createTotalCurrentBtn() {
     return totalCurrentBtn;
 }
 
-function setStyleAndEvent(element, nextElementsList) {
-    element.style.pointerEvents = "bounding-box";
-    element.style.cursor = 'pointer';
-    element.addEventListener('click', () =>
-        chooseElement(element, nextElementsList)
+function setStyleAndEvent(pathElement, nextElementsList) {
+    pathElement.style.pointerEvents = 'bounding-box';
+    pathElement.style.cursor = 'pointer';
+    // Make elements clickable
+    pathElement.addEventListener('click', () =>
+        chooseElement(pathElement, nextElementsList)
     );
 }
