@@ -234,7 +234,7 @@ async function createSvgsForSelectors(pyodide) {
         // For all circuits in this set (e.g., Resistor1, Resistor2, ...)
         for (const circuit of circuitSet.set) {
             stepSolve = state.solve.SolveInUserOrder(circuit.circuitFile, `${conf.pyodideCircuitPath}/${circuit.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
-            await stepSolve.createStep0().toJs();
+            await stepSolve.createStep0();
         }
     }
 }
