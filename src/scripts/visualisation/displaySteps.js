@@ -266,7 +266,7 @@ function checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails)
         if (notLastPicture()) {
             contentCol.append(div);
             enableLastCalcButton();
-            scrollToBottom();
+            scrollNextElementsContainerIntoView();
         }
         display_step(pyodide, stepDetails);
     } else {
@@ -376,13 +376,14 @@ function finishCircuit(contentCol, showVoltageButton) {
         enableVoltageCurrentBtns();
         showArrows(contentCol);
     }
-    pushPageViewMatomo("Finished");
+    pushCircuitEventMatomo(circuitActions.Finished);
 }
 
 function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
-    document.getElementById("reset-btn").addEventListener('click', () =>
-        resetSimplifierPage(pyodide)
-    );
+    document.getElementById("reset-btn").addEventListener('click', () => {
+        pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
+        resetSimplifierPage(pyodide, true);
+    });
     document.getElementById("check-btn").addEventListener('click', async () => {
         checkAndSimplifyNext(pyodide, div, stepDetails);
     });
