@@ -266,7 +266,7 @@ function checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails)
         if (notLastPicture()) {
             contentCol.append(div);
             enableLastCalcButton();
-            scrollNextElementsContainerIntoView();
+            scrollToBottom();
         }
         display_step(pyodide, stepDetails);
     } else {

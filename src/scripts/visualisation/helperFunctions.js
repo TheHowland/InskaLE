@@ -111,9 +111,7 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
 
     container.appendChild(msg);
     setTimeout(() => {
-        if (container.contains(msg)) {
-            container.removeChild(msg);
-        }
+        container.removeChild(msg);
     }, 3000);
 }
 
@@ -164,7 +162,7 @@ function enableLastCalcButton() {
     }, 100);
 }
 
-function scrollNextElementsContainerIntoView() {
+function scrollToBottom() {
     setTimeout(() => {
         const nextElementsText = document.getElementById("nextElementsContainer");
         if (nextElementsText != null) {nextElementsText.scrollIntoView()}
@@ -278,18 +276,6 @@ function showArrows(contentCol) {
         arrow.style.opacity = "0.5";
     }
 }
-
-function whenAvailable(name, callback) {
-    var interval = 10; // ms
-    window.setTimeout(function() {
-        if (window[name]) {
-            callback(window[name]);
-        } else {
-            whenAvailable(name, callback);
-        }
-    }, interval);
-}
-
 
 
 
