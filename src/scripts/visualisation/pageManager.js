@@ -69,18 +69,15 @@ class PageManager {
         this.activeLangFlag.style.filter = "brightness(1)";
     }
 
-    setPyodide(pyodide) {
-        this.pyodide = pyodide
-    }
-
     // ########################## Setups ########################################
     setupLandingPage() {
         languageManager.updateLanguageLandingPage();
 
         const landingStartButton = document.getElementById("start-button");
         landingStartButton.addEventListener("click", async () => {
-            await this.landingPageStartBtnClicked(this.pyodide)
+            await this.landingPageStartBtnClicked()
         })
+        // Left - right animation for feature containers
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -90,22 +87,31 @@ class PageManager {
                 }
             });
         }, { threshold: 1});
-
         const trigger = document.getElementById("trigger");
         observer.observe(trigger);
     }
 
-    async landingPageStartBtnClicked(pyodide) {
+    async landingPageStartBtnClicked() {
         if (state.pyodideLoading || state.pyodideReady) {
             this.showSelectPage();
         } else {
-            state.pyodideLoading = true;
             this.showSelectPage();
-            hideAllSelectors();
             const note = showWaitingNote();
 
+            state.pyodideLoading = true;
+            // Get the pyodide instance and setup pages with functionality
+            this.pyodide = await loadPyodide();
+
+            // Map all circuits into map and build the selectors
+            circuitMapper = new CircuitMapper(this.pyodide);
+            await circuitMapper.mapCircuits();
+
+            selectorBuilder.buildSelectorsForAllCircuitSets();
+
+            hideAllSelectors();
+
             // Import packages/scripts, create selector svgs
-            await packageManager.doLoadsAndImports(pyodide);
+            await packageManager.doLoadsAndImports(this.pyodide);
             //await createSvgsForSelectors(pyodide);
 
 
@@ -152,7 +158,7 @@ class PageManager {
             }
         })
         navCheatLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();
+            checkIfSimplifierPageNeedsReset(this.pyodide);
             closeNavbar();
             this.showCheatSheet();
         })
@@ -167,6 +173,7 @@ class PageManager {
             activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
+            pushLanguageEventMatomo(configLanguageValues.English);
         })
         selectGerman.addEventListener("click", () => {
             languageManager.currentLang = german;
@@ -174,6 +181,7 @@ class PageManager {
             activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
+            pushLanguageEventMatomo(configLanguageValues.German);
         })
 
         const toggler = document.getElementById("nav-toggler");
@@ -244,6 +252,8 @@ class PageManager {
         pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
         pRX.style.color = "white";
 
-        MathJax.typeset();
+        whenAvailable("MathJax", () => {
+            MathJax.typeset();
+        });
     }
 }
