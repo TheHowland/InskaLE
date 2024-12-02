@@ -251,6 +251,7 @@ async function checkAndSimplifyNext(pyodide, div, stepDetails){
         checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertChooseTwoElements, "only2");
+        pushCircuitEventMatomo(circuitActions.ErrOnly2, state.selectedElements.length)
     }
     MathJax.typeset();
 }
@@ -266,11 +267,12 @@ function checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails)
         if (notLastPicture()) {
             contentCol.append(div);
             enableLastCalcButton();
-            scrollToBottom();
+            scrollNextElementsContainerIntoView();
         }
         display_step(pyodide, stepDetails);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
+        pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
     }
 }
 
@@ -281,15 +283,17 @@ function setupVCBtnFunctionality(vcText, contentCol, stepCalculationText) {
 
     lastVCBtn.addEventListener("click", () => {
         if (lastVCBtn.textContent === languageManager.currentLang.showVoltageBtn) {
+            // Open voltage/current explanation
             lastVCBtn.textContent = languageManager.currentLang.hideVoltageBtn;
-            // Add text after container
             explContainer.insertAdjacentElement("afterend", vcText);
             if (lastStepCalcBtn.textContent === languageManager.currentLang.hideCalculationBtn) {
                 lastStepCalcBtn.textContent = languageManager.currentLang.showCalculationBtn;
                 contentCol.removeChild(stepCalculationText);
             }
             MathJax.typeset();
+            pushCircuitEventMatomo(circuitActions.ViewVcExplanation)
         } else {
+            // Close voltage/current explanation
             lastVCBtn.textContent = languageManager.currentLang.showVoltageBtn;
             contentCol.removeChild(vcText);
         }
@@ -304,9 +308,11 @@ function setupCalcBtnFunctionality(showVoltageButton, stepCalculationText, conte
 
     lastStepCalcBtn.addEventListener("click", () => {
         if (lastStepCalcBtn.textContent === languageManager.currentLang.showCalculationBtn) {
+            // Open calculation explanation
             lastStepCalcBtn.textContent = languageManager.currentLang.hideCalculationBtn;
             if (showVoltageButton) {
                 if (lastVCBtn.textContent === languageManager.currentLang.hideVoltageBtn) {
+                    // If voltage/current explanation is open, close it
                     lastVCBtn.textContent = languageManager.currentLang.showVoltageBtn;
                     contentCol.removeChild(vcText);
                 }
@@ -314,7 +320,9 @@ function setupCalcBtnFunctionality(showVoltageButton, stepCalculationText, conte
             // Add explanation text after container
             explContainer.insertAdjacentElement("afterend", stepCalculationText);
             MathJax.typeset();
+            pushCircuitEventMatomo(circuitActions.ViewZExplanation);
         } else {
+            // Close calculation explanation
             lastStepCalcBtn.textContent = languageManager.currentLang.showCalculationBtn;
             contentCol.removeChild(stepCalculationText);
         }
@@ -376,13 +384,14 @@ function finishCircuit(contentCol, showVoltageButton) {
         enableVoltageCurrentBtns();
         showArrows(contentCol);
     }
-    pushPageViewMatomo("Finished");
+    pushCircuitEventMatomo(circuitActions.Finished);
 }
 
 function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
-    document.getElementById("reset-btn").addEventListener('click', () =>
-        resetSimplifierPage(pyodide)
-    );
+    document.getElementById("reset-btn").addEventListener('click', () => {
+        pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
+        resetSimplifierPage(pyodide, true);
+    });
     document.getElementById("check-btn").addEventListener('click', async () => {
         checkAndSimplifyNext(pyodide, div, stepDetails);
     });
@@ -447,10 +456,13 @@ function addFirstVCExplanation(contentCol, showVoltageButton, vcData) {
 
         totalCurrentBtn.addEventListener("click", () => {
             if (totalCurrentBtn.textContent === languageManager.currentLang.firstVCStepBtn) {
+                // Open explanation
                 totalCurrentBtn.textContent = languageManager.currentLang.hideVoltageBtn;
                 totalCurrentContainer.appendChild(text);
                 MathJax.typeset();
+                pushCircuitEventMatomo(circuitActions.ViewTotalExplanation);
             } else {
+                // Close explanation
                 totalCurrentBtn.textContent = languageManager.currentLang.firstVCStepBtn;
                 totalCurrentContainer.removeChild(text);
             }
