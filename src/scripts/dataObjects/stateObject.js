@@ -21,7 +21,7 @@ class StateObject {
     selectedElements = [];
 
     //Stores the currently selected circuit map
-    currentCircuitMap;
+    currentCircuitMap = null;
 
     //The Python module imported from the Pyodide environment for solving circuits.
     solve;
@@ -32,4 +32,7 @@ class StateObject {
 
     //To count how many svgs are on the screen right now
     pictureCounter = 0;
+
+    //To generate the table for all values
+    allValuesMap = new Map();
 }
