@@ -56,7 +56,6 @@ class CircuitMapper {
     }
 
     addSubAcdcCircuitMaps(dir) {
-        // Sub and acdc circuits use the same source dir
         for (let circuitFileName of this.files[dir]) {
             let subCircuit = this.createCircuitMap(circuitFileName, dir, this.selectorIds.subId)
             this._substitute.set.push(subCircuit);
@@ -97,7 +96,7 @@ class CircuitMapper {
             sourceDir: dir,
             svgFile: `${this._svgsPath}/${circuitId}_step0.svg`,
             selectorGroup: id,
-            overViewSvgFile: `${this._circuitsPath}/${dir}/${circuitId}_step0.svg`
+            overViewSvgFile: `${this._circuitsPath}/acdc/${circuitId}_step0.svg`
         }
     }
 

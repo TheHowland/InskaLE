@@ -48,6 +48,8 @@ function generateTextForTotalCurrent(data) {
                         <br>`;
 }
 
+
+
 function getRelationText(data) {
     let relationText = "";
     if (!data.isNull()) {
