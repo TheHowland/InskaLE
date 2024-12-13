@@ -9,7 +9,7 @@ function display_step(pyodide,stepDetails) {
     state.pictureCounter++;  // increment before usage in the below functions
 
     // Create the new elements for the current step
-    const {circuitContainer, svgContainer} = setupCircuitContainer(svgData);
+    const {circuitContainer, svgContainer} = setupCircuitContainer(svgData, stepDetails);
     const {newCalcBtn, newVCBtn} = setupExplanationButtons(showVCData);
     const electricalElements = getElementsFromSvgContainer(svgContainer);
     const nextElementsContainer = setupNextElementsContainer(sanitizedSvgFilePath, electricalElements, vcData, showVCData);
@@ -17,7 +17,7 @@ function display_step(pyodide,stepDetails) {
     contentCol.append(circuitContainer);
 
     // Create the texts and buttons for the detailed calculation explanation
-    let {stepCalculationText, stepVoltageCurrentText} = generateTexts(data, vcData, stepDetails.componentTypes);
+    let {stepCalculationText, stepVoltageCurrentText} = generateTexts(data, vcData, stepDetails.getComponentTypes());
     checkAndAddExplanationButtons(showVCData, stepCalculationText, contentCol, stepVoltageCurrentText);
 
     // The order of function-calls is important
@@ -38,7 +38,8 @@ function display_step(pyodide,stepDetails) {
 
 function appendToAllValuesMap(showVCData, vcData, data) {
     if (showVCData) {
-        // If voltage/current is shown, add all Z/R/C/L U and I values to the map
+        // If voltage/current is shown, add all Z/R/C/L U and I values to the map from the two elements
+        // TODO this needs to be adapted according to the new data structure
         state.allValuesMap.set(vcData.noFormat().names1[0], vcData.noFormat().values1[0]);  // Z
         state.allValuesMap.set(vcData.noFormat().names1[1], vcData.noFormat().values1[1]);  // U
         state.allValuesMap.set(vcData.noFormat().names1[2], vcData.noFormat().values1[2]);  // I
@@ -77,14 +78,16 @@ function getFinishMsg(vcData, showVCData) {
         msg = `
         <p>${languageManager.currentLang.msgVoltAndCurrentAvailable}.<br></p>
         <p>${languageManager.currentLang.msgShowVoltage}<br>$$ ${languageManager.currentLang.voltageSymbol}_{${languageManager.currentLang.totalSuffix}}=${vcData.noFormat().oldValues[1]}$$</p>
-        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
+        <button class="btn btn-primary mx-1 disabled" id="check-btn">check</button>
+        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
     `;
     } else {
         // No msg, just the two buttons
         msg = `
-        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
+        <button class="btn btn-primary mx-1 disabled" id="check-btn">check</button>
+        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
     `;
     }
     return msg;
@@ -105,20 +108,21 @@ function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths, vcData,
         nextElementsContainer.innerHTML = `
         <h3>${languageManager.currentLang.nextElementsHeading}</h3>
         <ul class="px-0" id="next-elements-list-${sanitizedSvgFilePath}"></ul>
-        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
+        <button class="btn btn-secondary mx-1 ${state.pictureCounter === 1 ? "disabled" : ""}" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
     `;
     }
     return nextElementsContainer;
 }
 
-function setupCircuitContainer(svgData) {
+function setupCircuitContainer(svgData, stepDetails) {
     const circuitContainer = document.createElement('div');
     circuitContainer.classList.add('circuit-container');
     circuitContainer.classList.add("row"); // use flexbox property for scaling display sizes
     circuitContainer.classList.add("justify-content-center"); // centers the content
     circuitContainer.classList.add("my-2"); // centers the content
-    const svgContainer = setupSvgDivContainerAndData(svgData);
+    const svgContainer = setupSvgDivContainerAndData(svgData, stepDetails);
     circuitContainer.appendChild(svgContainer)
     return {circuitContainer, svgContainer};
 }
@@ -135,9 +139,13 @@ function addInfoHelpButton(svgDiv) {
     infoBtn.classList.add("btn");
     infoBtn.classList.add("btn-primary");
     infoBtn.style.position = "absolute";
-    infoBtn.style.color = colors.keyDark;
-    infoBtn.style.border = "none";
-    infoBtn.style.background = colors.keyYellow;
+    infoBtn.style.top = "5px";
+    infoBtn.style.left = "5px";
+    infoBtn.style.float = "left";
+    infoBtn.style.color = colors.keyYellow;
+    infoBtn.style.border = `1px solid ${colors.keyYellow}`;
+    infoBtn.style.background = "none";
+    infoBtn.style.fontWeight = "bold";
     infoBtn.innerText = "?";
     infoBtn.setAttribute("data-bs-toggle", "modal");
     infoBtn.setAttribute("data-bs-target", "#infoGif");
@@ -145,7 +153,7 @@ function addInfoHelpButton(svgDiv) {
     svgDiv.insertAdjacentElement("afterbegin", infoBtn);
 }
 
-function setupSvgDivContainerAndData(svgData) {
+function setupSvgDivContainerAndData(svgData, stepDetails) {
     const svgDiv = document.createElement('div');
     svgDiv.id = `svgDiv${state.pictureCounter}`;
     svgDiv.classList.add("svg-container");
@@ -155,14 +163,69 @@ function setupSvgDivContainerAndData(svgData) {
     svgDiv.style.borderRadius = "6px";
     svgDiv.style.width = "350px";
     svgDiv.style.maxWidth = "350px;";
+    svgDiv.style.position = "relative";
     // Svg manipulation - set width and color for dark mode
     svgData = setSvgColorMode(svgData);
+    // TODO REMOVE
+    svgData = addClasses(svgData);
+
     svgDiv.innerHTML = svgData;
     hideSvgArrows(svgDiv);
     if (state.pictureCounter === 1) {
         addInfoHelpButton(svgDiv);
     }
+    addNameValueToggleBtn(svgDiv, stepDetails);
     return svgDiv;
+}
+
+//TODO REMOVE
+function addClasses(svgData) {
+    svgData = svgData.replace(">R1</tspan>", " class='R1'>R1</tspan>");
+    svgData = svgData.replace(">R2</tspan>", " class='R2'>R2</tspan>");
+    svgData = svgData.replace(">R3</tspan>", " class='R3'>R3</tspan>");
+    svgData = svgData.replace(">R4</tspan>", " class='R4'>R4</tspan>");
+    return svgData;
+}
+
+function addNameValueToggleBtn(svgDiv, stepDetails) {
+    const nameValueToggleBtn = document.createElement("button");
+    nameValueToggleBtn.type = "button";
+    nameValueToggleBtn.id = `toggle-view-${state.pictureCounter}`;
+    nameValueToggleBtn.classList.add("btn", "btn-secondary", "toggle-view");
+    nameValueToggleBtn.style.position = "absolute";
+    nameValueToggleBtn.style.top = "5px";
+    nameValueToggleBtn.style.right = "5px";
+    nameValueToggleBtn.style.color = colors.currentForeground;
+    nameValueToggleBtn.style.border = `1px solid ${colors.currentForeground}`;
+    nameValueToggleBtn.style.background = "none";
+    nameValueToggleBtn.innerText = "⮂";
+    nameValueToggleBtn.onclick = () => {toggleNameValue(nameValueToggleBtn, svgDiv, stepDetails)};
+    svgDiv.insertAdjacentElement("afterbegin", nameValueToggleBtn);
+}
+
+function toggleNameValue(nameValueToggleBtn, svgDiv, stepDetails) {
+    console.log("Toggle name value");
+    let nameValueMap = stepDetails.getElementNamesAndValues();
+    // TODO Add all help values like Rs1, Rs2, Cs1, Cs2, Ls1, Ls2
+
+    for (let [key, value] of Object.entries(nameValueMap)) {
+        let tspan = svgDiv.querySelector(`.${key}`);
+        if (tspan === null) continue;
+        if (value.includes("\\Omega")) {
+            value = value.replace("\\Omega", "Ω");
+        }
+        if (value.includes("\\text{")) {
+            value = value.replace("\\text{", "");
+            value = value.replace("} ", "");
+        }
+        if (nameValueToggleBtn.innerText === "⮂") {
+            tspan.innerHTML = tspan.innerHTML.replace(key, `${value}`);
+        } else {
+            tspan.innerHTML = tspan.innerHTML.replace(`${value}`, key);
+        }
+    }
+
+    nameValueToggleBtn.innerText = nameValueToggleBtn.innerText === "⮂" ? "⮀" : "⮂";
 }
 
 function getElementsFromSvgContainer(svgContainer) {
@@ -416,7 +479,6 @@ function generateTexts(data, vcData, componentTypes) {
 }
 
 function finishCircuit(contentCol, showVCData) {
-    document.getElementById("check-btn").disabled = true;
     showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success");
     confetti({
         particleCount: 150,
@@ -445,6 +507,12 @@ function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
                 document.getElementById("check-btn").innerHTML = "check";
             }, 0);
         });
+    });
+    const backButton = document.getElementById("back-btn");
+    backButton.innerHTML = languageManager.currentLang.backBtn;
+    backButton.addEventListener("click", () => {
+        resetSimplifierPage(pyodide);
+        pageManager.showSelectPage();
     });
 }
 
@@ -481,7 +549,6 @@ function congratsAndVCDisplayIfFinished(filteredPaths, contentCol, showVCData, v
     if (onlyOneElementLeft(filteredPaths)) {
         addFirstVCExplanation(showVCData, vcData);
         addSolutionsButton(pyodide, showVCData, vcData);
-        addBackButton(pyodide, contentCol);
         finishCircuit(contentCol, showVCData);
     }
 }
@@ -544,19 +611,6 @@ function addSolutionsButton(pyodide, showVCData, vcData) {
             solBtnContainer.removeChild(div);
         }
     })
-}
-
-function addBackButton(pyodide, contentCol) {
-    let backButton = document.createElement("button");
-    backButton.classList.add("btn");
-    backButton.classList.add("btn-primary");
-    backButton.id = "back-btn";
-    backButton.innerHTML = languageManager.currentLang.backBtn;
-    contentCol.appendChild(backButton);
-    backButton.addEventListener("click", () => {
-        resetSimplifierPage(pyodide);
-        pageManager.showSelectPage();
-    });
 }
 
 function addFirstVCExplanation(showVCData, vcData) {

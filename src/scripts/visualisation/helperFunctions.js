@@ -212,11 +212,10 @@ function scrollBodyToTop() {
     window.scrollTo(0,0);
 }
 
-async function getCircuitComponentTypes(pyodide) {
+async function getCircuitInfo(pyodide) {
     let circuitInfoPath = await stepSolve.createCircuitInfo();
     let circuitInfoFile = await pyodide.FS.readFile(circuitInfoPath, {encoding: "utf8"});
-    const circuitInfo = JSON.parse(circuitInfoFile);
-    return circuitInfo["componentTypes"];
+    return JSON.parse(circuitInfoFile);
 }
 
 async function getJsonAndSvgStepFiles(pyodide) {
@@ -258,24 +257,6 @@ function resetHighlightedBoundingBoxes(svgDiv) {
     const boundingBoxes = svgDiv.querySelectorAll('.bounding-box');
     if (boundingBoxes.length > 0) {
         boundingBoxes.forEach(box => box.remove());
-    }
-}
-
-// ToDo maybe Remove
-async function createSvgsForSelectors(pyodide) {
-    await clearSolutionsDir(pyodide);
-    // For all circuit sets (e.g. Resistors, Capacitors, ..)
-    let paramMap = new Map();
-    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
-    paramMap.set("total", languageManager.currentLang.totalSuffix);
-
-
-    for (const circuitSet of circuitMapper.circuitSets) {
-        // For all circuits in this set (e.g., Resistor1, Resistor2, ...)
-        for (const circuit of circuitSet.set) {
-            stepSolve = state.solve.SolveInUserOrder(circuit.circuitFile, `${conf.pyodideCircuitPath}/${circuit.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
-            await stepSolve.createStep0();
-        }
     }
 }
 
@@ -342,10 +323,10 @@ async function solveCircuit(circuitMap, pyodide) {
     await stepSolve.createStep0().toJs();
 
     // Get information which components are used in this circuit
-    const componentTypes = await getCircuitComponentTypes(pyodide);
+    const circuitInfo = await getCircuitInfo(pyodide);
 
     await getJsonAndSvgStepFiles(pyodide);
-    let stepDetails = fillStepDetailsObject(circuitMap, componentTypes);
+    let stepDetails = fillStepDetailsObject(circuitMap, circuitInfo);
 
     display_step(pyodide, stepDetails);
 }
@@ -361,13 +342,13 @@ function startSolving(pyodide) {
     }
 }
 
-function fillStepDetailsObject(circuitMap, componentTypes) {
+function fillStepDetailsObject(circuitMap, circuitInfo) {
     let stepDetails = new StepDetails;
     stepDetails.showVCData = circuitIsNotSubstituteCircuit(circuitMap);
     stepDetails.jsonZPath = `${conf.pyodideSolutionsPath}/${state.jsonFiles_Z[state.currentStep]}`;
     stepDetails.jsonZVCath = (state.jsonFiles_VC === null) ? null : `${conf.pyodideSolutionsPath}/${state.jsonFiles_VC[state.currentStep]}`;
     stepDetails.svgPath = `${conf.pyodideSolutionsPath}/${state.svgFiles[state.currentStep]}`;
-    stepDetails.componentTypes = componentTypes;
+    stepDetails.circuitInfo = circuitInfo;
     return stepDetails;
 }
 

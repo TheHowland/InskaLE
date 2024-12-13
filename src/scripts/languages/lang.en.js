@@ -42,8 +42,15 @@ const english = {
         },
 
     // Simplifier page text
+    // info gif
     closeBtn:
         "Close",
+    infoGifHeading:
+        "How to use",
+    infoGifText:
+        "Click the elements you want to simplify and check your selection with the 'check' button. " +
+        "If the elements can be simplified, you will see the next step and can choose the next elements there.",
+    // next elements container and interactions
     nextElementsHeading:
         "Next elements",
     showCalculationBtn:
@@ -105,7 +112,7 @@ const english = {
     currentSplits:
         "The current splits up",
     backBtn:
-        "back to selection",
+        "back",
 
     // Cheat sheet
     resistanceColHeading:
