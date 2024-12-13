@@ -1,17 +1,4 @@
 const german = {
-    cookies: {
-        customize: "AUSWAHL",
-        applySome: "ANWENDEN",
-        rejectAll: "ABLEHNEN",
-        acceptAll: "AKZEPTIEREN",
-        title: "Cookie-Einstellungen",
-        text: "Wir verwenden Cookies, um dir die bestm&oumlgliche Erfahrung auf unserer Website zu bieten.",
-        necessary: "Notwendige",
-        analytics: "Analytische",
-        preferences: "Pr&aumlferenzen",
-        marketing: "Marketing"
-    },
-
     // Landing page text
     landingPageGreeting:
         "Ein kostenloses Browsertool um<br>" +
@@ -47,15 +34,19 @@ const german = {
         "nicht ver&aumlnderbar.",
 
     // Selector page text
-    carouselHeadings:
+    selectorHeadings:
         {
-            "sub":  "ERSATZSCHALTUNGEN",
-            "acdc": "GLEICH-/WECHSELSTROMKREISE",
+            "quick": "SCHNELLSTART",
+            "res":  "WIDERSTÄNDE",  // use the ä character because &auml is not rendered correctly here
+            "cap": "KONDENSATOREN",
+            "ind": "SPULEN",
             "mixed": "GEMISCHTE SCHALTUNGEN",
         },
 
 
     // Simplifier page text
+    closeBtn:
+        "Schlie&szligen",
     nextElementsHeading:
         "N&aumlchste Elemente",
     showCalculationBtn:

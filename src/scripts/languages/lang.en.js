@@ -1,17 +1,4 @@
 const english = {
-    cookies: {
-        customize: "CUSTOMIZE",
-        applySome: "APPLY",
-        rejectAll: "REJECT ALL",
-        acceptAll: "ACCEPT ALL",
-        title: "Cookie Settings",
-        text: "We value your privacy. We use cookies to provide you with the best possible experience on our website.",
-        necessary: "Necessary",
-        analytics: "Analytics",
-        preferences: "Preferences",
-        marketing: "Marketing"
-    },
-
     // Landing page text
     landingPageGreeting:
         "a free browser tool for learning<br>" +
@@ -45,14 +32,18 @@ const english = {
         "light or dark mode. While simplifying circuits, these settings cannot be changed.",
 
     // Selector page text
-    carouselHeadings:
+    selectorHeadings:
         {
-            "sub":  "SUBSTITUTE CIRCUITS",
-            "acdc": "AC/DC CIRCUITS",
+            "quick": "QUICKSTART",
+            "res":  "RESISTORS",
+            "cap": "CAPACITORS",
+            "ind": "INDUCTORS",
             "mixed": "MIXED CIRCUITS",
         },
 
     // Simplifier page text
+    closeBtn:
+        "Close",
     nextElementsHeading:
         "Next elements",
     showCalculationBtn:

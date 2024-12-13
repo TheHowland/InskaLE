@@ -33,6 +33,24 @@ function hideAllSelectors() {
     }
 }
 
+function hideQuickstart() {
+    document.getElementById("quick-carousel").hidden = true;
+    document.getElementById("quick-heading").hidden = true;
+}
+
+function hideAccordion() {
+    document.getElementById("selector-accordion").hidden = true;
+}
+
+function showQuickstart() {
+    document.getElementById("quick-carousel").hidden = false;
+    document.getElementById("quick-heading").hidden = false;
+}
+
+function showAccordion() {
+    document.getElementById("selector-accordion").hidden = false;
+}
+
 function showAllSelectors() {
     for (const circuitSet of circuitMapper.circuitSets) {
         const carousel = document.getElementById(`${circuitSet.identifier}-carousel`);
@@ -96,7 +114,8 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
         msg.classList.add("fixed-bottom");
         msg.style.bottom = "170px";
     }
-    msg.classList.add("m-5");
+    msg.classList.add("mx-auto");  // centers it when max-width is set
+    msg.style.maxWidth = "400px";
 
     let emojiSpan = document.createElement('span');
     emojiSpan.style.fontSize = '1.66em';
@@ -110,11 +129,19 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
     msg.appendChild(msgSpan);
 
     container.appendChild(msg);
+
+    // Remove the message when the user clicks anywhere
+    document.addEventListener("click", () => {
+        if (container.contains(msg)) {
+            container.removeChild(msg);
+        }
+    });
+    // Remove the message after 3 seconds if not clicked already
     setTimeout(() => {
         if (container.contains(msg)) {
             container.removeChild(msg);
         }
-    }, 2000);
+    }, 3000);
 }
 
 function setPgrBarTo(percent) {
