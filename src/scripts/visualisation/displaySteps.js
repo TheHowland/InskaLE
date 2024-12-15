@@ -1,16 +1,15 @@
 // ####################################################################################################################
 // #################################### Key function for displaying new svgs ##########################################
 // ####################################################################################################################
-function display_step(stepDetails) {
+function display_step(pyodide,stepDetails) {
     // Load data
+    let showVCData = stepDetails.showVCData;
 
-    let showVCData = state.currentCircuitShowVC;
-
-    let {data,vcData,svgData,sanitizedSvgFilePath} = loadData(stepDetails);
+    let {data,vcData,svgData,sanitizedSvgFilePath} = loadData(pyodide, stepDetails);
     state.pictureCounter++;  // increment before usage in the below functions
 
     // Create the new elements for the current step
-    const {circuitContainer, svgContainer} = setupCircuitContainer(svgData, stepDetails);
+    const {circuitContainer, svgContainer} = setupCircuitContainer(svgData);
     const {newCalcBtn, newVCBtn} = setupExplanationButtons(showVCData);
     const electricalElements = getElementsFromSvgContainer(svgContainer);
     const nextElementsContainer = setupNextElementsContainer(sanitizedSvgFilePath, electricalElements, vcData, showVCData);
@@ -18,7 +17,7 @@ function display_step(stepDetails) {
     contentCol.append(circuitContainer);
 
     // Create the texts and buttons for the detailed calculation explanation
-    let {stepCalculationText, stepVoltageCurrentText} = generateTexts(data, vcData, stepDetails.getComponentTypes());
+    let {stepCalculationText, stepVoltageCurrentText} = generateTexts(data, vcData, stepDetails.componentTypes);
     checkAndAddExplanationButtons(showVCData, stepCalculationText, contentCol, stepVoltageCurrentText);
 
     // The order of function-calls is important
@@ -27,9 +26,9 @@ function display_step(stepDetails) {
     const div = createExplanationBtnContainer(newCalcBtn);
     if (showVCData) div.appendChild(newVCBtn);
 
-    setupStepButtonsFunctionality(div, stepDetails);
+    setupStepButtonsFunctionality(pyodide, div, stepDetails);
     appendToAllValuesMap(showVCData, vcData, data);
-    congratsAndVCDisplayIfFinished(electricalElements, contentCol, showVCData, vcData);
+    congratsAndVCDisplayIfFinished(electricalElements, contentCol, showVCData, vcData, pyodide);
     MathJax.typeset();
 }
 
@@ -39,8 +38,7 @@ function display_step(stepDetails) {
 
 function appendToAllValuesMap(showVCData, vcData, data) {
     if (showVCData) {
-        // If voltage/current is shown, add all Z/R/C/L U and I values to the map from the two elements
-        // TODO this needs to be adapted according to the new data structure
+        // If voltage/current is shown, add all Z/R/C/L U and I values to the map
         state.allValuesMap.set(vcData.noFormat().names1[0], vcData.noFormat().values1[0]);  // Z
         state.allValuesMap.set(vcData.noFormat().names1[1], vcData.noFormat().values1[1]);  // U
         state.allValuesMap.set(vcData.noFormat().names1[2], vcData.noFormat().values1[2]);  // I
@@ -66,7 +64,8 @@ function appendToAllValuesMap(showVCData, vcData, data) {
 function createExplanationBtnContainer(element) {
     const div = document.createElement("div");
     div.id = `explBtnContainer${state.pictureCounter}`
-    div.classList.add("container", "justify-content-center");
+    div.classList.add("container");
+    div.classList.add("justify-content-center");
     div.appendChild(element);
     return div;
 }
@@ -78,16 +77,14 @@ function getFinishMsg(vcData, showVCData) {
         msg = `
         <p>${languageManager.currentLang.msgVoltAndCurrentAvailable}.<br></p>
         <p>${languageManager.currentLang.msgShowVoltage}<br>$$ ${languageManager.currentLang.voltageSymbol}_{${languageManager.currentLang.totalSuffix}}=${vcData.noFormat().oldValues[1]}$$</p>
-        <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1 disabled" id="check-btn">check</button>
-        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
+        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
+        <button class="btn btn-primary mx-1" id="check-btn">check</button>
     `;
     } else {
         // No msg, just the two buttons
         msg = `
-        <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1 disabled" id="check-btn">check</button>
-        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
+        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
+        <button class="btn btn-primary mx-1" id="check-btn">check</button>
     `;
     }
     return msg;
@@ -97,7 +94,9 @@ function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths, vcData,
     const nextElementsContainer = document.createElement('div');
     nextElementsContainer.className = 'next-elements-container';
     nextElementsContainer.id = "nextElementsContainer";
-    nextElementsContainer.classList.add("text-center", "py-1", "mb-3");
+    nextElementsContainer.classList.add("text-center");
+    nextElementsContainer.classList.add("py-1");
+    nextElementsContainer.classList.add("mb-3");
     nextElementsContainer.style.color = colors.currentForeground;
     if (onlyOneElementLeft(filteredPaths)) {
         nextElementsContainer.innerHTML = getFinishMsg(vcData, showVCData);
@@ -106,18 +105,20 @@ function setupNextElementsContainer(sanitizedSvgFilePath, filteredPaths, vcData,
         nextElementsContainer.innerHTML = `
         <h3>${languageManager.currentLang.nextElementsHeading}</h3>
         <ul class="px-0" id="next-elements-list-${sanitizedSvgFilePath}"></ul>
-        <button class="btn btn-secondary mx-1 ${state.pictureCounter === 1 ? "disabled" : ""}" id="reset-btn">reset</button>
+        <button class="btn btn-primary mx-1" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1" id="check-btn">check</button>
-        <button class="btn btn-secondary mx-1" id="back-btn">back</button>
     `;
     }
     return nextElementsContainer;
 }
 
-function setupCircuitContainer(svgData, stepDetails) {
+function setupCircuitContainer(svgData) {
     const circuitContainer = document.createElement('div');
-    circuitContainer.classList.add("circuit-container", "row", "justify-content-center", "my-2");
-    const svgContainer = setupSvgDivContainerAndData(svgData, stepDetails);
+    circuitContainer.classList.add('circuit-container');
+    circuitContainer.classList.add("row"); // use flexbox property for scaling display sizes
+    circuitContainer.classList.add("justify-content-center"); // centers the content
+    circuitContainer.classList.add("my-2"); // centers the content
+    const svgContainer = setupSvgDivContainerAndData(svgData);
     circuitContainer.appendChild(svgContainer)
     return {circuitContainer, svgContainer};
 }
@@ -127,103 +128,21 @@ function hideSvgArrows(svgDiv) {
     for (let arrow of arrows) arrow.style.display = "none";
 }
 
-function addInfoHelpButton(svgDiv) {
-    let infoBtn = document.createElement("button");
-    infoBtn.type = "button";
-    infoBtn.id = "open-info-gif-btn";
-    infoBtn.classList.add("btn", "btn-primary");
-    infoBtn.style.position = "absolute";
-    infoBtn.style.top = "5px";
-    infoBtn.style.left = "5px";
-    infoBtn.style.float = "left";
-    infoBtn.style.color = colors.keyYellow;
-    infoBtn.style.border = `1px solid ${colors.keyYellow}`;
-    infoBtn.style.background = "none";
-    infoBtn.style.fontWeight = "bold";
-    infoBtn.innerText = "?";
-    infoBtn.setAttribute("data-bs-toggle", "modal");
-    infoBtn.setAttribute("data-bs-target", "#infoGif");
-    infoBtn.onclick = () => {infoBtn.blur()};  // make sure focus is removed when opening modal
-    svgDiv.insertAdjacentElement("afterbegin", infoBtn);
-}
-
-function setupSvgDivContainerAndData(svgData, stepDetails) {
+function setupSvgDivContainerAndData(svgData) {
     const svgDiv = document.createElement('div');
     svgDiv.id = `svgDiv${state.pictureCounter}`;
-    svgDiv.classList.add("svg-container", "p-2");
+    svgDiv.classList.add("svg-container");
+    svgDiv.classList.add("p-2");
     svgData = setSvgWidthTo(svgData, "100%");
     svgDiv.style.border = `1px solid ${colors.currentForeground}`;
     svgDiv.style.borderRadius = "6px";
     svgDiv.style.width = "350px";
     svgDiv.style.maxWidth = "350px;";
-    svgDiv.style.position = "relative";
     // Svg manipulation - set width and color for dark mode
     svgData = setSvgColorMode(svgData);
-    // TODO REMOVE
-    svgData = addClasses(svgData);
-
     svgDiv.innerHTML = svgData;
     hideSvgArrows(svgDiv);
-    if (state.pictureCounter === 1) {
-        addInfoHelpButton(svgDiv);
-    }
-    addNameValueToggleBtn(svgDiv, stepDetails);
     return svgDiv;
-}
-
-//TODO REMOVE
-function addClasses(svgData) {
-    svgData = svgData.replace(">R1</tspan>", " class='R1'>R1</tspan>");
-    svgData = svgData.replace(">R2</tspan>", " class='R2'>R2</tspan>");
-    svgData = svgData.replace(">R3</tspan>", " class='R3'>R3</tspan>");
-    svgData = svgData.replace(">R4</tspan>", " class='R4'>R4</tspan>");
-    return svgData;
-}
-
-function addNameValueToggleBtn(svgDiv, stepDetails) {
-    const nameValueToggleBtn = document.createElement("button");
-    nameValueToggleBtn.type = "button";
-    nameValueToggleBtn.id = `toggle-view-${state.pictureCounter}`;
-    nameValueToggleBtn.classList.add("btn", "btn-secondary", "toggle-view");
-    nameValueToggleBtn.style.position = "absolute";
-    nameValueToggleBtn.style.top = "5px";
-    nameValueToggleBtn.style.right = "5px";
-    nameValueToggleBtn.style.color = colors.currentForeground;
-    nameValueToggleBtn.style.border = `1px solid ${colors.currentForeground}`;
-    nameValueToggleBtn.style.background = "none";
-    nameValueToggleBtn.innerText = toggleSymbolDefinition.namesShown;
-    nameValueToggleBtn.onclick = () => {toggleNameValue(nameValueToggleBtn, svgDiv, stepDetails)};
-    svgDiv.insertAdjacentElement("afterbegin", nameValueToggleBtn);
-}
-
-function toggleNameValue(nameValueToggleBtn, svgDiv, stepDetails) {
-    console.log("Toggle name value");
-    let nameValueMap = stepDetails.getElementNamesAndValues();
-
-    // TODO Add all help values like Rs1, Rs2, Cs1, Cs2, Ls1, Ls2
-
-    for (let [key, value] of Object.entries(nameValueMap)) {
-        let tspan = svgDiv.querySelector(`.${key}`);
-        if (tspan === null) continue;
-        if (value.includes("\\Omega")) {
-            value = value.replace("\\Omega", "Ω");
-        }
-        if (value.includes("\\text{")) {
-            value = value.replace("\\text{", "");
-            value = value.replace("} ", "");
-        }
-        if (nameValueToggleBtn.innerText === toggleSymbolDefinition.namesShown) {
-            tspan.innerHTML = tspan.innerHTML.replace(key, `${value}`);
-        } else {
-            tspan.innerHTML = tspan.innerHTML.replace(`${value}`, key);
-        }
-    }
-    // Toggle button icon
-    if (nameValueToggleBtn.innerText === toggleSymbolDefinition.namesShown) {
-        nameValueToggleBtn.innerText = toggleSymbolDefinition.valuesShown;
-    } else {
-        nameValueToggleBtn.innerText = toggleSymbolDefinition.namesShown;
-    }
 }
 
 function getElementsFromSvgContainer(svgContainer) {
@@ -277,7 +196,10 @@ function addElementValueToTextBox(pathElement, bboxId, nextElementsList) {
 function setupVoltageCurrentBtn() {
     const vcBtn = document.createElement("button");
     vcBtn.id = `vcBtn${state.pictureCounter}`
-    vcBtn.classList.add("btn", "explBtn", "my-3", "mx-2");
+    vcBtn.classList.add("btn");
+    vcBtn.classList.add("explBtn");
+    vcBtn.classList.add("my-3");
+    vcBtn.classList.add("mx-2");
     vcBtn.style.color = colors.currentForeground;
     vcBtn.style.borderColor = colors.currentForeground;
     vcBtn.textContent = languageManager.currentLang.showVoltageBtn;
@@ -288,7 +210,10 @@ function setupVoltageCurrentBtn() {
 function setupCalculationBtn() {
     const calcBtn = document.createElement("button");
     calcBtn.id = `calcBtn${state.pictureCounter}`
-    calcBtn.classList.add("btn", "explBtn", "my-3", "mx-2");
+    calcBtn.classList.add("btn");
+    calcBtn.classList.add("explBtn");
+    calcBtn.classList.add("my-3");
+    calcBtn.classList.add("mx-2");
     calcBtn.style.color = colors.currentForeground;
     calcBtn.style.borderColor = colors.currentForeground;
     calcBtn.textContent = languageManager.currentLang.showCalculationBtn;
@@ -311,8 +236,8 @@ function chooseElement(pathElement, nextElementsList) {
     MathJax.typeset();
 }
 
-function getImpedanceData(jsonFilePath_Z) {
-    let jsonDataString = state.pyodide.FS.readFile(jsonFilePath_Z, {encoding: "utf8"});
+function getImpedanceData(pyodide, jsonFilePath_Z) {
+    let jsonDataString = pyodide.FS.readFile(jsonFilePath_Z, {encoding: "utf8"});
     const jsonData = JSON.parse(jsonDataString);
 
     let data = new SolutionObject(
@@ -323,10 +248,10 @@ function getImpedanceData(jsonFilePath_Z) {
     return data;
 }
 
-function getVoltageCurrentData(jsonFilePath_VC) {
+function getVoltageCurrentData(pyodide, jsonFilePath_VC) {
     let vcData;
     if (jsonFilePath_VC != null) {
-        let jsonDataString_VC = state.pyodide.FS.readFile(jsonFilePath_VC, {encoding: "utf8"});
+        let jsonDataString_VC = pyodide.FS.readFile(jsonFilePath_VC, {encoding: "utf8"});
         let jsonData_VC = JSON.parse(jsonDataString_VC);
         vcData = new SolutionObject_VC(
             jsonData_VC.oldNames, jsonData_VC.names1, jsonData_VC.names2,
@@ -340,14 +265,14 @@ function getVoltageCurrentData(jsonFilePath_VC) {
     return vcData;
 }
 
-async function checkAndSimplifyNext(div, stepDetails){
+async function checkAndSimplifyNext(pyodide, div, stepDetails){
     const contentCol = document.getElementById("content-col");
     const nextElementsContainer = document.getElementById("nextElementsContainer");
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
 
     if (twoElementsChosen()) {
         const simplifyObject = await stepSolve.simplifyTwoCpts(state.selectedElements).toJs();
-        checkAndSimplify(simplifyObject, contentCol, div, stepDetails);
+        checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertChooseTwoElements, "only2");
         pushCircuitEventMatomo(circuitActions.ErrOnly2, state.selectedElements.length)
@@ -356,7 +281,7 @@ async function checkAndSimplifyNext(div, stepDetails){
     MathJax.typeset();
 }
 
-function checkAndSimplify(simplifyObject, contentCol, div, stepDetails) {
+function checkAndSimplify(simplifyObject, pyodide, contentCol, div, stepDetails) {
     let elementsCanBeSimplified = simplifyObject[0];
     // Update paths, showVC and componentType are still the same
     stepDetails.jsonZPath = simplifyObject[1][0];
@@ -369,9 +294,7 @@ function checkAndSimplify(simplifyObject, contentCol, div, stepDetails) {
             enableLastCalcButton();
             scrollNextElementsContainerIntoView();
         }
-        // Remove event listeners from old picture elements
-        removeOldEventListeners();
-        display_step(stepDetails);
+        display_step(pyodide, stepDetails);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
@@ -473,7 +396,8 @@ function generateTexts(data, vcData, componentTypes) {
 }
 
 function finishCircuit(contentCol, showVCData) {
-    showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success");
+    document.getElementById("check-btn").disabled = true;
+    showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success", false);
     confetti({
         particleCount: 150,
         angle: 90,
@@ -488,40 +412,20 @@ function finishCircuit(contentCol, showVCData) {
     pushCircuitEventMatomo(circuitActions.Finished);
 }
 
-function setupStepButtonsFunctionality(div, stepDetails) {
+function setupStepButtonsFunctionality(pyodide, div, stepDetails) {
     document.getElementById("reset-btn").addEventListener('click', () => {
-        // Can only be after step 1 because the first step can't be reset, so no need to check
         pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
-        resetSimplifierPage(true);
+        resetSimplifierPage(pyodide, true);
     });
-    // Check btn clicked, set spinner inside and simplify next step
     document.getElementById("check-btn").addEventListener('click', async () => {
         document.getElementById("check-btn").innerHTML = "<span class='spinner-border spinner-border-sm'></span>";
         requestAnimationFrame(() => {
             setTimeout(() => {
-                checkAndSimplifyNext(div, stepDetails);
+                checkAndSimplifyNext(pyodide, div, stepDetails);
                 document.getElementById("check-btn").innerHTML = "check";
             }, 0);
         });
     });
-    const backButton = document.getElementById("back-btn");
-    backButton.innerHTML = languageManager.currentLang.backBtn;
-    backButton.addEventListener("click", () => {
-        resetSimplifierPage();
-        pageManager.showSelectPage();
-    });
-}
-
-function removeOldEventListeners() {
-    const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    const pathElements = svgDiv.querySelectorAll('path');
-    let electricElements = Array.from(pathElements).filter(path => (path.getAttribute('class') !== 'na')
-        && (!path.getAttribute('class').includes("arrow")));
-    for (let element of electricElements) {
-        // Clone the node and replace its original with the clone, this removes all event listeners
-        let clone = element.cloneNode(true);
-        element.parentNode.replaceChild(clone, element);
-    }
 }
 
 function getAllElementsAndMakeClickable(nextElementsContainer, sanitizedSvgFilePath, electricalElements) {
@@ -539,10 +443,10 @@ function setupExplanationButtons(showVoltageButton) {
     return {newCalcBtn, empty};
 }
 
-function loadData(stepDetails) {
-    let data = getImpedanceData(stepDetails.jsonZPath);
-    let vcData = getVoltageCurrentData(stepDetails.jsonVCPath);
-    let svgData = state.pyodide.FS.readFile(stepDetails.svgPath, {encoding: "utf8"});
+function loadData(pyodide, stepDetails) {
+    let data = getImpedanceData(pyodide, stepDetails.jsonZPath);
+    let vcData = getVoltageCurrentData(pyodide, stepDetails.jsonVCPath);
+    let svgData = pyodide.FS.readFile(stepDetails.svgPath, {encoding: "utf8"});
     const sanitizedSvgFilePath = sanitizeSelector(stepDetails.svgPath);
     return {data, vcData, svgData, sanitizedSvgFilePath};
 }
@@ -553,10 +457,11 @@ function checkIfStillNotFinishedAndMakeClickable(electricalElements, nextElement
     }
 }
 
-function congratsAndVCDisplayIfFinished(filteredPaths, contentCol, showVCData, vcData) {
+function congratsAndVCDisplayIfFinished(filteredPaths, contentCol, showVCData, vcData, pyodide) {
     if (onlyOneElementLeft(filteredPaths)) {
         addFirstVCExplanation(showVCData, vcData);
-        addSolutionsButton(showVCData, vcData);
+        addSolutionsButton(pyodide, showVCData, vcData);
+        addBackButton(pyodide, contentCol);
         finishCircuit(contentCol, showVCData);
     }
 }
@@ -581,7 +486,7 @@ function prepareAllValuesMap(vcData, showVCData) {
     state.allValuesMap = new Map([...state.allValuesMap.entries()].sort());
 }
 
-function addSolutionsButton(showVCData, vcData) {
+function addSolutionsButton(pyodide, showVCData, vcData) {
     const solBtnContainer = createSolutionsBtnContainer();
     const solBtn = createSolutionsBtn();
     addBtnToContainer(solBtnContainer, solBtn);
@@ -589,24 +494,8 @@ function addSolutionsButton(showVCData, vcData) {
     let table = generateSolutionsTable(showVCData);
 
     let originalStep0Svg = document.getElementById("svgDiv1");
-    // check if in the original step the names are shown or the values
-    let clonedSvgData;
-    let valuesShown = originalStep0Svg.querySelector("#toggle-view-1").innerHTML === toggleSymbolDefinition.valuesShown;
-    if (valuesShown) {
-        // copy the svg with names shown
-        originalStep0Svg.querySelector("#toggle-view-1").click();
-        clonedSvgData = originalStep0Svg.cloneNode(true);
-        originalStep0Svg.querySelector("#toggle-view-1").click();
-    } else {
-        clonedSvgData = originalStep0Svg.cloneNode(true);
-    }
-
+    let clonedSvgData = originalStep0Svg.cloneNode(true);
     clonedSvgData.id = "clonedOverviewSvg";
-    // Adapt svg data
-    clonedSvgData.removeChild(clonedSvgData.querySelector("#open-info-gif-btn"));
-    clonedSvgData.removeChild(clonedSvgData.querySelector("#toggle-view-1"));
-    clonedSvgData.style.width = "";  // let the table adjust itself to the screensize
-
     clonedSvgData.appendChild(table);
     if (showVCData) {
         let arrows = clonedSvgData.getElementsByClassName("arrow");
@@ -616,7 +505,9 @@ function addSolutionsButton(showVCData, vcData) {
         }
     }
     let div = document.createElement("div");
-    div.classList.add("circuit-container", "row", "justify-content-center");
+    div.classList.add("circuit-container");
+    div.classList.add("justify-content-center");
+    div.classList.add("row");
     div.appendChild(clonedSvgData);
 
     solBtn.addEventListener("click", () => {
@@ -632,6 +523,19 @@ function addSolutionsButton(showVCData, vcData) {
             solBtnContainer.removeChild(div);
         }
     })
+}
+
+function addBackButton(pyodide, contentCol) {
+    let backButton = document.createElement("button");
+    backButton.classList.add("btn");
+    backButton.classList.add("btn-primary");
+    backButton.id = "back-btn";
+    backButton.innerHTML = languageManager.currentLang.backBtn;
+    contentCol.appendChild(backButton);
+    backButton.addEventListener("click", () => {
+        resetSimplifierPage(pyodide);
+        pageManager.showSelectPage();
+    });
 }
 
 function addFirstVCExplanation(showVCData, vcData) {
@@ -731,14 +635,17 @@ function generateSolutionsTable(showVCData) {
 function createTotalCurrentContainer() {
     const firstStepContainer = document.createElement("div");
     firstStepContainer.id = "firstVCStepContainer";
-    firstStepContainer.classList.add("container", "justify-content-center");
+    firstStepContainer.classList.add("container");
+    firstStepContainer.classList.add("justify-content-center");
     return firstStepContainer;
 }
 
 function createSolutionsBtnContainer() {
     const solutionsContainer = document.createElement("div");
     solutionsContainer.id = "solutionsBtnContainer";
-    solutionsContainer.classList.add("container", "mb-5", "justify-content-center");
+    solutionsContainer.classList.add("container");
+    solutionsContainer.classList.add("mb-5");
+    solutionsContainer.classList.add("justify-content-center");
     return solutionsContainer;
 }
 
@@ -746,6 +653,10 @@ function createTotalCurrentBtn() {
     const totalCurrentBtn = setupVoltageCurrentBtn();
     totalCurrentBtn.textContent = languageManager.currentLang.firstVCStepBtn;
     totalCurrentBtn.disabled = false;
+    // Adjust margins from normal VC Btn because reset button is right below, give more space
+    totalCurrentBtn.classList.remove("my-3");
+    totalCurrentBtn.classList.add("mt-3");
+    totalCurrentBtn.classList.add("mb-3");
     return totalCurrentBtn;
 }
 
@@ -753,6 +664,10 @@ function createSolutionsBtn() {
     const totalCurrentBtn = setupVoltageCurrentBtn();
     totalCurrentBtn.textContent = languageManager.currentLang.solutionsBtn;
     totalCurrentBtn.disabled = false;
+    // Adjust margins from normal VC Btn because reset button is right below, give more space
+    totalCurrentBtn.classList.remove("my-3");
+    totalCurrentBtn.classList.add("mt-3");
+    totalCurrentBtn.classList.add("mb-3");
     return totalCurrentBtn;
 }
 
@@ -760,6 +675,6 @@ function setStyleAndEvent(element, nextElementsList) {
     element.style.pointerEvents = "bounding-box";
     element.style.cursor = 'pointer';
     element.addEventListener('click', () =>
-        chooseElement(element, nextElementsList)
+    chooseElement(element, nextElementsList)
     );
 }
