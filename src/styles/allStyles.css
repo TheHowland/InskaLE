@@ -452,6 +452,8 @@ th, td {
 
 
 #bootstrap-overrides .accordion-button {
+    background-color: #212529;
+    color: #ffc107;
     font-size: 24px;
     font-family: 'Roboto Condensed', sans-serif;
 }
@@ -577,7 +579,7 @@ th, td {
     color: white;
 }
 
-#bootstrap-overrides #back-btn-data-privacy, #back-btn-legal {
+#bootstrap-overrides #back-btn-data-privacy {
     background-color: #FFC107;
     border: none;
     color: #222222;

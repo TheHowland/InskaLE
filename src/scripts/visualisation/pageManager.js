@@ -108,7 +108,6 @@ class PageManager {
             await circuitMapper.mapCircuits();
             setPgrBarTo(10);
             selectorBuilder.buildSelectorsForAllCircuitSets();
-            updateSelectorPageColors();
 
             hideQuickstart();
             hideAccordion();

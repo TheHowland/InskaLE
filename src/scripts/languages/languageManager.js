@@ -78,12 +78,12 @@ class LanguageManager {
     }
 
     updateDataPrivacyPage() {
-        const backBtn = document.getElementById('back-btn-data-privacy');
+        const backBtn = document.getElementById('back-btn');
         backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
     }
 
     updateLegalNoticePage() {
-        const backBtn = document.getElementById('back-btn-legal');
+        const backBtn = document.getElementById('back-btn');
         backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
         const legalNoticeHeading = document.getElementById('legal-notice-heading');
         legalNoticeHeading.innerHTML = this.currentLang.legalNoticeHeading;
