@@ -26,6 +26,16 @@ async function main() {
         }
     });
     disableStartBtnAndSimplifierLink();
+
+    /*
+    // set preferred color scheme
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.getElementById("darkmode-switch").checked = prefersDark;
+    if (!prefersDark){
+        changeToLightMode();
+    }
+    */
+
     conf = new Configurations();
     await conf.initialize();
     packageManager = new PackageManager();

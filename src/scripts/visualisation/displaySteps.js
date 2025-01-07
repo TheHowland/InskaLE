@@ -600,7 +600,6 @@ function addSolutionsButton(showVCData, vcData) {
     } else {
         clonedSvgData = originalStep0Svg.cloneNode(true);
     }
-
     clonedSvgData.id = "clonedOverviewSvg";
     // Adapt svg data
     clonedSvgData.removeChild(clonedSvgData.querySelector("#open-info-gif-btn"));
@@ -608,6 +607,7 @@ function addSolutionsButton(showVCData, vcData) {
     clonedSvgData.style.width = "";  // let the table adjust itself to the screensize
 
     clonedSvgData.appendChild(table);
+
     if (showVCData) {
         let arrows = clonedSvgData.getElementsByClassName("arrow");
         for (let arrow of arrows) {

@@ -18,6 +18,7 @@ function changeToDarkMode() {
     updateAvailableBsClassesTo(colors.bsColorSchemeDark);
     updateNavigationColorsTo(colors.bootstrapDark, colors.languagesDarkBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeDark);
+    updateSimplifierPageColors();
     updateSelectorPageColors();
     if (circuitMapper !== null) {
         updateSelectorPageSvgStrokeColor(colors.lightModeSvgStrokeColor, colors.darkModeSvgStrokeColor);
@@ -72,15 +73,20 @@ function updateSelectorPageColors() {
 }
 
 function updateOverviewModals() {
-    for (let circuitSet of circuitMapper.circuitSets) {
-        const modal = document.getElementById(`${circuitSet.identifier}-overviewModal`);
-        if (modal !== null) {
-            const modalBody = modal.querySelector(".modal-body");
-            modalBody.style.color = colors.currentForeground;
-            modalBody.style.backgroundColor = colors.currentBsBackground;
-            const modalFooter = modal.querySelector(".modal-footer");
-            modalFooter.style.color = colors.currentForeground;
-            modalFooter.style.backgroundColor = colors.currentBsBackground;
+    if (circuitMapper !== null) {
+        for (let circuitSet of circuitMapper.circuitSets) {
+            const modal = document.getElementById(`${circuitSet.identifier}-overviewModal`);
+            if (modal !== null) {
+                const modalHeader = modal.querySelector(".modal-header");
+                modalHeader.style.color = colors.currentForeground;
+                modalHeader.style.backgroundColor = colors.currentBsBackground;
+                const modalBody = modal.querySelector(".modal-body");
+                modalBody.style.color = colors.currentForeground;
+                modalBody.style.backgroundColor = colors.currentBsBackground;
+                const modalFooter = modal.querySelector(".modal-footer");
+                modalFooter.style.color = colors.currentForeground;
+                modalFooter.style.backgroundColor = colors.currentBsBackground;
+            }
         }
     }
 }
