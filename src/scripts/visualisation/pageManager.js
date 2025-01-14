@@ -96,26 +96,30 @@ class PageManager {
             this.showSelectPage();
         } else {
             this.showSelectPage();
+            setPgrBarTo(0);
             const note = showWaitingNote();
-
+            setPgrBarTo(1);
             state.pyodideLoading = true;
             // Get the pyodide instance and setup pages with functionality
-            this.pyodide = await loadPyodide();
-
+            state.pyodide = await loadPyodide();
+            setPgrBarTo(5);
             // Map all circuits into map and build the selectors
-            circuitMapper = new CircuitMapper(this.pyodide);
+            circuitMapper = new CircuitMapper();
             await circuitMapper.mapCircuits();
-
+            setPgrBarTo(10);
             selectorBuilder.buildSelectorsForAllCircuitSets();
+            updateSelectorPageColors();
 
-            hideAllSelectors();
+            hideQuickstart();
+            hideAccordion();
 
-            // Import packages/scripts, create selector svgs
-            await packageManager.doLoadsAndImports(this.pyodide);
-            //await createSvgsForSelectors(pyodide);
+            // Starts with 10%
+            await packageManager.doLoadsAndImports();
 
             selectorBuilder.adaptSelectorFrameColor();
-            showAllSelectors();
+
+            showQuickstart();
+            showAccordion();
             note.innerHTML = "";
 
             pageManager.setupSelectPage();
@@ -123,15 +127,11 @@ class PageManager {
     }
 
     setupSelectPage() {
+        // Fill accordion and carousels with svg data
+        languageManager.updateLanguageSelectorPage();
         for (const circuitSet of circuitMapper.circuitSets) {
-            this.updateSelectorHeadings(circuitSet.identifier);
             selectorBuilder.setupSelector(circuitSet, this);
         }
-    }
-
-    updateSelectorHeadings(circuitSetId) {
-        const heading = document.getElementById(`${circuitSetId}-heading`);
-        heading.innerHTML = languageManager.currentLang.carouselHeadings[circuitSetId];
     }
 
     setupNavigation() {
@@ -143,12 +143,12 @@ class PageManager {
         const selectGerman = document.getElementById("select-german");
 
         navHomeLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
+            checkIfSimplifierPageNeedsReset();  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
         navSimplifierLink.addEventListener("click", async () => {
-            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
+            checkIfSimplifierPageNeedsReset();  // must be in front of page change
             closeNavbar();
             if (state.pyodideReady) {
                 this.showSelectPage();
@@ -158,12 +158,12 @@ class PageManager {
             }
         })
         navCheatLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset(this.pyodide);
+            checkIfSimplifierPageNeedsReset();
             closeNavbar();
             this.showCheatSheet();
         })
         navLogo.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
+            checkIfSimplifierPageNeedsReset();  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
@@ -207,6 +207,11 @@ class PageManager {
                 page.style.opacity = "0.3";
             }
         }
+    }
+
+    setupSimplifierPage() {
+        languageManager.updateLanguageSimplifierPage();
+        updateSimplifierPageColors();
     }
 
     setupCheatSheet() {
