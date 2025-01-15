@@ -5,15 +5,14 @@ class StateObject {
     //Tracks the current step in the circuit simplification process.
     currentStep = 0;
 
-    // TODO OLD
     //Array to store JSON file paths for Z simplification steps.
-    //jsonFiles_Z = [];
-    // Array to store JSON file paths for VC simplification steps.
-    //jsonFiles_VC = [];
-    //Array to store SVG file paths for circuit diagrams.
-    //svgFiles = [];
+    jsonFiles_Z = [];
 
-    step0Data = {};
+    // Array to store JSON file paths for VC simplification steps.
+    jsonFiles_VC = [];
+
+    //Array to store SVG file paths for circuit diagrams.
+    svgFiles = [];
 
     //Array to store the names of the circuit files.
     circuitFiles = [];
@@ -23,13 +22,11 @@ class StateObject {
 
     //Stores the currently selected circuit map
     currentCircuitMap = null;
-    currentCircuitShowVC = null;
 
     //The Python module imported from the Pyodide environment for solving circuits.
     solve;
 
     //Boolean to track if the Pyodide environment is ready.
-    pyodide = null;
     pyodideReady = false;
     pyodideLoading = false;
 

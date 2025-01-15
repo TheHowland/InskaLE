@@ -19,12 +19,6 @@ let pageManager;
 // #####################################################################################################################
 
 async function main() {
-    // This is to prevent the focus from staying on the modal when it is closed
-    document.addEventListener('hide.bs.modal', function (event) {
-        if (document.activeElement) {
-            document.activeElement.blur();
-        }
-    });
     disableStartBtnAndSimplifierLink();
 
     /*
@@ -47,7 +41,6 @@ async function main() {
     pageManager.showLandingPage();
     pageManager.setupNavigation();
     pageManager.setupCheatSheet();
-    pageManager.setupSimplifierPage();
     // Selector page is set up when start button is clicked
 
     setupDarkModeSwitch();
