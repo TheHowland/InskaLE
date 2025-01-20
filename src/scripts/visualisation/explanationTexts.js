@@ -1,151 +1,211 @@
-// Generates and appends a paragraph describing the resistance simplification step
-function generateTextForZ(data, componentTypes) {
-    let relation = data.noFormat().relation;
+// Generates a paragraph describing the resistance simplification step
+function generateTextForZ(stepObject) {
+    let relation = stepObject.componentsRelation;
     const paragraphElement = document.createElement('p');
     paragraphElement.classList.add("explText");
-    const firstPart = getElementsAndRelationDescription(data);
+    const firstPart = getElementsAndRelationDescription(stepObject);
 
     // Calculation descriptions are swapped for R/L and C
-    if (componentTypes === "R" || componentTypes === "L") {
+    /*if (state.step0Data.componentTypes === "R" || state.step0Data.componentTypes === "L") {
         if (relation === "series") {
-            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data)
+            paragraphElement.innerHTML = firstPart + getAdditionCalculation(stepObject)
         } else if (relation === "parallel") {
-            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data)
+            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(stepObject)
         }
-    } else if (componentTypes === "C") {
+    } else if (state.step0Data.componentTypes === "C") {
         if (relation === "parallel") {
-            paragraphElement.innerHTML = firstPart + getAdditionCalculation(data);
+            paragraphElement.innerHTML = firstPart + getAdditionCalculation(stepObject);
         } else if (relation === "series") {
-            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(data);
+            paragraphElement.innerHTML = firstPart + getReciprocialCalculation(stepObject);
         }
+    } else if (state.step0Data.componentTypes === "RLC") */ if (true) {
+        // This can still be R, L, C, RC, RL, LC, RLC, needs to be checked
+        if (relation === "series") {
+            paragraphElement.innerHTML = firstPart + getComplexSeriesCalculation(stepObject)
+        } else if (relation === "parallel") {
+            paragraphElement.innerHTML = firstPart + getComplexParallelCalculation(stepObject)
+        }
+    } else {
+        console.log("No component type found: ", state.step0Data.componentTypes);
     }
     return paragraphElement;
 }
 
-function generateTextForVoltageCurrent(data) {
-    let relation = data.noFormat().relation[0]
+function getComplexSeriesCalculation(stepObject) {
+    let str = "";
+    let stepComponentTypes = stepObject.getComponentTypes();
+    if (stepComponentTypes === "R") return getAdditionCalculation(stepObject);
+    if (stepComponentTypes === "L") return getAdditionCalculation(stepObject);
+    if (stepComponentTypes === "C") return getReciprocialCalculation(stepObject);
+    if (stepComponentTypes === "RC") {
+        // Komponenten wurden bereits benannt und mit Werten dargestellt.
+        // Für Cs muss man jetzt die komplexen werte ausrechnen
+        str += `Blindwiderstand für Kondensator<br>`;
+        for (let component of stepObject.components) {
+            if (component.Z.name.includes("C")) {
+                str += `$$X_{${component.Z.name}} = \\frac{1}{2\\pi f C}$$`;
+                str += `$$X_{${component.Z.name}} = \\frac{1}{2\\pi \\cdot 50Hz \\cdot ${component.Z.val}}$$`;  // Z.val because we know it's only a C
+                str += `$$X_{${component.Z.name}} = ${component.Z.complexVal}$$<br>`;  // TODO this needs to be the correct value without j
+            }
+        }
+        // Für Rs muss nichts mehr gemacht werden, weiter gehts
+        // Darstellung Z
+        str += `Komplexer Widerstand<br>`;
+        str += `$$\\underline{Z} = R - j \\cdot X_{C}$$`;
+        str += `$$\\underline{Z} = ${stepObject.components[0].Z.val} - j \\cdot ${stepObject.components[1].Z.complexVal}$$<br>`;
+        // Betrag
+        str += `Betrag des komplexen Widerstands<br>`;
+        str += `$$|\\underline{Z}| = Z = \\sqrt{R^2 + Xc^2}$$`;
+        str += `$$Z = \\sqrt{${stepObject.components[0].Z.val}^2 + ${stepObject.components[1].Z.complexVal}^2}$$`;
+        str += `$$Z = ${Math.sqrt((stepObject.components[0].Z.val)^2 + (stepObject.components[1].Z.complexVal)^2)}$$<br>`;
+    }
+    return str;
+}
+
+function getComplexParallelCalculation(stepObject) {
+    console.error("Complex parallel calculation not implemented yet");
+    return "TODO";
+}
+
+function generateTextForVoltageCurrent(stepObject) {
+    let relation = stepObject.componentsRelation;
     const text = document.createElement('p');
     text.classList.add("explText");
 
     if (relation === "series") {
-        text.innerHTML = getSeriesVCDescription(data);
+        text.innerHTML = getSeriesVCDescription(stepObject);
     } else if (relation === "parallel") {
-        text.innerHTML = getParallelVCDescription(data);
+        text.innerHTML = getParallelVCDescription(stepObject);
     } else {
         text.innerHTML = languageManager.currentLang.relationTextNoRelation;
     }
     return text;
 }
 
-function generateTextForTotalCurrent(data) {
-    // Todo, maybe this R needs to be changed to Z sometime
-    return `${languageManager.currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
-                        <br>  
-                        $$I_{${languageManager.currentLang.totalSuffix}} = \\frac{${languageManager.currentLang.voltageSymbol}_{${languageManager.currentLang.totalSuffix}}}{R_{${languageManager.currentLang.totalSuffix}}}$$
-                        $$I_{${languageManager.currentLang.totalSuffix}} = ${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
-                        $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
-                        $$= ${data.noFormat().oldValues[2]}$$
-                        <br>`;
+function generateTextForTotalCurrent(stepObject) {
+    let str = "";
+    str += `${languageManager.currentLang.currentCalcHeading} \\(${stepObject.simplifiedTo.Z.name}\\)<br>`;
+    str += `$$I_{${languageManager.currentLang.totalSuffix}} = \\frac{${languageManager.currentLang.voltageSymbol}_{${languageManager.currentLang.totalSuffix}}}{${stepObject.simplifiedTo.Z.name}}$$`
+    str += `$$I_{${languageManager.currentLang.totalSuffix}} = \\frac{${stepObject.simplifiedTo.U.val}}{${stepObject.getZVal(stepObject.simplifiedTo)}}$$`;
+    str += `$$I_{${languageManager.currentLang.totalSuffix}} = ${stepObject.simplifiedTo.I.val}$$`;
+    return str;
 }
 
-function getRelationText(data) {
+function getRelationText(stepObject) {
     let relationText = "";
-    if (!data.isNull()) {
-        if (data.noFormat().relation === "parallel") {
-            relationText = languageManager.currentLang.relationTextParallel;
-        } else if (data.noFormat().relation === "series") {
-            relationText = languageManager.currentLang.relationTextSeries;
-        } else if (data.noFormat().relation === null) {
-            relationText = languageManager.currentLang.relationTextNoRelation;
-        } else {
-            throw Error("Unknown relation type");
-        }
+    if (stepObject.componentsRelation === "parallel") {
+        relationText = languageManager.currentLang.relationTextParallel;
+    } else if (stepObject.componentsRelation === "series") {
+        relationText = languageManager.currentLang.relationTextSeries;
+    } else if (stepObject.componentsRelation === null) {
+        relationText = languageManager.currentLang.relationTextNoRelation;
+    } else {
+        console.log("No components relation found: ", stepObject.componentsRelation);
     }
     return relationText;
 }
 
-function getElementsAndRelationDescription(data) {
-    let relationText = getRelationText(data);
-    return `
-            ${languageManager.currentLang.calcBeforeFirstElement} ${data.inline().name1} ${languageManager.currentLang.calcBetweenElements} ${data.inline().name2}<br>
-            ${languageManager.currentLang.calcAfterSecondElement} ${data.inline().newName} ${languageManager.currentLang.calcAfterSimplifiedElement}<br>
-            <br>
-            ${data.inline().name1}&nbsp= ${data.inline().value1}<br>
-            ${data.inline().name2}&nbsp= ${data.inline().value2}<br>
-            <br>
-            ${relationText}<br>
-            <br>`;
+function getElementsAndRelationDescription(stepObject) {
+    let relationText = getRelationText(stepObject);
+    let str = `${languageManager.currentLang.theElements}<br>`;
+    stepObject.components.forEach((component) => {str+= `\\(${component.Z.name}\\) `;});
+    str += `<br>${languageManager.currentLang.areSimplifiedTo} \\(${stepObject.simplifiedTo.Z.name}\\)<br><br>`;
+    stepObject.components.forEach((component) => {str+= `\\(${component.Z.name}\\)&nbsp= \\(${stepObject.getZVal(component)}\\)<br>`;});
+    str += `<br>${relationText}<br>`;
+    return str;
 }
 
-function getReciprocialCalculation(data) {
+function getReciprocialCalculation(stepObject) {
     // creates 1/X = 1/X1 + 1/X2
-    return `$$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().name1}} + \\frac{1}{${data.noFormat().name2}}$$
-             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().value1}} + \\frac{1}{${data.noFormat().value2}}$$
-             $$\\frac{1}{${data.noFormat().newName}} = \\frac{1}{${data.noFormat().result}}$$
-             <br>
-             $$${data.noFormat().newName} = ${data.noFormat().result}$$
-            `;
+    // Use block MJ ('$$') to make sure formulas are horizontally scrollable if too long
+    let str = "";
+    str += `$$\\frac{1}{${stepObject.simplifiedTo.Z.name}} = `;
+    stepObject.components.forEach((component) => {str+= `\\frac{1}{${component.Z.name}} + `});
+    str = str.slice(0, -3);  // remove last +
+    str += `$$`;
+    str += `$$\\frac{1}{${stepObject.simplifiedTo.Z.name}} = `;
+    stepObject.components.forEach((component) => {str+= `\\frac{1}{${stepObject.getZVal(component)}} + `});
+    str = str.slice(0, -3);  // remove last +
+    str += `$$`;
+    str += `$$\\frac{1}{${stepObject.simplifiedTo.Z.name}} = \\frac{1}{${stepObject.getZVal(stepObject.simplifiedTo)}}$$ <br>`;
+    // No need for '$$', inline is ok
+    str += `\\(${stepObject.simplifiedTo.Z.name} = ${stepObject.getZVal(stepObject.simplifiedTo)}\\) <br>`;
+    return str;
 }
 
-function getAdditionCalculation(data) {
+function getAdditionCalculation(stepObject) {
     // creates X = X1 + X2
-    return `$$${data.noFormat().newName} = ${data.noFormat().name1} + ${data.noFormat().name2}$$
-             $$${data.noFormat().newName} = ${data.noFormat().value1} + ${data.noFormat().value2}$$
-             $$${data.noFormat().newName} = ${data.noFormat().result}$$
-            `;
+    // Use block MJ ('$$') to make sure formulas are horizontally scrollable if too long
+    let str = "";
+    str += `$$${stepObject.simplifiedTo.Z.name} = `;
+    stepObject.components.forEach((component) => {str+= `${component.Z.name} + `});
+    str = str.slice(0, -3);  // remove last +
+    str += `$$`;
+    str += `$$${stepObject.simplifiedTo.Z.name} = `;
+    stepObject.components.forEach((component) => {str+= `${stepObject.getZVal(component)} + `});
+    str = str.slice(0, -3);  // remove last +
+    str += `$$`;
+    // No need for '$$', inline is ok
+    str += `\\(${stepObject.simplifiedTo.Z.name} = ${stepObject.getZVal(stepObject.simplifiedTo)}\\) <br>`;
+    return str;
 }
 
-function getSeriesVCDescription(data) {
-    return `${languageManager.currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
-            <br>
-            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
-            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${languageManager.currentLang.relationTextSeries}.<br>
-            ${languageManager.currentLang.currentStaysTheSame}.<br>
-            $$${data.noFormat().oldNames[2]} = ${data.noFormat().names1[2]} = ${data.noFormat().names2[2]}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${languageManager.currentLang.voltageSplits}.<br>
-            $$${data.noFormat().names1[1]} = ?$$
-            $$${data.noFormat().names2[1]} = ?$$
-            <br>
-            $$${data.noFormat().names1[1]} = ${data.noFormat().names1[0]} \\cdot  ${data.noFormat().names1[2]}$$
-            $$= ${data.noFormat().values1[0]} \\cdot ${data.noFormat().values1[2]}$$
-            $$= ${data.noFormat().values1[1]}$$
-            <br>
-            $$${data.noFormat().names2[1]} = ${data.noFormat().names2[0]} \\cdot  ${data.noFormat().names2[2]}$$
-            $$= ${data.noFormat().values2[0]} \\cdot ${data.noFormat().values2[2]}$$
-            $$= ${data.noFormat().values2[1]}$$
-            <br>
-        `;
+function getSeriesVCDescription(stepObject) {
+    let str = "";
+    // Calculate current
+    str += `${languageManager.currentLang.currentCalcHeading} \\(${stepObject.simplifiedTo.Z.name}\\)<br>`;
+    str += `$$${stepObject.simplifiedTo.I.name} = \\frac{${stepObject.simplifiedTo.U.name}}{${stepObject.simplifiedTo.Z.name}}$$`;
+    str += `$$${stepObject.simplifiedTo.I.name} = \\frac{${stepObject.simplifiedTo.U.val}}{${stepObject.getZVal(stepObject.simplifiedTo)}}$$`;
+    str += `$$${stepObject.simplifiedTo.I.name} = ${stepObject.simplifiedTo.I.val}$$<br>`;
+    // Text
+    str += `${languageManager.currentLang.relationTextSeries}.<br>`;
+    str += `${languageManager.currentLang.currentStaysTheSame}.<br>`;
+    str += `$$${stepObject.simplifiedTo.I.name} = `;
+    stepObject.components.forEach((component) => {str+= `${component.I.name} = `});
+    str = str.slice(0, -3);  // remove last =
+    str += `$$`;
+    str += `$$= ${stepObject.simplifiedTo.I.val}$$`;
+    // Voltage split
+    str += `<br>${languageManager.currentLang.voltageSplits}.<br>`;
+    stepObject.components.forEach((component) => {
+        str += `$$${component.U.name} = ?$$`;
+    });
+    str += `<br>`;
+    // Voltage calculation
+    stepObject.components.forEach((component) => {
+        str += `$$${component.U.name} = ${component.Z.name} \\cdot  ${component.I.name}$$`;
+        str += `$$= ${stepObject.getZVal(stepObject.simplifiedTo)} \\cdot ${component.I.val}$$`;
+        str += `$$= ${component.U.val}$$<br>`;
+    });
+    return str;
 }
 
-function getParallelVCDescription(data) {
-    return `
-            ${languageManager.currentLang.currentCalcHeading} ${data.inline().oldNames[0]}<br>
-            <br>
-            $$${data.noFormat().oldNames[2]} = \\frac{${data.noFormat().oldNames[1]}}{${data.noFormat().oldNames[0]}}$$
-            $$= \\frac{${data.noFormat().oldValues[1]}}{${data.noFormat().oldValues[0]}}$$
-            $$= ${data.noFormat().oldValues[2]}$$
-            <br>
-            ${languageManager.currentLang.relationTextParallel}.<br>
-            ${languageManager.currentLang.voltageStaysTheSame}.<br>
-            $$${data.noFormat().oldNames[1]} = ${data.noFormat().names1[1]} = ${data.noFormat().names2[1]}$$
-            $$= ${data.noFormat().oldValues[1]}$$
-            <br>
-            ${languageManager.currentLang.currentSplits}.<br>
-            $$${data.noFormat().names1[2]} = ?$$
-            $$${data.noFormat().names2[2]} = ?$$
-            <br>
-            $$${data.noFormat().names1[2]} = \\frac{${data.noFormat().names1[1]}}{${data.noFormat().names1[0]}}$$
-            $$= \\frac{${data.noFormat().values1[1]}}{${data.noFormat().values1[0]}}$$
-            $$= ${data.noFormat().values1[2]}$$
-            <br>
-            $$${data.noFormat().names2[2]} = \\frac{${data.noFormat().names2[1]}}{${data.noFormat().names2[0]}}$$
-            $$= \\frac{${data.noFormat().values2[1]}}{${data.noFormat().values2[0]}}$$
-            $$= ${data.noFormat().values2[2]}$$
-            <br>
-        `;
+function getParallelVCDescription(stepObject) {
+    let str = "";
+    // Calculate current
+    str += `${languageManager.currentLang.currentCalcHeading} \\(${stepObject.simplifiedTo.Z.name}\\)<br>`;
+    str += `$$${stepObject.simplifiedTo.I.name} = \\frac{${stepObject.simplifiedTo.U.name}}{${stepObject.simplifiedTo.Z.name}}$$`;
+    str += `$$${stepObject.simplifiedTo.I.name} = \\frac{${stepObject.simplifiedTo.U.val}}{${stepObject.getZVal(stepObject.simplifiedTo)}}$$`;
+    str += `$$${stepObject.simplifiedTo.I.name} = ${stepObject.simplifiedTo.I.val}$$<br>`;
+    // Text
+    str += `${languageManager.currentLang.relationTextParallel}.<br>`;
+    str += `${languageManager.currentLang.voltageStaysTheSame}.<br>`;
+    str += `$$${stepObject.simplifiedTo.U.name} = `;
+    stepObject.components.forEach((component) => {str+= `${component.U.name} = `});
+    str = str.slice(0, -3);  // remove last =
+    str += `$$`;
+    str += `$$= ${stepObject.simplifiedTo.U.val}$$`;
+    // Current split
+    str += `<br>${languageManager.currentLang.currentSplits}.<br>`;
+    stepObject.components.forEach((component) => {
+        str += `$$${component.I.name} = ?$$`;
+    });
+    str += `<br>`;
+    // Current calculation
+    stepObject.components.forEach((component) => {
+        str += `$$${component.I.name} = \\frac{${component.U.name}}{${component.Z.name}}$$`;
+        str += `$$= \\frac{${component.U.val}}{${stepObject.getZVal(component)}}$$`;
+        str += `$$= ${component.I.val}$$<br>`;
+    });
+    return str;
 }

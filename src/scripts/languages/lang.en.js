@@ -1,17 +1,4 @@
 const english = {
-    cookies: {
-        customize: "CUSTOMIZE",
-        applySome: "APPLY",
-        rejectAll: "REJECT ALL",
-        acceptAll: "ACCEPT ALL",
-        title: "Cookie Settings",
-        text: "We value your privacy. We use cookies to provide you with the best possible experience on our website.",
-        necessary: "Necessary",
-        analytics: "Analytics",
-        preferences: "Preferences",
-        marketing: "Marketing"
-    },
-
     // Landing page text
     landingPageGreeting:
         "a free browser tool for learning<br>" +
@@ -45,14 +32,27 @@ const english = {
         "light or dark mode. While simplifying circuits, these settings cannot be changed.",
 
     // Selector page text
-    carouselHeadings:
+    selectorHeadings:
         {
-            "sub":  "SUBSTITUTE CIRCUITS",
-            "acdc": "AC/DC CIRCUITS",
+            "quick": "QUICKSTART",
+            "res":  "RESISTORS",
+            "cap": "CAPACITORS",
+            "ind": "INDUCTORS",
             "mixed": "MIXED CIRCUITS",
         },
+    overviewModalBtn:
+        "Overview",
 
     // Simplifier page text
+    // info gif
+    closeBtn:
+        "Close",
+    infoGifHeading:
+        "How to use",
+    infoGifText:
+        "Click the elements you want to simplify and check your selection with the 'check' button. " +
+        "If the elements can be simplified, you will see the next step and can choose the next elements there.",
+    // next elements container and interactions
     nextElementsHeading:
         "Next elements",
     showCalculationBtn:
@@ -77,6 +77,8 @@ const english = {
         "Please choose exactly 2 elements",
     alertCanNotSimplify:
         "Can not simplify those elements",
+    alertChooseAtLeastOneElement:
+        "Choose at least one element",
 
     // Calculation text
     relationTextParallel:
@@ -91,14 +93,10 @@ const english = {
         "V",
     totalSuffix:
         "tot",
-    calcBeforeFirstElement:
+    theElements:
         "The elements",
-    calcBetweenElements:
-        "and",
-    calcAfterSecondElement:
+    areSimplifiedTo:
         "are simplified to",
-    calcAfterSimplifiedElement:
-        "",
     calculationHeading:
         "Calculation",
 
@@ -114,7 +112,7 @@ const english = {
     currentSplits:
         "The current splits up",
     backBtn:
-        "back to selection",
+        "back",
 
     // Cheat sheet
     resistanceColHeading:
