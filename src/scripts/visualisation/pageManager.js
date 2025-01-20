@@ -24,6 +24,7 @@ class PageManager {
     }
 
     showSelectPage() {
+        state.valuesShown = false; // by default symbols shown
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "block";
         this.simplifierPage.style.display = "none";
@@ -246,7 +247,7 @@ class PageManager {
         const capRes = document.getElementById("capacitorResistance");
         capRes.innerHTML = "$$0$$";
         const capRea = document.getElementById("capacitorReactance");
-        capRea.innerHTML = "$$-\\frac{1}{ \\omega \\cdot C}$$";
+        capRea.innerHTML = "$$\\frac{1}{ \\omega \\cdot C}$$";
 
         const indRes = document.getElementById("inductorResistance");
         indRes.innerHTML = "$$0$$";
@@ -254,7 +255,7 @@ class PageManager {
         indRea.innerHTML = "$$ \\omega \\cdot L$$";
 
         const pRX = document.getElementById("pRX");
-        pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
+        pRX.innerHTML = "$$\\underline{Z_L} = R + j \\cdot X_L$$ $$\\underline{Z_C} = R - j \\cdot X_C$$"
         pRX.style.color = "white";
 
         whenAvailable("MathJax", () => {
