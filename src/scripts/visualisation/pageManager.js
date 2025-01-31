@@ -24,7 +24,6 @@ class PageManager {
     }
 
     showSelectPage() {
-        state.valuesShown = false; // by default symbols shown
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "block";
         this.simplifierPage.style.display = "none";
@@ -97,30 +96,26 @@ class PageManager {
             this.showSelectPage();
         } else {
             this.showSelectPage();
-            setPgrBarTo(0);
             const note = showWaitingNote();
-            setPgrBarTo(1);
+
             state.pyodideLoading = true;
             // Get the pyodide instance and setup pages with functionality
-            state.pyodide = await loadPyodide();
-            setPgrBarTo(5);
+            this.pyodide = await loadPyodide();
+
             // Map all circuits into map and build the selectors
-            circuitMapper = new CircuitMapper();
+            circuitMapper = new CircuitMapper(this.pyodide);
             await circuitMapper.mapCircuits();
-            setPgrBarTo(10);
+
             selectorBuilder.buildSelectorsForAllCircuitSets();
-            updateSelectorPageColors();
 
-            hideQuickstart();
-            hideAccordion();
+            hideAllSelectors();
 
-            // Starts with 10%
-            await packageManager.doLoadsAndImports();
+            // Import packages/scripts, create selector svgs
+            await packageManager.doLoadsAndImports(this.pyodide);
+            //await createSvgsForSelectors(pyodide);
 
             selectorBuilder.adaptSelectorFrameColor();
-
-            showQuickstart();
-            showAccordion();
+            showAllSelectors();
             note.innerHTML = "";
 
             pageManager.setupSelectPage();
@@ -128,11 +123,15 @@ class PageManager {
     }
 
     setupSelectPage() {
-        // Fill accordion and carousels with svg data
-        languageManager.updateLanguageSelectorPage();
         for (const circuitSet of circuitMapper.circuitSets) {
+            this.updateSelectorHeadings(circuitSet.identifier);
             selectorBuilder.setupSelector(circuitSet, this);
         }
+    }
+
+    updateSelectorHeadings(circuitSetId) {
+        const heading = document.getElementById(`${circuitSetId}-heading`);
+        heading.innerHTML = languageManager.currentLang.carouselHeadings[circuitSetId];
     }
 
     setupNavigation() {
@@ -144,12 +143,12 @@ class PageManager {
         const selectGerman = document.getElementById("select-german");
 
         navHomeLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
         navSimplifierLink.addEventListener("click", async () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             if (state.pyodideReady) {
                 this.showSelectPage();
@@ -159,12 +158,12 @@ class PageManager {
             }
         })
         navCheatLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();
+            checkIfSimplifierPageNeedsReset(this.pyodide);
             closeNavbar();
             this.showCheatSheet();
         })
         navLogo.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
@@ -210,11 +209,6 @@ class PageManager {
         }
     }
 
-    setupSimplifierPage() {
-        languageManager.updateLanguageSimplifierPage();
-        updateSimplifierPageColors();
-    }
-
     setupCheatSheet() {
         languageManager.updateLanguageCheatSheetPage();
 
@@ -255,8 +249,7 @@ class PageManager {
         indRea.innerHTML = "$$ \\omega \\cdot L$$";
 
         const pRX = document.getElementById("pRX");
-        pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$" +
-            "$$\\underline{Z} = R + j \\cdot \\sqrt{X_L - X_C}$$"
+        pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
         pRX.style.color = "white";
 
         whenAvailable("MathJax", () => {

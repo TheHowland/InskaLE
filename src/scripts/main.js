@@ -17,10 +17,18 @@ let pageManager;
 // The navigation for this website is not via different html files, but by showing and not
 // showing different containers that act as pages
 // #####################################################################################################################
+
 async function main() {
-    modalConfig();
     disableStartBtnAndSimplifierLink();
-    setLanguageAndScheme();
+
+    /*
+    // set preferred color scheme
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.getElementById("darkmode-switch").checked = prefersDark;
+    if (!prefersDark){
+        changeToLightMode();
+    }
+    */
 
     conf = new Configurations();
     await conf.initialize();
@@ -33,7 +41,6 @@ async function main() {
     pageManager.showLandingPage();
     pageManager.setupNavigation();
     pageManager.setupCheatSheet();
-    pageManager.setupSimplifierPage();
     // Selector page is set up when start button is clicked
 
     setupDarkModeSwitch();

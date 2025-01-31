@@ -11,21 +11,12 @@ const circuitActions = {
 }
 
 const eventCategories = {
-    Quick: "Schnellstart",
-    Resistor: "Widerstände",
-    Capacitor: "Kondensatoren",
-    Inductor: "Spulen",
-    Mixed: "Gemischte Schaltungen",
-    Symbolic: "Symbolische Rechnung",
-    Configurations: "Konfigurationen",
+    Sub: "Ersatzschaltungen",
     _SubIdx: " - sub",
     _AcDcIdx: " - acdc",
-    _SymIdx: " - sym",
-
-    /* DEPRECATED
-    Sub: "Ersatzschaltungen",
     AcDc: "Gleich-/Wechselstromkreise",
-    */
+    Mixed: "Gemischte Schaltungen",
+    Configurations: "Konfigurationen",
 }
 
 const configActions = {
@@ -51,25 +42,15 @@ function pushPageViewMatomo(title="") {
 }
 
 function pushCircuitEventMatomo(action, value=-1) {
-    // Possible categories: see circuitMapper.selectorIds
     let category = state.currentCircuitMap.selectorGroup;
-    let showVC;
-    if (category === circuitMapper.selectorIds.quick) {
-        showVC = showVCinQuickStart
-    } else {
-        showVC = state.currentCircuitShowVC
-    }
     let circuitName = state.currentCircuitMap.circuitFile;
 
     let mappedCategory = mapCategory(category);
     if (mappedCategory === null) return;
-    // Add a suffix to the circuit name in order to be able to see if voltage was shown or not
-    if (!showVC) circuitName += eventCategories._SubIdx;
-    if (showVC) circuitName += eventCategories._AcDcIdx;
-    if (category === circuitMapper.selectorIds.symbolic) circuitName += eventCategories._SymIdx;
+    if (mappedCategory === eventCategories.Sub) circuitName += eventCategories._SubIdx;
+    if (mappedCategory === eventCategories.AcDc) circuitName += eventCategories._AcDcIdx;
 
     if (!allowedCircuitAction(action)) return;
-
     pushEventToMatomo(mappedCategory, action, circuitName, value);
 }
 
@@ -84,16 +65,9 @@ function pushDarkModeEventMatomo(mode) {
 function mapCategory(category) {
     // Map the categories in order to be flexible in the future with the input
     // so we can also send the same kind of category (because they don't change in matomo)
-    /* DEPRECATED
     if (["sub"].includes(category)) return eventCategories.Sub;
     if (["acdc"].includes(category)) return eventCategories.AcDc;
-    */
-    if (["quick"].includes(category)) return eventCategories.Quick;
-    if (["res"].includes(category)) return eventCategories.Resistor;
-    if (["cap"].includes(category)) return eventCategories.Capacitor;
-    if (["ind"].includes(category)) return eventCategories.Inductor;
     if (["mixed"].includes(category)) return eventCategories.Mixed;
-    if (["sym"].includes(category)) return eventCategories.Symbolic;
     console.log("Category not possible, check: " + category);
     return null;
 }
@@ -147,19 +121,3 @@ function loadMatomo() {
         g.async=true; g.src=u+"matomo.js"; s.parentNode.insertBefore(g,s);
     })();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

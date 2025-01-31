@@ -1,4 +1,17 @@
 const german = {
+    cookies: {
+        customize: "AUSWAHL",
+        applySome: "ANWENDEN",
+        rejectAll: "ABLEHNEN",
+        acceptAll: "AKZEPTIEREN",
+        title: "Cookie-Einstellungen",
+        text: "Wir verwenden Cookies, um dir die bestm&oumlgliche Erfahrung auf unserer Website zu bieten.",
+        necessary: "Notwendige",
+        analytics: "Analytische",
+        preferences: "Pr&aumlferenzen",
+        marketing: "Marketing"
+    },
+
     // Landing page text
     landingPageGreeting:
         "Ein kostenloses Browsertool um<br>" +
@@ -34,29 +47,15 @@ const german = {
         "nicht ver&aumlnderbar.",
 
     // Selector page text
-    selectorHeadings:
+    carouselHeadings:
         {
-            "quick": "SCHNELLSTART",
-            "res":  "WIDERSTÄNDE",  // use the ä character because &auml is not rendered correctly here
-            "cap": "KONDENSATOREN",
-            "ind": "SPULEN",
+            "sub":  "ERSATZSCHALTUNGEN",
+            "acdc": "GLEICH-/WECHSELSTROMKREISE",
             "mixed": "GEMISCHTE SCHALTUNGEN",
-            "sym": "SYMBOLISCHE RECHNUNG",
         },
-    overviewModalBtn:
-        "Übersicht",
 
 
     // Simplifier page text
-    // info gif
-    closeBtn:
-        "Schlie&szligen",
-    infoGifHeading:
-        "Anleitung",
-    infoGifText:
-        "Klicke auf die Elemente die du vereinfachen m&oumlchtest und &uumlberpr&uumlfe deine Auswahl mit dem 'check' Button. " +
-        "Wenn die Elemente vereinfacht werden k&oumlnnen, siehst du den n&aumlchsten Schritt und kannst dort die n&aumlchsten Elemente ausw&aumlhlen.",
-    // next elements container and interactions
     nextElementsHeading:
         "N&aumlchste Elemente",
     showCalculationBtn:
@@ -81,8 +80,6 @@ const german = {
         "Bitte w&aumlhle genau 2 Elemente",
     alertCanNotSimplify:
         "Diese Elemente k&oumlnnen nicht vereinfacht werden",
-    alertChooseAtLeastOneElement:
-        "W&aumlhle mindestens ein Element",
 
     // Calculation text
     relationTextParallel:
@@ -97,12 +94,14 @@ const german = {
         "U",
     totalSuffix:
         "ges",
-    effectiveSuffix:
-        "eff",
-    theElements:
+    calcBeforeFirstElement:
         "Die Elemente",
-    areSimplifiedTo:
-        "wurden vereinfacht zu",
+    calcBetweenElements:
+        "und",
+    calcAfterSecondElement:
+        "wurden zu",
+    calcAfterSimplifiedElement:
+        "vereinfacht",
     calculationHeading:
         "Rechnung",
 
@@ -118,7 +117,7 @@ const german = {
     currentSplits:
         "Der Strom teilt sich auf",
     backBtn:
-        "zur&uumlck",
+        "zur&uumlck zur Auswahl",
 
     // Cheat sheet
     resistanceColHeading:
