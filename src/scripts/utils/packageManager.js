@@ -20,46 +20,46 @@ class PackageManager {
         this.fetchDirectoryListing = this.isGitHubPage ? this.#fetchGitHubDirectoryContents : this.#fetchDirectoryListing
     }
 
-    async doLoadsAndImports() {
-        await this.loadCircuits();
-        await this.importPyodidePackages();
-        await this.importSolverModule();
+    async doLoadsAndImports(pyodide) {
+        await this.loadCircuits(pyodide);
+        await this.importPyodidePackages(pyodide);
+        await this.importSolverModule(pyodide);
     }
 
-    async loadCircuits() {
+    async loadCircuits(pyodide) {
         let loadCircuits = "loading circuits";
         console.time(loadCircuits);
 
         //An array buffer containing the zipped circuit files fetched from the server.
         let cirArrBuff = await (await fetch(conf.sourceCircuitPath)).arrayBuffer();
-        await state.pyodide.unpackArchive(cirArrBuff, ".zip");
+        await pyodide.unpackArchive(cirArrBuff, ".zip");
 
-        state.circuitFiles = state.pyodide.FS.readdir(`${conf.pyodideCircuitPath}`);
+        state.circuitFiles = pyodide.FS.readdir(`${conf.pyodideCircuitPath}`);
         state.circuitFiles = state.circuitFiles.filter((file) => file !== "." && file !== "..");
         console.timeEnd(loadCircuits);
     }
 
-    async importPyodidePackages() {
-        await this.load_packages(["sqlite3-1.0.0.zip"]);
-        await this.import_packages();
+    async importPyodidePackages(pyodide) {
+        await this.load_packages(pyodide, ["sqlite3-1.0.0.zip"]);
+        await this.import_packages(pyodide);
     }
 
-    async importSolverModule() {
-        state.pyodide.FS.writeFile(conf.pyodideSolvePath, await (await fetch(conf.sourceSolvePath)).text());
-        state.solve = await state.pyodide.pyimport("solve");
+    async importSolverModule(pyodide) {
+        pyodide.FS.writeFile(conf.pyodideSolvePath, await (await fetch(conf.sourceSolvePath)).text());
+        state.solve = await pyodide.pyimport("solve");
     }
 
-    async import_packages() {
+    async import_packages(pyodide) {
         let packages = ["matplotlib", "numpy", "sympy", "networkx", "IPython", "schemdraw", "ordered_set", "lcapy"];
         let progressBarContainer = document.getElementById("pgr-bar-container");
         // set the bar to 40% because we already did some stuff, just a ruff estimation
         // this will enable us to start the new calculation from a fixed point
-        let basePercentage = 30;
+        let basePercentage = 40;
         setPgrBarTo(basePercentage);
 
         let progress = 0;
         for(const packageName of packages){
-            await state.pyodide.runPythonAsync("import " + packageName)
+            await pyodide.runPythonAsync("import " + packageName)
             progress += 1;
             console.log("finished:" + packageName)
             let percent = basePercentage + Math.floor((progress / packages.length) * (100 - basePercentage));
@@ -75,9 +75,8 @@ class PackageManager {
         state.pyodideLoading = false;
     }
 
-    async load_packages(optAddNames) {
-        let basePercentage = 10;
-        setPgrBarTo(basePercentage);
+    async load_packages(pyodide, optAddNames) {
+        setPgrBarTo(0);
 
         let packageAddress = conf.sourcePackageDir;
         let packages = await this.fetchDirectoryListing(packageAddress, ".whl");
@@ -91,14 +90,14 @@ class PackageManager {
         let progress = 0;
         const updateProgress = () => {
             progress += 1;
-            let percent = basePercentage + Math.floor(((progress / packages.length) * 100) / 5);
+            let percent = Math.floor(((progress / packages.length) * 100) / 3);
             setPgrBarTo(percent);
         };
 
         let packagePromises = packages.map(async function (packageName) {
             let pkgArrBuff = await (await fetch(conf.sourcePackageDir + packageName)).arrayBuffer();
             let packageExtension = packageName.slice(packageName.lastIndexOf("."), packageName.length);
-            await state.pyodide.unpackArchive(pkgArrBuff, packageExtension);
+            await pyodide.unpackArchive(pkgArrBuff, packageExtension);
 
             updateProgress();
         });
