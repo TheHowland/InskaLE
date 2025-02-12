@@ -33,24 +33,6 @@ function hideAllSelectors() {
     }
 }
 
-function hideQuickstart() {
-    document.getElementById("quick-carousel").hidden = true;
-    document.getElementById("quick-heading").hidden = true;
-}
-
-function hideAccordion() {
-    document.getElementById("selector-accordion").hidden = true;
-}
-
-function showQuickstart() {
-    document.getElementById("quick-carousel").hidden = false;
-    document.getElementById("quick-heading").hidden = false;
-}
-
-function showAccordion() {
-    document.getElementById("selector-accordion").hidden = false;
-}
-
 function showAllSelectors() {
     for (const circuitSet of circuitMapper.circuitSets) {
         const carousel = document.getElementById(`${circuitSet.identifier}-carousel`);
@@ -58,6 +40,14 @@ function showAllSelectors() {
         carousel.hidden = false;
         heading.hidden = false;
     }
+}
+
+function circuitIsNotSubstituteCircuit(circuitMap) {
+    let showVoltageButton = true;
+    if (circuitMap.selectorGroup === circuitMapper.selectorIds.subId) {
+        showVoltageButton = false;
+    }
+    return showVoltageButton;
 }
 
 function notLastPicture() {
@@ -86,7 +76,7 @@ function setSvgWidthTo(svgData, width) {
 }
 
 // Displays a temporary message to the user in a message box.
-function showMessage(container, message, prio = "warning", fixedBottom = true) {
+function showMessage(container, message, prio = "warning") {
     let bootstrapAlert;
     let emoji;
     if (prio === "only2") {
@@ -100,13 +90,11 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
         bootstrapAlert = "success";
     }
     const msg = document.createElement('div');
-    msg.classList.add("alert", `alert-${bootstrapAlert}`);
-    if (fixedBottom) {
-        msg.classList.add("fixed-bottom");
-        msg.style.bottom = "170px";
-    }
-    msg.classList.add("mx-auto");  // centers it when max-width is set
-    msg.style.maxWidth = "400px";
+    msg.classList.add("alert");
+    msg.classList.add(`alert-${bootstrapAlert}`);
+    msg.classList.add("fixed-bottom");
+    msg.style.bottom = "170px";
+    msg.classList.add("m-5");
 
     let emojiSpan = document.createElement('span');
     emojiSpan.style.fontSize = '1.66em';
@@ -120,18 +108,8 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
     msg.appendChild(msgSpan);
 
     container.appendChild(msg);
-
-    // Remove the message when the user clicks anywhere
-    document.addEventListener("click", () => {
-        if (container.contains(msg)) {
-            container.removeChild(msg);
-        }
-    });
-    // Remove the message after 3 seconds if not clicked already
     setTimeout(() => {
-        if (container.contains(msg)) {
-            container.removeChild(msg);
-        }
+        container.removeChild(msg);
     }, 3000);
 }
 
@@ -156,31 +134,20 @@ function resetSolverObject() {
     paramMap.set("volt", languageManager.currentLang.voltageSymbol);
     paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    stepSolve = state.solve.SolveInUserOrder(state.currentCircuitMap.circuitFile, `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
+    stepSolve = state.solve.SolveInUserOrder(state.currentCircuit, `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
 }
 
 function enableCheckBtn() {
     document.getElementById("check-btn").disabled = false;
 }
 
-function resetSimplifierPage(calledFromResetBtn = false) {
-    if (state.currentCircuitMap !== null) {
-        // If the check btn is disabled, the user has finished the simplification
-        // That means if the page is reset, the user aborted the simplification
-        // If calledFromResetBtn, then don't push the event because it's reset, and not aborted
-        // Also don't push the event if the user is on the first picture, maybe it was just a missclick
-        let checkBtnDisabled = document.getElementById("check-btn").classList.contains("disabled");
-        if (!checkBtnDisabled && !calledFromResetBtn && state.pictureCounter > 1) {
-            pushCircuitEventMatomo(circuitActions.Aborted, state.pictureCounter);
-        }
-    }
+function resetSimplifierPage(pyodide) {
     clearSimplifierPageContent();
     resetSolverObject();
     state.selectedElements = [];
     state.pictureCounter = 0;
-    state.allValuesMap = new Map();
     if (state.pyodideReady) {
-        startSolving();  // Draw the first picture again
+        startSolving(pyodide);  // Draw the first picture again
     }
     scrollBodyToTop();
 }
@@ -193,7 +160,7 @@ function enableLastCalcButton() {
     }, 100);
 }
 
-function scrollNextElementsContainerIntoView() {
+function scrollToBottom() {
     setTimeout(() => {
         const nextElementsText = document.getElementById("nextElementsContainer");
         if (nextElementsText != null) {nextElementsText.scrollIntoView()}
@@ -204,15 +171,15 @@ function scrollBodyToTop() {
     window.scrollTo(0,0);
 }
 
-async function getCircuitInfo() {
+async function getCircuitComponentTypes(pyodide) {
     let circuitInfoPath = await stepSolve.createCircuitInfo();
-    let circuitInfoFile = await state.pyodide.FS.readFile(circuitInfoPath, {encoding: "utf8"});
-    return JSON.parse(circuitInfoFile);
-
+    let circuitInfoFile = await pyodide.FS.readFile(circuitInfoPath, {encoding: "utf8"});
+    const circuitInfo = JSON.parse(circuitInfoFile);
+    return circuitInfo["componentTypes"];
 }
 
-async function getJsonAndSvgStepFiles() {
-    const files = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
+async function getJsonAndSvgStepFiles(pyodide) {
+    const files = await pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
     state.jsonFiles_Z = files.filter(file => !file.endsWith("VC.json") && file.endsWith(".json"));
     state.jsonFiles_VC = files.filter(file => file.endsWith("VC.json"));
     if (state.jsonFiles_VC === []) {
@@ -222,13 +189,13 @@ async function getJsonAndSvgStepFiles() {
     state.currentStep = 0;
 }
 
-async function clearSolutionsDir() {
+async function clearSolutionsDir(pyodide) {
     try {
         //An array of file names representing the solution files in the Solutions directory.
-        let solutionFiles = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
+        let solutionFiles = await pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
         solutionFiles.forEach(file => {
             if (file !== "." && file !== "..") {
-                state.pyodide.FS.unlink(`${conf.pyodideSolutionsPath}/${file}`);
+                pyodide.FS.unlink(`${conf.pyodideSolutionsPath}/${file}`);
             }
         });
     } catch (error) {
@@ -253,6 +220,23 @@ function resetHighlightedBoundingBoxes(svgDiv) {
     }
 }
 
+async function createSvgsForSelectors(pyodide) {
+    await clearSolutionsDir(pyodide);
+    // For all circuit sets (e.g. Resistors, Capacitors, ..)
+    let paramMap = new Map();
+    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
+    paramMap.set("total", languageManager.currentLang.totalSuffix);
+
+
+    for (const circuitSet of circuitMapper.circuitSets) {
+        // For all circuits in this set (e.g., Resistor1, Resistor2, ...)
+        for (const circuit of circuitSet.set) {
+            stepSolve = state.solve.SolveInUserOrder(circuit.circuitFile, `${conf.pyodideCircuitPath}/${circuit.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
+            await stepSolve.createStep0().toJs();
+        }
+    }
+}
+
 function moreThanOneCircuitInSet(circuitSet) {
     return circuitSet.set.length > 1;
 }
@@ -261,9 +245,9 @@ function simplifierPageCurrentlyVisible() {
     return document.getElementById("simplifier-page-container").style.display === "block";
 }
 
-function checkIfSimplifierPageNeedsReset() {
+function checkIfSimplifierPageNeedsReset(pyodide) {
     if (simplifierPageCurrentlyVisible()) {
-        resetSimplifierPage();
+        resetSimplifierPage(pyodide);
     }
 }
 
@@ -283,121 +267,15 @@ function resetNextElements(svgDiv, nextElementsContainer) {
 
 
 function showArrows(contentCol) {
-    // Show arrows and symbol labels
-    let arrows = contentCol.querySelectorAll(".arrow");
+    let arrows = contentCol.getElementsByClassName("arrow");
     for (let arrow of arrows) {
         arrow.style.display = "block";
         arrow.style.opacity = "0.5";
     }
-    if (state.valuesShown) {
-        // Hide labels
-        let arrows = contentCol.querySelectorAll("text.arrow");
-        for (let arrow of arrows) {
-            arrow.style.display = "none";
-        }
-        // Show mathjax formulas
-        let mathjax = contentCol.querySelectorAll(".mathjax-value-label");
-        for (let mj of mathjax) {
-            mj.style.display = "block";
-        }
-
-    }
 }
 
-function whenAvailable(name, callback) {
-    var interval = 10; // ms
-    window.setTimeout(function() {
-        if (window[name]) {
-            callback(window[name]);
-        } else {
-            whenAvailable(name, callback);
-        }
-    }, interval);
-}
 
-async function createAndShowStep0(circuitMap) {
-    await clearSolutionsDir();
 
-    let paramMap = new Map();
-    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
-    paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    stepSolve = state.solve.SolveInUserOrder(
-        circuitMap.circuitFile,
-        `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`,
-        paramMap);
-
-    let obj = await stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});
-    obj.__proto__ = Step0Object.prototype;
-    state.step0Data = obj;
-    state.currentStep = 0;
-    state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltage());
-    state.currentCircuitShowVC = getCheckBoxValueOrQuickStartDef(circuitMap);
-    display_step(state.step0Data);
-}
-
-function startSolving() {
-    createAndShowStep0(state.currentCircuitMap);
-    //The div element that contains the SVG representation of the circuit diagram.
-    const svgDiv = document.querySelector('.svg-container');
-    //The div element that contains the list of elements that have been clicked or selected in the circuit diagram.
-    const nextElementsContainer = document.querySelector('.next-elements-container');
-    if (svgDiv && nextElementsContainer) {
-        resetNextElements(svgDiv, nextElementsContainer);
-    }
-}
-
-function getCheckBoxValueOrQuickStartDef(circuitMap) {
-    if (circuitMap.selectorGroup === circuitMapper.selectorIds.quick) {
-        return showVCinQuickStart; // Definition of what the quickstart does show, make false if no VC wished here
-    } else {
-        return showVCDefault;
-    }
-}
-
-function setLanguageAndScheme() {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    document.getElementById("darkmode-switch").checked = prefersDark;
-    if (!prefersDark) {
-        changeToLightMode();
-    }
-
-    var userLang = navigator.language;
-    if (userLang === "de-DE" || userLang === "de-AT" || userLang === "de-CH" || userLang === "de") {
-        languageManager.currentLang = german;
-    } else {
-        languageManager.currentLang = english;
-    }
-}
-
-function modalConfig() {
-    // This is to prevent the focus from staying on the modal when it is closed
-    document.addEventListener('hide.bs.modal', function (event) {
-        if (document.activeElement) {
-            document.activeElement.blur();
-        }
-    });
-}
-
-function hideSourceLabel(svgDiv) {
-    let sourceLabel = svgDiv.querySelector(".element-label.V1");
-    if (sourceLabel !== null) {
-        sourceLabel.style.display = "none";
-    }
-}
-
-function hideLabels(svgDiv) {
-    let labels = svgDiv.querySelectorAll(".element-label");
-    labels.forEach(label => label.style.display = "none");
-}
-
-function hideSvgArrows(circuitDiv) {
-    let arrows = circuitDiv.getElementsByClassName("arrow");
-    for (let arrow of arrows) arrow.style.display = "none";
-}
-
-function currentCircuitIsSymbolic() {
-    return state.currentCircuitMap.selectorGroup === circuitMapper.selectorIds.symbolic;
-}
 
 

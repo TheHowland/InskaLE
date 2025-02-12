@@ -19,23 +19,24 @@ class PageManager {
         for (let feature of document.querySelectorAll(".feature-container")) {
             feature.classList.remove("visible");
         }
-        document.title = "simpliPFy";
-        pushPageViewMatomo()
+        document.title = "simpliPFy - Home";
+        _paq.push(['setDocumentTitle', document.title]);
+        _paq.push(['trackPageView']);
     }
 
     showSelectPage() {
-        state.valuesShown = false; // by default symbols shown
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "block";
         this.simplifierPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.enableSettings();
-        document.title = "Circuit Selection";
         if (state.pyodideReady) {
-             pushPageViewMatomo("Ready");
+            document.title = "Circuit Selection - Ready";
         } else {
-            pushPageViewMatomo("Loading");
+            document.title = "Circuit Selection - Loading";
         }
+        _paq.push(['setDocumentTitle', document.title]);
+        _paq.push(['trackPageView']);
     }
 
     showSimplifierPage() {
@@ -45,7 +46,8 @@ class PageManager {
         this.cheatSheet.style.display = "none";
         this.disableSettings();
         document.title = "Simplifier";
-        pushPageViewMatomo();
+        _paq.push(['setDocumentTitle', document.title]);
+        _paq.push(['trackPageView']);
     }
 
     showCheatSheet() {
@@ -55,7 +57,8 @@ class PageManager {
         this.cheatSheet.style.display = "block";
         this.enableSettings();
         document.title = "Cheat Sheet";
-        pushPageViewMatomo();
+        _paq.push(['setDocumentTitle', document.title]);
+        _paq.push(['trackPageView']);
     }
 
     disableSettings() {
@@ -70,15 +73,18 @@ class PageManager {
         this.activeLangFlag.style.filter = "brightness(1)";
     }
 
+    setPyodide(pyodide) {
+        this.pyodide = pyodide
+    }
+
     // ########################## Setups ########################################
     setupLandingPage() {
         languageManager.updateLanguageLandingPage();
 
         const landingStartButton = document.getElementById("start-button");
         landingStartButton.addEventListener("click", async () => {
-            await this.landingPageStartBtnClicked()
+            await this.landingPageStartBtnClicked(this.pyodide)
         })
-        // Left - right animation for feature containers
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -88,39 +94,25 @@ class PageManager {
                 }
             });
         }, { threshold: 1});
+
         const trigger = document.getElementById("trigger");
         observer.observe(trigger);
     }
 
-    async landingPageStartBtnClicked() {
+    async landingPageStartBtnClicked(pyodide) {
         if (state.pyodideLoading || state.pyodideReady) {
             this.showSelectPage();
         } else {
-            this.showSelectPage();
-            setPgrBarTo(0);
-            const note = showWaitingNote();
-            setPgrBarTo(1);
             state.pyodideLoading = true;
-            // Get the pyodide instance and setup pages with functionality
-            state.pyodide = await loadPyodide();
-            setPgrBarTo(5);
-            // Map all circuits into map and build the selectors
-            circuitMapper = new CircuitMapper();
-            await circuitMapper.mapCircuits();
-            setPgrBarTo(10);
-            selectorBuilder.buildSelectorsForAllCircuitSets();
-            updateSelectorPageColors();
+            this.showSelectPage();
+            hideAllSelectors();
+            const note = showWaitingNote();
 
-            hideQuickstart();
-            hideAccordion();
+            // Import packages/scripts, create selector svgs
+            await packageManager.doLoadsAndImports(pyodide);
+            await createSvgsForSelectors(pyodide);
 
-            // Starts with 10%
-            await packageManager.doLoadsAndImports();
-
-            selectorBuilder.adaptSelectorFrameColor();
-
-            showQuickstart();
-            showAccordion();
+            showAllSelectors();
             note.innerHTML = "";
 
             pageManager.setupSelectPage();
@@ -128,11 +120,15 @@ class PageManager {
     }
 
     setupSelectPage() {
-        // Fill accordion and carousels with svg data
-        languageManager.updateLanguageSelectorPage();
         for (const circuitSet of circuitMapper.circuitSets) {
+            this.updateSelectorHeadings(circuitSet.identifier);
             selectorBuilder.setupSelector(circuitSet, this);
         }
+    }
+
+    updateSelectorHeadings(circuitSetId) {
+        const heading = document.getElementById(`${circuitSetId}-heading`);
+        heading.innerHTML = languageManager.currentLang.carouselHeadings[circuitSetId];
     }
 
     setupNavigation() {
@@ -144,18 +140,18 @@ class PageManager {
         const selectGerman = document.getElementById("select-german");
 
         navHomeLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
         navSimplifierLink.addEventListener("click", async () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             if (state.pyodideReady) {
                 this.showSelectPage();
             }
             else {
-                await this.landingPageStartBtnClicked();
+                await this.landingPageStartBtnClicked(this.pyodide);
             }
         })
         navCheatLink.addEventListener("click", () => {
@@ -164,7 +160,7 @@ class PageManager {
             this.showCheatSheet();
         })
         navLogo.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset();  // must be in front of page change
+            checkIfSimplifierPageNeedsReset(this.pyodide);  // must be in front of page change
             closeNavbar();
             this.showLandingPage();
         })
@@ -174,7 +170,6 @@ class PageManager {
             activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
-            pushLanguageEventMatomo(configLanguageValues.English);
         })
         selectGerman.addEventListener("click", () => {
             languageManager.currentLang = german;
@@ -182,7 +177,6 @@ class PageManager {
             activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
-            pushLanguageEventMatomo(configLanguageValues.German);
         })
 
         const toggler = document.getElementById("nav-toggler");
@@ -208,11 +202,6 @@ class PageManager {
                 page.style.opacity = "0.3";
             }
         }
-    }
-
-    setupSimplifierPage() {
-        languageManager.updateLanguageSimplifierPage();
-        updateSimplifierPageColors();
     }
 
     setupCheatSheet() {
@@ -255,12 +244,9 @@ class PageManager {
         indRea.innerHTML = "$$ \\omega \\cdot L$$";
 
         const pRX = document.getElementById("pRX");
-        pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$" +
-            "$$\\underline{Z} = R + j \\cdot \\sqrt{X_L - X_C}$$"
+        pRX.innerHTML = "$$\\underline{Z} = R + j \\cdot X$$"
         pRX.style.color = "white";
 
-        whenAvailable("MathJax", () => {
-            MathJax.typeset();
-        });
+        MathJax.typeset();
     }
 }

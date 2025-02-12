@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg" href="src/resources/navigation/icon.svg"/>
     <title>simpliPFy</title>
-    <link rel="canonical" href="https://simplipfy.org" />
 
     <!-- JS Scripts Import -->
-    <script src="src/scripts/extern/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <script src="src/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
 
     <script src="src/scripts/languages/lang.en.js"></script>
     <script src="src/scripts/languages/lang.de.js"></script>
@@ -17,18 +16,13 @@
     <script src="src/scripts/utils/circuitMapper.js"></script>
     <script src="src/scripts/utils/configurations.js"></script>
     <script src="src/scripts/utils/packageManager.js"></script>
-    <script src="src/scripts/utils/matomoHelper.js"></script>
-    <script src="src/scripts/utils/loadFonts.js"></script>
-
-    <script src="src/scripts/definitions/showVCDefinition.js"></script>
-    <script src="src/scripts/definitions/toggleSymbolDefinition.js"></script>
-    <script src="src/scripts/definitions/allowedCircuitDirectories.js"></script>
-    <script src="src/scripts/definitions/colorDefinitions.js"></script>
 
     <script src="src/scripts/dataObjects/stateObject.js"></script>
-    <script src="src/scripts/dataObjects/stepObject.js"></script>
-
+    <script src="src/scripts/dataObjects/stepDetails.js"></script>
+    <script src="src/scripts/dataObjects/solutionObject.js"></script>
+    <script src="src/scripts/dataObjects/solutionObject_VC.js"></script>
     <script src="src/scripts/visualisation/emojis.js"></script>
+    <script src="src/scripts/visualisation/colorDefinitions.js"></script>
     <script src="src/scripts/visualisation/darkModeFunctions.js"></script>
     <script src="src/scripts/visualisation/selectorBuilder.js"></script>
     <script src="src/scripts/visualisation/pageManager.js"></script>
@@ -41,42 +35,38 @@
     <!--Pyodide Import -->
     <script src="pyodide.js"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/styles/allStyles.css">
-    <link rel="stylesheet" href="src/styles/bootstrap.min.css">
 
-    <script src="src/scripts/extern/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <!-- Matomo -->
-    <script>loadMatomo()</script>
+    <script>
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(['disableCookies']);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="//simplipfy.org/matomo/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '2']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
     <!-- End Matomo Code -->
+
 </head>
 
 <body id="bootstrap-overrides" class="bg-dark">
-
-    <!-- Info Gif Modal, needs to be on top level (child of body) for display purposes -->
-    <div class="modal modal-sm fade" id="infoGif" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center" id="info-gif-header">
-                    <h5 class="modal-title" id="info-gif-title"></h5>
-                </div>
-                <div class="modal-body" id="info-gif-body">
-                    <p id="info-gif-text" class="text-center"></p>
-                    <img class="img-fluid rounded mx-auto d-block" src="./src/resources/simplifier/howto.gif" alt="click on two elements and then on check two simplify these two elements">
-                </div>
-                <div class="modal-footer justify-content-center" id="info-gif-footer">
-                    <button id="info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navbar Navigation -->
     <nav class="navbar navbar-dark bg-dark p-2" id="navbar">
         <button id="nav-toggler" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" id="nav-logo" href="">simpliPFy</a>
+        <a class="navbar-brand" id="nav-logo" href="#">simpliPFy</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav">
                 <li class="nav-item">
@@ -90,7 +80,7 @@
                 </li>
                 <li style="margin-top: 30px;">
                     <div class="form-check form-switch" id="darkmode-div">
-                        <input class="form-check-input" type="checkbox" id="darkmode-switch" checked>
+                        <input class="form-check-input" type="checkbox" id="darkmode-switch">
                         <label class="form-check-label" for="darkmode-switch" id="darkmode-label">DARKMODE</label>
                     </div>
                 </li>
@@ -100,13 +90,13 @@
                             <img src="src/resources/navigation/uk.png" id="activeLanguageFlag" class="flag"></a>
                         <ul class="dropdown-menu" id="languagesDropdown" aria-labelledby="Dropdown" style="background-color: #33393f; width: min-content">
                             <li>
-                                <a id="select-english" class="d-flex lang-selector" style="text-decoration: none; color:white">
+                                <a id="select-english" class="d-flex" style="text-decoration: none; color:white">
                                     <img src="src/resources/navigation/uk.png" class="flag my-auto mx-2">
                                     <p class="my-auto" style="font-size: 20px">English</p>
                                 </a>
                             </li>
                             <li>
-                                <a id="select-german" class="d-flex lang-selector" style="text-decoration: none; color:white">
+                                <a id="select-german" class="d-flex" style="text-decoration: none; color:white">
                                     <img src="src/resources/navigation/germany.png" class="flag my-auto mx-2">
                                     <p class="my-auto" style="font-size: 20px">Deutsch</p>
                                 </a>
@@ -263,6 +253,6 @@
     </script>
 
     <!-- Bootstrap Import -->
-    <script src="src/scripts/extern/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

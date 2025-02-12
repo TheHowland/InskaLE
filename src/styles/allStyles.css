@@ -2,231 +2,12 @@
 key-yellow: #FFC107
 */
 
-/* cyrillic-ext */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillicExt.woff2) format('woff2');
-    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-
-/* cyrillic */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillic.woff2) format('woff2');
-    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-/* greek-ext */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoGreekExt.woff2) format('woff2');
-    unicode-range: U+1F00-1FFF;
-}
-
-/* greek */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoGreek.woff2) format('woff2');
-    unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-
-/* vietnamese */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoVietnamese.woff2) format('woff2');
-    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-
-/* latin-ext */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoLatinExt.woff2) format('woff2');
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./../fonts/robotoLatin.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* cyrillic-ext bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillicExtBold.woff2) format('woff2');
-    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-
-/* cyrillic bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillicBold.woff2) format('woff2');
-    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-/* greek-ext bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoGreekExtBold.woff2) format('woff2');
-    unicode-range: U+1F00-1FFF;
-}
-
-/* greek bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoGreekBold.woff2) format('woff2');
-    unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-
-/* vietnamese bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoVietnameseBold.woff2) format('woff2');
-    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-
-/* latin-ext bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoLatinExt.woff2) format('woff2');
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin bold */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(./../fonts/robotoLatinBold.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* cyrillic-ext condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillicExtCondensed.woff2) format('woff2');
-    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-
-/* cyrillic condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoCyrillicCondensed.woff2) format('woff2');
-    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-/* greek-ext condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoGreekExtCondensed.woff2) format('woff2');
-    unicode-range: U+1F00-1FFF;
-}
-
-/* greek condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoGreekCondensed.woff2) format('woff2');
-    unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-
-/* vietnamese condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoVietnameseCondensed.woff2) format('woff2');
-    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-
-/* latin-ext condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoLatinExtCondensed.woff2) format('woff2');
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin condensed */
-@font-face {
-    font-family: 'Roboto Condensed';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url(./../fonts/robotoLatinCondensed.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-
 body, html {
+    font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
     overscroll-behavior-y: none;  /* prevent reloading the page when scrolling up */
     width: 100%;
     position: relative;
-}
-
-#bootstrap-overrides body {
-    font-family: 'Roboto', sans-serif;
-}
-
-#bootstrap-overrides h1, h2, h3, h4, h5 {
-    font-family: 'Roboto Condensed', sans-serif;
-    font-weight: bold;
 }
 
 p {
@@ -239,6 +20,63 @@ img {
     max-height: 375px;
 }
 
+#bootstrap-overrides #cookie-banner {
+    border-radius: 10px;
+    width: 95%;
+    bottom: 10px;
+}
+
+#bootstrap-overrides #cookie-banner-title {
+    color: white;
+    font-size: xx-large;
+    font-weight: bolder;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+#bootstrap-overrides #cookie-banner-text {
+    color: white;
+    text-align: center;
+}
+
+#bootstrap-overrides .cookie-selection {
+    color: white;
+}
+#bootstrap-overrides #btn-cookies-all {
+    background-color: #FFC107;
+    color: #222222;
+    border: none;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+#bootstrap-overrides #btn-cookies-some {
+    background-color: #212529;
+    color: #FFC107;
+    border: solid 1px #FFC107;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+#bootstrap-overrides #btn-cookies-none {
+    background-color: #212529;
+    color: #FFC107;
+    border: solid 1px #FFC107;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+#bootstrap-overrides .cookie-checkbox {
+    accent-color: #FFC107;
+    margin-right: 2px;
+}
+
+
+
+
+
+mjx-container mjx-c::before {
+    will-change: opacity;
+    padding-top: 20px !important;
+    padding-bottom: 5px !important;
+}
+
 mjx-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -246,41 +84,11 @@ mjx-container {
     padding-bottom: 5px;
 }
 
-mjx-container mjx-c::before {
-    /*will-change: opacity;*/
-    /*padding-top: 20px !important;
-    padding-bottom: 5px !important;*/
-}
-
-foreignObject {
-    span {
-        mjx-container {
-            margin-top: 0 !important;
-            /*padding-top: 0 !important;*/
-        }
-    }
-}
-
-#bootstrap-overrides .current-label {
-    color: red !important;
-    stroke: red !important;
-    fill: red !important;
-    opacity: 0.8 !important;
-    stroke-width: 0;
-}
-
-#bootstrap-overrides .voltage-label {
-    color: #9898ff !important;
-    stroke: #9898ff !important;
-    fill: #9898ff !important;
-    opacity: 0.8 !important;
-    stroke-width: 0;
-}
-
 th, td {
     vertical-align: middle;
     text-align: center
 }
+
 
 #bootstrap-overrides #nav-select{
     color: #FFC107;
@@ -430,10 +238,6 @@ th, td {
     }
 }
 
-#bootstrap-overrides a.lang-selector {
-    cursor: pointer;
-}
-
 #bootstrap-overrides #darkmode-label {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: small;
@@ -459,47 +263,14 @@ th, td {
 
 /* Selection page */
 
-#bootstrap-overrides .form-check-input {
-    border: 1px solid black;
-}
-
-#bootstrap-overrides .form-check-input:checked {
-    background-color: #FFC107;
-}
-
-#bootstrap-overrides .form-check-input:focus {
-    box-shadow: 0 0 0.25rem #ffc107 !important;
-}
-
-#bootstrap-overrides .form-check-label {
-    font-family: 'Roboto', sans-serif;
-}
-
-
-#bootstrap-overrides .accordion-button {
-    /*background-color: #212529;
-    color: #ffc107;*/
-    font-size: 24px;
-    font-family: 'Roboto Condensed', sans-serif;
-}
-
-#bootstrap-overrides .accordion-body {
-    background-color: #212529;
-}
-
-#bootstrap-overrides .accordion-button:focus {
-    z-index: 3;
-    box-shadow: 0 0 0.25rem #ffc107 !important;
-}
-
 #bootstrap-overrides .selector-container {
     max-width: 500px; /* to limit the distance of the next/prev buttons from the picture */
 }
 #bootstrap-overrides .carousel-control-next {
-    z-index: 10;
+    z-index: 3;
 }
 #bootstrap-overrides .carousel-control-prev {
-    z-index: 10;
+    z-index: 3;
 }
 
 
@@ -514,6 +285,7 @@ th, td {
     border: 1px solid white;
     border-radius: 10px;
     position: relative;
+    width: 350px;
     max-width: 350px;
 }
 
@@ -541,22 +313,6 @@ th, td {
     border-radius: 40px;
     z-index: 10;
 }
-/* for the start buttons in the modal overviews */
-#bootstrap-overrides .circuitStartBtnModal {
-    font-weight: bold;
-    border-radius: 0 0 20px 20px;
-    z-index: 10;
-    padding-top: 2px;
-    margin-bottom: 20px;
-}
-
-#bootstrap-overrides .modalOverviewBtn {
-    border-radius: 7px;
-    background: none;
-    color: #ffc107;
-    border: 1px solid #ffc107;
-    font-family: 'Roboto Condensed', sans-serif;
-}
 
 /* Simplifier page */
 #bootstrap-overrides svg{
@@ -574,23 +330,15 @@ th, td {
 }
 
 #bootstrap-overrides #reset-btn {
-    /*background-color: #b61117;*/
+    background-color: #b61117;
     border: none;
     color: white;
 }
 
-#bootstrap-overrides #solutionsTable {
-    tbody {
-        tr {
-            td {
-                border: none;
-                mjx-container {
-                    margin-top: 0;
-                    margin-bottom: 0;
-                }
-            }
-        }
-    }
+#bootstrap-overrides #back-btn {
+    background-color: #FFC107;
+    border: none;
+    color: #222222;
 }
 
 /* Data Privacy Page */
@@ -599,7 +347,7 @@ th, td {
     color: white;
 }
 
-#bootstrap-overrides #back-btn-data-privacy, #back-btn-legal {
+#bootstrap-overrides #back-btn {
     background-color: #FFC107;
     border: none;
     color: #222222;
