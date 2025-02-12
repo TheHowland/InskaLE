@@ -1,5 +1,6 @@
 function setupDarkModeSwitch() {
     const darkModeSwitch = document.getElementById("darkmode-switch");
+    darkModeSwitch.checked = true;
     darkModeSwitch.addEventListener("change", () => {
         if (darkModeSwitch.checked) {
             changeToDarkMode();
