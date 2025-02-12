@@ -77,6 +77,16 @@ class SelectorBuilder {
         return carouselElementString;
     }
 
+    adaptSelectorFrameColor() {
+        // Adapt border color if darkmode changed before selector is built
+        if (!document.getElementById("darkmode-switch").checked) {
+            const svgSelectors = document.getElementsByClassName("svg-selector");
+            for (const svgSelector of svgSelectors) {
+                svgSelector.style.borderColor = colors.currentForeground;
+            }
+        }
+    }
+
     createCarouselItemForCircuit(circuit) {
         return `<div class="carousel-item justify-content-center">
                     <div id="${circuit.btnOverlay}" class="img-overlay">
@@ -105,7 +115,7 @@ class SelectorBuilder {
         const btnOverlay = document.getElementById(circuitMap.btnOverlay);
 
         // Fill div with svg
-        let svgData = pyodide.FS.readFile(circuitMap.svgFile, {encoding: "utf8"});
+        let svgData = pyodide.FS.readFile(circuitMap.overViewSvgFile, {encoding: "utf8"});
         svgData = setSvgWidthTo(svgData, "100%");
         svgData = setSvgColorMode(svgData);
         circuitDiv.innerHTML = svgData;
@@ -113,7 +123,7 @@ class SelectorBuilder {
 
         this.setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
         startBtn.addEventListener("click", () =>
-            this.circuitSelectorStartButtonPressed(circuitMap.circuitFile, circuitMap, pageManager))
+            this.circuitSelectorStartButtonPressed(circuitMap, pageManager))
     }
 
     hideSvgArrows(circuitDiv) {
@@ -146,13 +156,13 @@ class SelectorBuilder {
         prev.hidden = true;
     }
 
-    circuitSelectorStartButtonPressed(circuitName, circuitMap, pageManager){
+    circuitSelectorStartButtonPressed(circuitMap, pageManager){
         document.title = "Simplifier";
-        pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitName);
+        pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
         clearSimplifierPageContent();
-        state.currentCircuit = circuitName;
         state.currentCircuitMap = circuitMap;
         state.pictureCounter = 0;
+        state.allValuesMap = new Map();
         if (state.pyodideReady) {
             startSolving(pageManager.pyodide);
         }

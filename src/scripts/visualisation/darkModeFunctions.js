@@ -1,12 +1,14 @@
 function setupDarkModeSwitch() {
     const darkModeSwitch = document.getElementById("darkmode-switch");
-    darkModeSwitch.checked = true;
     darkModeSwitch.addEventListener("change", () => {
         if (darkModeSwitch.checked) {
             changeToDarkMode();
+            pushDarkModeEventMatomo(configDarkModeValues.Dark)
         } else {
             changeToLightMode();
+            pushDarkModeEventMatomo(configDarkModeValues.Light)
         }
+        closeNavbar();
     });
 }
 
@@ -15,7 +17,10 @@ function changeToDarkMode() {
     updateAvailableBsClassesTo(colors.bsColorSchemeDark);
     updateNavigationColorsTo(colors.bootstrapDark, colors.languagesDarkBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeDark);
-    updateSelectorPageSvgStrokeColor(colors.lightModeSvgStrokeColor, colors.darkModeSvgStrokeColor);
+    updateSelectorPageNote();
+    if (circuitMapper !== null) {
+        updateSelectorPageSvgStrokeColor(colors.lightModeSvgStrokeColor, colors.darkModeSvgStrokeColor);
+    }
 }
 
 function changeToLightMode() {
@@ -23,7 +28,15 @@ function changeToLightMode() {
     updateAvailableBsClassesTo(colors.bsColorSchemeLight);
     updateNavigationColorsTo(colors.bootstrapWhite, colors.languagesLightBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeLight);
-    updateSelectorPageSvgStrokeColor(colors.darkModeSvgStrokeColor, colors.lightModeSvgStrokeColor);
+    updateSelectorPageNote();
+    if (circuitMapper !== null) {
+        updateSelectorPageSvgStrokeColor(colors.darkModeSvgStrokeColor, colors.lightModeSvgStrokeColor);
+    }
+}
+
+function updateSelectorPageNote() {
+    const note = document.getElementById("progress-bar-note");
+    note.style.color = colors.currentForeground;
 }
 
 function updateNavigationColorsTo(navigationToggleBgColor, languagesBgColor) {

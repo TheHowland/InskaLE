@@ -21,9 +21,12 @@ class LanguageManager {
     }
 
     updateLanguageSelectorPage() {
-        for (const circuitSet of circuitMapper.circuitSets) {
-            const heading = document.getElementById(`${circuitSet.identifier}-heading`);
-            heading.innerHTML = this.currentLang.carouselHeadings[circuitSet.identifier];
+        // circuit mapper is only instantiated in when start button pressed
+        if (circuitMapper !== null) {
+            for (const circuitSet of circuitMapper.circuitSets) {
+                const heading = document.getElementById(`${circuitSet.identifier}-heading`);
+                heading.innerHTML = this.currentLang.carouselHeadings[circuitSet.identifier];
+            }
         }
     }
 
@@ -58,10 +61,6 @@ class LanguageManager {
     updateDataPrivacyPage() {
         const backBtn = document.getElementById('back-btn');
         backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
-        const dataPrivacyHeading = document.getElementById('data-privacy-heading');
-        dataPrivacyHeading.innerHTML = this.currentLang.dataPrivacyHeading;
-        const dataPrivacyText = document.getElementById('data-privacy-text');
-        dataPrivacyText.innerHTML = this.currentLang.dataPrivacyText;
     }
 
     updateLegalNoticePage() {
@@ -69,8 +68,6 @@ class LanguageManager {
         backBtn.innerHTML = this.currentLang.dataPrivacyBackBtn;
         const legalNoticeHeading = document.getElementById('legal-notice-heading');
         legalNoticeHeading.innerHTML = this.currentLang.legalNoticeHeading;
-        const legalNoticeText = document.getElementById('legal-notice-text');
-        legalNoticeText.innerHTML = this.currentLang.legalNoticeText;
     }
 
 }
