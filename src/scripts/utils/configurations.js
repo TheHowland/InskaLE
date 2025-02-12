@@ -14,17 +14,11 @@ class Configurations {
     }
 
     async initialize(){
+        let conf = await Configurations.loadConf()
+
         this.subdomain = window.location.hostname.split('.').slice(0, -2).join('.');
         this.secondLevelDomain = window.location.hostname.replace("\.(io|org)","").split(".")[1] || "";
-        this.srcRootPath = window.location.pathname;
-        if (this.srcRootPath !== null && this.srcRootPath.endsWith("index.html")) {
-            this.srcRootPath = this.srcRootPath.replace("index.html", "");
-            if (!this.srcRootPath.endsWith("/")) {
-                this.srcRootPath += "/";
-            }
-        }
-
-        let conf = await this.loadConf()
+        this.pathName = window.location.pathname;
 
         this.sourceCircuitPath = this.gitHubProject + conf.sourceCircuitPath;
         this.sourceSolvePath = this.gitHubProject + conf.sourceSolvePath;
@@ -35,9 +29,12 @@ class Configurations {
         this.pyodideSolvePath = "/" + conf.pyodideSolvePath;
     }
 
-    async loadConf() {
-        let test = await fetch(this.srcRootPath + "src/conf/conf.json");
-        return await test.json();
+    static async loadConf() {
+        let projectPath = window.location.pathname;
+        let test = await fetch(projectPath + "src/conf/conf.json");
+        let conf = await test.json()
+        console.log(conf);
+        return conf;
     }
 
     get isGitHubPage(){
@@ -49,6 +46,6 @@ class Configurations {
     }
 
     get gitHubProject() {
-        return this.srcRootPath;
+        return this.pathName;
     }
 }
