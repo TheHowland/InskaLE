@@ -43,11 +43,11 @@ function showAllSelectors() {
 }
 
 function circuitIsNotSubstituteCircuit(circuitMap) {
-    let showVoltageButton = true;
+    let showVCData = true;
     if (circuitMap.selectorGroup === circuitMapper.selectorIds.subId) {
-        showVoltageButton = false;
+        showVCData = false;
     }
-    return showVoltageButton;
+    return showVCData;
 }
 
 function notLastPicture() {
@@ -111,8 +111,10 @@ function showMessage(container, message, prio = "warning", fixedBottom = true) {
 
     container.appendChild(msg);
     setTimeout(() => {
-        container.removeChild(msg);
-    }, 3000);
+        if (container.contains(msg)) {
+            container.removeChild(msg);
+        }
+    }, 2000);
 }
 
 function setPgrBarTo(percent) {
@@ -136,18 +138,28 @@ function resetSolverObject() {
     paramMap.set("volt", languageManager.currentLang.voltageSymbol);
     paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    stepSolve = state.solve.SolveInUserOrder(state.currentCircuit, `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
+    stepSolve = state.solve.SolveInUserOrder(state.currentCircuitMap.circuitFile, `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
 }
 
 function enableCheckBtn() {
     document.getElementById("check-btn").disabled = false;
 }
 
-function resetSimplifierPage(pyodide) {
+function resetSimplifierPage(pyodide, calledFromResetBtn = false) {
+    if (state.currentCircuitMap !== null) {
+        // If the back btn exists, the user has finished the simplification
+        // That means if the page is reset and the btn does not exist, the user aborted the simplification
+        // If calledFromResetBtn, then don't push the event because it's reset, and not aborted
+        let backBtnDoesNotExist = document.getElementById("back-btn") === null;
+        if (backBtnDoesNotExist && !calledFromResetBtn) {
+            pushCircuitEventMatomo(circuitActions.Aborted, state.pictureCounter);
+        }
+    }
     clearSimplifierPageContent();
     resetSolverObject();
     state.selectedElements = [];
     state.pictureCounter = 0;
+    state.allValuesMap = new Map();
     if (state.pyodideReady) {
         startSolving(pyodide);  // Draw the first picture again
     }
@@ -162,7 +174,7 @@ function enableLastCalcButton() {
     }, 100);
 }
 
-function scrollToBottom() {
+function scrollNextElementsContainerIntoView() {
     setTimeout(() => {
         const nextElementsText = document.getElementById("nextElementsContainer");
         if (nextElementsText != null) {nextElementsText.scrollIntoView()}
@@ -277,6 +289,60 @@ function showArrows(contentCol) {
     }
 }
 
+function whenAvailable(name, callback) {
+    var interval = 10; // ms
+    window.setTimeout(function() {
+        if (window[name]) {
+            callback(window[name]);
+        } else {
+            whenAvailable(name, callback);
+        }
+    }, interval);
+}
+
+async function solveCircuit(circuitMap, pyodide) {
+    await clearSolutionsDir(pyodide);
+
+    let paramMap = new Map();
+    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
+    paramMap.set("total", languageManager.currentLang.totalSuffix);
+
+    stepSolve = state.solve.SolveInUserOrder(
+        circuitMap.circuitFile,
+        `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`,
+        `${conf.pyodideSolutionsPath}/`,
+        paramMap);
+    await stepSolve.createStep0().toJs();
+
+    // Get information which components are used in this circuit
+    const componentTypes = await getCircuitComponentTypes(pyodide);
+
+    await getJsonAndSvgStepFiles(pyodide);
+    let stepDetails = fillStepDetailsObject(circuitMap, componentTypes);
+
+    display_step(pyodide, stepDetails);
+}
+
+function startSolving(pyodide) {
+    solveCircuit(state.currentCircuitMap, pyodide);
+    //The div element that contains the SVG representation of the circuit diagram.
+    const svgDiv = document.querySelector('.svg-container');
+    //The div element that contains the list of elements that have been clicked or selected in the circuit diagram.
+    const nextElementsContainer = document.querySelector('.next-elements-container');
+    if (svgDiv && nextElementsContainer) {
+        resetNextElements(svgDiv, nextElementsContainer);
+    }
+}
+
+function fillStepDetailsObject(circuitMap, componentTypes) {
+    let stepDetails = new StepDetails;
+    stepDetails.showVCData = circuitIsNotSubstituteCircuit(circuitMap);
+    stepDetails.jsonZPath = `${conf.pyodideSolutionsPath}/${state.jsonFiles_Z[state.currentStep]}`;
+    stepDetails.jsonZVCath = (state.jsonFiles_VC === null) ? null : `${conf.pyodideSolutionsPath}/${state.jsonFiles_VC[state.currentStep]}`;
+    stepDetails.svgPath = `${conf.pyodideSolutionsPath}/${state.svgFiles[state.currentStep]}`;
+    stepDetails.componentTypes = componentTypes;
+    return stepDetails;
+}
 
 
 
