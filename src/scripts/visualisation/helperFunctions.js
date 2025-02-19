@@ -86,7 +86,7 @@ function setSvgWidthTo(svgData, width) {
 }
 
 // Displays a temporary message to the user in a message box.
-function showMessage(container, message, prio = "warning", fixedBottom = true, yPxHeight = 0) {
+function showMessage(container, message, prio = "warning", fixedBottom = true) {
     let bootstrapAlert;
     let emoji;
     if (prio === "only2") {
@@ -98,51 +98,35 @@ function showMessage(container, message, prio = "warning", fixedBottom = true, y
     } else if (prio === "success") {
         emoji = goodEmojis[Math.floor(Math.random() * goodEmojis.length)];
         bootstrapAlert = "success";
-    } else if (prio === "info") {
-        emoji = "";
-        bootstrapAlert = "secondary";
-    } else {
-        emoji = "";
-        bootstrapAlert = "secondary";
     }
     const msg = document.createElement('div');
     msg.classList.add("alert", `alert-${bootstrapAlert}`);
     if (fixedBottom) {
         msg.classList.add("fixed-bottom");
         msg.style.bottom = "170px";
-    } else {
-        msg.style.position = "absolute";
-        msg.style.top = `${yPxHeight}px`;
-        msg.style.left = "0";
-        msg.style.right = "0";
     }
     msg.classList.add("mx-auto");  // centers it when max-width is set
     msg.style.maxWidth = "400px";
 
-    if (emoji !== "") {
-        let emojiSpan = document.createElement('span');
-        emojiSpan.style.fontSize = '1.66em';
-        emojiSpan.innerHTML = emoji;
-        msg.appendChild(emojiSpan);
-        msg.appendChild(document.createElement('br'));
-    }
+    let emojiSpan = document.createElement('span');
+    emojiSpan.style.fontSize = '1.66em';
+    emojiSpan.innerHTML = emoji;
 
     let msgSpan = document.createElement('span');
     msgSpan.innerHTML = message;
+
+    msg.appendChild(emojiSpan);
+    msg.appendChild(document.createElement('br'));
     msg.appendChild(msgSpan);
+
     container.appendChild(msg);
 
     // Remove the message when the user clicks anywhere
-    // Distinction between info messages and others because info message will be created by clicking on something
-    // this would already remove it again with this handler. Warning and so on are created by something done wrong
-    // without a click on the screen
-    if (prio !== "info") {
-        document.addEventListener("click", () => {
-            if (container.contains(msg)) {
-                container.removeChild(msg);
-            }
-        });
-    }
+    document.addEventListener("click", () => {
+        if (container.contains(msg)) {
+            container.removeChild(msg);
+        }
+    });
     // Remove the message after 3 seconds if not clicked already
     setTimeout(() => {
         if (container.contains(msg)) {
@@ -192,7 +176,6 @@ function resetSimplifierPage(calledFromResetBtn = false) {
     }
     clearSimplifierPageContent();
     resetSolverObject();
-    state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
@@ -306,6 +289,19 @@ function showArrows(contentCol) {
         arrow.style.display = "block";
         arrow.style.opacity = "0.5";
     }
+    if (state.valuesShown) {
+        // Hide labels
+        let arrows = contentCol.querySelectorAll("text.arrow");
+        for (let arrow of arrows) {
+            arrow.style.display = "none";
+        }
+        // Show mathjax formulas
+        let mathjax = contentCol.querySelectorAll(".mathjax-value-label");
+        for (let mj of mathjax) {
+            mj.style.display = "block";
+        }
+
+    }
 }
 
 function whenAvailable(name, callback) {
@@ -329,7 +325,6 @@ async function createAndShowStep0(circuitMap) {
     stepSolve = state.solve.SolveInUserOrder(
         circuitMap.circuitFile,
         `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`,
-        "",
         paramMap);
 
     let obj = await stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});

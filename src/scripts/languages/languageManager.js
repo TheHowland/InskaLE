@@ -6,7 +6,6 @@ class LanguageManager {
         this.updateLanguageSelectorPage();
         this.updateLanguageSimplifierPage();
         this.updateLanguageCheatSheetPage();
-        this.updateLanguageAboutPage();
     }
 
     updateLanguageLandingPage() {
@@ -74,11 +73,6 @@ class LanguageManager {
         cap.innerHTML = this.currentLang.capacitorRowHeading;
         const ind = document.getElementById("inductor");
         ind.innerHTML = this.currentLang.inductorRowHeading;
-    }
-
-    updateLanguageAboutPage() {
-        const aboutText = document.getElementById('about-text');
-        aboutText.innerHTML = this.currentLang.aboutText;
     }
 
     updateDataPrivacyPage() {
