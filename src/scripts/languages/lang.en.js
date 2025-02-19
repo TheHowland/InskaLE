@@ -80,6 +80,8 @@ const english = {
         "Can not simplify those elements",
     alertChooseAtLeastOneElement:
         "Choose at least one element",
+    alertNotToggleable:
+        "Complex elements can not be toggled here, see calculations",
 
     // Calculation text
     relationTextParallel:
@@ -149,5 +151,11 @@ const english = {
     legalNoticeHeading:
         "Legal Notice",
 
-
+    /* About Page */
+    aboutText:
+        "<br><br>'simplipfy' was created at Pforzheim University in 2024.<br><br>" +
+        "The goal of the tool is to help students and pupils interactively learn different topics of electronics, but also to make it possible" +
+        "possible to extend it with more topics than just circuit simplification.<br><br>" +
+        "It was developed under the direction of Prof.Dr. Stefan Kray and funded by the Foundation for Innovation in Higher Education.<br><br>" +
+        "The project is open-source and can be viewed on GitHub at the following link: <a href='https://github.com/prof-sky/inskale'>Github-Repo</a>"
 }
