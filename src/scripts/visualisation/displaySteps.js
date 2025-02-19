@@ -222,6 +222,18 @@ function addInfoHelpButton(svgDiv) {
     svgDiv.insertAdjacentElement("afterbegin", infoBtn);
 }
 
+function divContainsZLabels(svgDiv) {
+    let symbols = svgDiv.querySelectorAll(".element-label");
+    let containsZ = false;
+    for (let symbol of symbols) {
+        if (symbol.classList[symbol.classList.length - 1].includes("Z")) {
+            containsZ = true;
+            break;
+        }
+    }
+    return containsZ;
+}
+
 function setupSvgDivContainerAndData(stepObject) {
     let svgData = stepObject.svgData;
     const svgDiv = document.createElement('div');
@@ -237,11 +249,17 @@ function setupSvgDivContainerAndData(stepObject) {
     // Svg manipulation - set width and color for dark mode
     svgData = setSvgColorMode(svgData);
     svgDiv.innerHTML = svgData;
+    let containsZ = divContainsZLabels(svgDiv);
 
-    if (state.step0Data.componentTypes === "RLC") {
-        // Always start with symbols shown on complex circuits
-        state.valuesShown = false;
+    if (svgDiv.id === "svgDiv1" || containsZ) {
+        // First svg, set valuesShown to false
+        // Also set to zero if labels contain Z because they can't be toggled
+        state.valuesShown.set(svgDiv.id, false);
+    } else {
+        // Set valuesShown to the previous state
+        state.valuesShown.set(svgDiv.id, state.valuesShown.get(`svgDiv${state.pictureCounter - 1}`));
     }
+
     fillLabels(svgDiv);
     hideSourceLabel(svgDiv);
     hideSvgArrows(svgDiv);
@@ -261,7 +279,7 @@ function fillLabels(svgDiv) {
     for (let label of labels) {
         if (label.nodeName === "path") continue;
         let span = label.querySelector("tspan");
-        if (state.valuesShown) {
+        if (state.valuesShown.get(svgDiv.id)) {
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
         } else {
             span.innerHTML = label.classList[label.classList.length - 1];
@@ -280,18 +298,17 @@ function addNameValueToggleBtn(svgDiv) {
     nameValueToggleBtn.style.color = colors.currentForeground;
     nameValueToggleBtn.style.border = `1px solid ${colors.currentForeground}`;
     nameValueToggleBtn.style.background = "none";
-    if (state.valuesShown) {
+    if (state.valuesShown.get(svgDiv.id)) {
         nameValueToggleBtn.innerText = toggleSymbolDefinition.valuesShown;
     } else {
         nameValueToggleBtn.innerText = toggleSymbolDefinition.namesShown;
     }
-    nameValueToggleBtn.onclick = () => {toggleNameValue()};
+    nameValueToggleBtn.onclick = () => {toggleNameValue(svgDiv, nameValueToggleBtn)};
     svgDiv.insertAdjacentElement("afterbegin", nameValueToggleBtn);
 }
 
-function toggleElements() {
-    let svgDiv = document.getElementById("content-col");
-    toggleElementSymbols(svgDiv);
+function toggleElements(svgDiv) {
+     toggleElementSymbols(svgDiv);
     if (state.step0Data.componentTypes !== "RLC") {
         // Don't show U/I values in complex circuits
         toggleUISymbols(svgDiv);
@@ -299,41 +316,45 @@ function toggleElements() {
 }
 
 function toggleUISymbols(svgDiv) {
-    let texts = svgDiv.querySelectorAll("text.current-label:not(#nextElementsContainer text.current-label), text.voltage-label:not(#nextElementsContainer text.voltage-label)");
+    let texts = svgDiv.querySelectorAll("text.current-label, text.voltage-label");
     for (let text of texts) {
-        let span = text.querySelector("tspan");
-        if (state.valuesShown) {
-            span.innerHTML = MJtoText(state.allValuesMap.get(text.classList[text.classList.length - 1]));
-        } else {
-            span.innerHTML = text.classList[text.classList.length - 1];
-        }
+        toggleText(text, svgDiv);
     }
 }
 
 function toggleElementSymbols(svgDiv) {
-    let texts = svgDiv.querySelectorAll(".element-label:not(#nextElementsContainer .element-label)");
+    let texts = svgDiv.querySelectorAll(".element-label");
     for (let text of texts) {
         if (text.classList.contains("V1")) continue;  // Source label stays hidden
-        let span = text.querySelector("tspan");
-        if (state.valuesShown) {
-            span.innerHTML = MJtoText(state.allValuesMap.get(text.classList[text.classList.length - 1]));
-        } else {
-            span.innerHTML = text.classList[text.classList.length - 1];
-        }
+        toggleText(text, svgDiv);
     }
 }
 
-function toggleNameValue() {
-    state.valuesShown = !state.valuesShown;
-    toggleElements();
+function toggleText(text, svgDiv) {
+    let span = text.querySelector("tspan");
+    if (state.valuesShown.get(svgDiv.id)) {
+        span.innerHTML = MJtoText(state.allValuesMap.get(text.classList[text.classList.length - 1]));
+    } else {
+        span.innerHTML = text.classList[text.classList.length - 1];
+    }
+}
+
+function toggleNameValue(svgDiv, nameValueToggleBtn) {
+    let containsZ = divContainsZLabels(svgDiv);
+    if (containsZ) {
+        let rect = svgDiv.getBoundingClientRect();
+        let y = rect.y + window.scrollY + 20;
+        showMessage(document.getElementById("content-col"), languageManager.currentLang.alertNotToggleable, "info", false, y);
+        return;
+    }
+
+    state.valuesShown.set(svgDiv.id, !state.valuesShown.get(svgDiv.id));
+    toggleElements(svgDiv);
     // Toggle button icons
-    let togglers = document.querySelectorAll(".toggle-view");
-    for (let toggler of togglers) {
-        if (state.valuesShown) {
-            toggler.innerText = toggleSymbolDefinition.namesShown;
-        } else {
-            toggler.innerText = toggleSymbolDefinition.valuesShown;
-        }
+    if (state.valuesShown.get(svgDiv.id)) {
+        nameValueToggleBtn.innerText = toggleSymbolDefinition.namesShown;
+    } else {
+        nameValueToggleBtn.innerText = toggleSymbolDefinition.valuesShown;
     }
 }
 
@@ -646,7 +667,7 @@ function cloneAndAdaptStep0Svg() {
     let toggleBtn = originalStep0Svg.querySelector("#toggle-view-1");
     if (toggleBtn !== null) {
         // We have a toggle btn so check which state it is in
-        if (state.valuesShown) {
+        if (state.valuesShown.get("svgDiv1")) {
             // copy the svg with names shown
             originalStep0Svg.querySelector("#toggle-view-1").click();
             clonedSvgData = originalStep0Svg.cloneNode(true);

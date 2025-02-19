@@ -83,6 +83,8 @@ const german = {
         "Diese Elemente k&oumlnnen nicht vereinfacht werden",
     alertChooseAtLeastOneElement:
         "W&aumlhle mindestens ein Element",
+    alertNotToggleable:
+        "Komplexe Elemente k&oumlnnen hier nicht dargestellt werden, siehe Rechnungen",
 
     // Calculation text
     relationTextParallel:

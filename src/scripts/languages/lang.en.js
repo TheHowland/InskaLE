@@ -80,6 +80,8 @@ const english = {
         "Can not simplify those elements",
     alertChooseAtLeastOneElement:
         "Choose at least one element",
+    alertNotToggleable:
+        "Complex elements can not be toggled here, see calculations",
 
     // Calculation text
     relationTextParallel:
