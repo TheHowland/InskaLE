@@ -32,7 +32,6 @@ class StateObject {
     //To generate the table for all values
     allValuesMap = new Map();
 
-    // Toggle variables
-    valuesShown = new Map();
-
+    // Toggle variable
+    valuesShown = false;
 }
