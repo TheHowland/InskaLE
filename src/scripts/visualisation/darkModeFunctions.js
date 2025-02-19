@@ -20,6 +20,7 @@ function changeToDarkMode() {
     updateCheatSheetPageColorsTo(colors.bsColorSchemeDark);
     updateSimplifierPageColors();
     updateSelectorPageColors();
+    updateAboutPageColors();
     if (circuitMapper !== null) {
         updateSelectorPageSvgStrokeColor(colors.lightModeSvgStrokeColor, colors.darkModeSvgStrokeColor);
     }
@@ -32,6 +33,7 @@ function changeToLightMode() {
     updateCheatSheetPageColorsTo(colors.bsColorSchemeLight);
     updateSimplifierPageColors();
     updateSelectorPageColors();
+    updateAboutPageColors();
     if (circuitMapper !== null) {
         updateSelectorPageSvgStrokeColor(colors.darkModeSvgStrokeColor, colors.lightModeSvgStrokeColor);
     }
@@ -108,6 +110,11 @@ function updateSimplifierPageColors() {
     }
 }
 
+function updateAboutPageColors() {
+    const aboutText = document.getElementById("about-text");
+    aboutText.style.color = colors.currentForeground;
+}
+
 function updateSelectorPageNote() {
     const note = document.getElementById("progress-bar-note");
     note.style.color = colors.currentForeground;
@@ -132,6 +139,7 @@ function updateAvailableBsClassesTo(colorScheme) {
     updateBsClassesTo(colorScheme, "bg", document.getElementById("cheat-sheet-container"));
     updateBsClassesTo(colorScheme, "bg", document.getElementById("simplifier-page-container"));
     updateBsClassesTo(colorScheme, "bg", document.getElementById("select-page-container"));
+    updateBsClassesTo(colorScheme, "bg", document.getElementById("about-page-container"));
 }
 
 
@@ -157,6 +165,8 @@ function updateCheatSheetPageColorsTo(bsColorScheme) {
     for (const table of tables) {
         updateBsClassesTo(bsColorScheme, "table", table);
     }
+    const formula = document.getElementById("pRX");
+    formula.style.color = colors.currentForeground;
 }
 function updateSelectorPageSvgStrokeColor(fromSvgColor, toSvgColor) {
     // Change border color of selectors
