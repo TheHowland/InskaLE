@@ -5,8 +5,14 @@ class StateObject {
     //Tracks the current step in the circuit simplification process.
     currentStep = 0;
 
-    // Stores the circuit infos (source voltage, components, omega_0, ...)
-    step0Data = {};
+    //Array to store JSON file paths for Z simplification steps.
+    jsonFiles_Z = [];
+
+    // Array to store JSON file paths for VC simplification steps.
+    jsonFiles_VC = [];
+
+    //Array to store SVG file paths for circuit diagrams.
+    svgFiles = [];
 
     //Array to store the names of the circuit files.
     circuitFiles = [];
@@ -21,7 +27,6 @@ class StateObject {
     solve;
 
     //Boolean to track if the Pyodide environment is ready.
-    pyodide = null;
     pyodideReady = false;
     pyodideLoading = false;
 
@@ -30,8 +35,4 @@ class StateObject {
 
     //To generate the table for all values
     allValuesMap = new Map();
-
-    // Toggle variables
-    valuesShown = new Map();
-
 }
