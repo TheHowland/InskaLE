@@ -140,6 +140,9 @@ class PageManager {
 
             // Starts with 10%
             await packageManager.doLoadsAndImports();
+            if (packageManager.catchedError){
+                return
+            }
 
             selectorBuilder.adaptSelectorFrameColor();
 

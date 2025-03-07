@@ -1,6 +1,6 @@
 
 class PackageManager {
-
+    catchedError = false;
     constructor() {
         if (PackageManager.instance) {
             return PackageManager.instance;
@@ -25,10 +25,11 @@ class PackageManager {
             await this.loadCircuits();
             await this.importPyodidePackages();
             await this.importSolverModule();
+            this.hideProgressBar()
         }
         catch (error){
             this.onError();
-            throw new Error(error)
+            console.log("Failed to load: ", error)
         }
     }
 
@@ -73,12 +74,6 @@ class PackageManager {
         }
 
         console.log("Imported: " + packages);
-
-        progressBarContainer.style.display = "none";
-        document.title = "Circuit Selection";
-        pushPageViewMatomo("Ready");
-        state.pyodideReady = true;
-        state.pyodideLoading = false;
     }
 
     async load_packages(optAddNames) {
@@ -166,6 +161,15 @@ class PackageManager {
         }
     }
 
+    hideProgressBar(){
+        let progressBarContainer = document.getElementById("pgr-bar-container");
+        progressBarContainer.style.display = "none";
+        document.title = "Circuit Selection";
+        pushPageViewMatomo("Ready");
+        state.pyodideReady = true;
+        state.pyodideLoading = false;
+    }
+
     onError() {
         let progressBar = document.getElementById('pgr-bar')
         progressBar.classList.remove('bg-warning');
@@ -173,5 +177,6 @@ class PackageManager {
         progressBar.classList.add('bg-danger');
         languageManager.currentLang.messages = ['An error occurred, please try to reload the page'];
         document.getElementById('progress-bar-note').innerText = languageManager.currentLang.messages[0];
+        this.catchedError = true
     }
 }
