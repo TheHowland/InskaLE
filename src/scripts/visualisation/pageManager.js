@@ -36,7 +36,7 @@ class PageManager {
         this.enableSettings();
         document.title = "Circuit Selection";
         if (state.pyodideReady) {
-             pushPageViewMatomo("Ready");
+            pushPageViewMatomo("Ready");
         } else {
             pushPageViewMatomo("Loading");
         }
@@ -117,40 +117,51 @@ class PageManager {
         if (state.pyodideLoading || state.pyodideReady) {
             this.showSelectPage();
         } else {
-            this.showSelectPage();
-            setPgrBarTo(0);
-            const note = showWaitingNote();
-            setPgrBarTo(1);
-            state.pyodideLoading = true;
-            // Get the pyodide instance and setup pages with functionality
-            state.pyodide = await loadPyodide();
-            setInterval(() => {
-                    note.innerHTML = languageManager.currentLang.messages[Math.floor(Math.random() * languageManager.currentLang.messages.length)]},
-                8000);
-            setPgrBarTo(5);
-            // Map all circuits into map and build the selectors
-            circuitMapper = new CircuitMapper();
-            await circuitMapper.mapCircuits();
-            setPgrBarTo(10);
-            selectorBuilder.buildSelectorsForAllCircuitSets();
-            updateSelectorPageColors();
+            try{
+                this.showSelectPage();
+                setPgrBarTo(0);
+                const note = showWaitingNote();
+                setPgrBarTo(1);
+                state.pyodideLoading = true;
+                // Get the pyodide instance and setup pages with functionality
+                state.pyodide = await loadPyodide();
+                setInterval(() => {
+                        note.innerHTML = languageManager.currentLang.messages[Math.floor(Math.random() * languageManager.currentLang.messages.length)]},
+                    8000);
+                setPgrBarTo(5);
+                // Map all circuits into map and build the selectors
+                circuitMapper = new CircuitMapper();
+                await circuitMapper.mapCircuits();
 
-            hideQuickstart();
-            hideAccordion();
+                setPgrBarTo(10);
+                selectorBuilder.buildSelectorsForAllCircuitSets();
+                updateSelectorPageColors();
 
-            // Starts with 10%
-            await packageManager.doLoadsAndImports();
-            if (packageManager.catchedError){
-                return
+                hideQuickstart();
+                hideAccordion();
+
+                // Starts with 10%
+                await packageManager.doLoadsAndImports();
+                if (packageManager.catchedError){
+                    //this has local error handling, so we need to rethrow an error to break out
+                    pageManager.onError()
+                    throw new Error("packageManager error")
+                }
+
+                selectorBuilder.adaptSelectorFrameColor();
+
+                this.hideProgressBar();
+
+                showQuickstart();
+                showAccordion();
+                note.innerHTML = "";
+
+                pageManager.setupSelectPage();
             }
-
-            selectorBuilder.adaptSelectorFrameColor();
-
-            showQuickstart();
-            showAccordion();
-            note.innerHTML = "";
-
-            pageManager.setupSelectPage();
+            catch (error){
+                console.error(error)
+                pageManager.onError()
+            }
         }
     }
 
@@ -300,5 +311,24 @@ class PageManager {
     setupAboutPage() {
         languageManager.updateLanguageAboutPage();
         updateAboutPageColors();
+    }
+
+    onError() {
+        let progressBar = document.getElementById('pgr-bar')
+        progressBar.classList.remove('bg-warning');
+        progressBar.classList.remove('progress-bar-striped');
+        progressBar.classList.add('bg-danger');
+        languageManager.currentLang.messages = ['An error occurred, please try to reload the page'];
+        document.getElementById('progress-bar-note').innerText = languageManager.currentLang.messages[0];
+        this.catchedError = true
+    }
+
+    hideProgressBar(){
+        let progressBarContainer = document.getElementById("pgr-bar-container");
+        progressBarContainer.style.display = "none";
+        document.title = "Circuit Selection";
+        pushPageViewMatomo("Ready");
+        state.pyodideReady = true;
+        state.pyodideLoading = false;
     }
 }

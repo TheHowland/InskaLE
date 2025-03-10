@@ -1,6 +1,5 @@
 
 class PackageManager {
-    catchedError = false;
     constructor() {
         if (PackageManager.instance) {
             return PackageManager.instance;
@@ -21,16 +20,9 @@ class PackageManager {
     }
 
     async doLoadsAndImports() {
-        try{
-            await this.loadCircuits();
-            await this.importPyodidePackages();
-            await this.importSolverModule();
-            this.hideProgressBar()
-        }
-        catch (error){
-            this.onError();
-            console.log("Failed to load: ", error)
-        }
+        await this.loadCircuits();
+        await this.importPyodidePackages();
+        await this.importSolverModule();
     }
 
     async loadCircuits() {
@@ -109,31 +101,25 @@ class PackageManager {
     }
 
     async #fetchDirectoryListing(path, extension = "") {
-        try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                console.log(response)
-                throw new Error('Network response was not ok');
-            }
-            const htmlText = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            const fileLinks = doc.querySelectorAll('a');
-            const fileNames = [];
-            fileLinks.forEach(link => {
-                const fileName = link.getAttribute('href');
-                if (fileName && !fileName.endsWith('/')) {
-                    if (extension === "" || (extension !== "" && fileName.endsWith(extension))) {
-                        fileNames.push(fileName);
-                    }
-                }
-            });
-            return fileNames;
-        } catch (error) {
-            console.error('Error fetching directory listing:', error);
-            this.onError();
-            return [];
+        const response = await fetch(path);
+        if (!response.ok) {
+            console.log(response)
+            throw new Error('Network response was not ok');
         }
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        const fileLinks = doc.querySelectorAll('a');
+        const fileNames = [];
+        fileLinks.forEach(link => {
+            const fileName = link.getAttribute('href');
+            if (fileName && !fileName.endsWith('/')) {
+                if (extension === "" || (extension !== "" && fileName.endsWith(extension))) {
+                    fileNames.push(fileName);
+                }
+            }
+        });
+        return fileNames;
     }
 
     async #fetchGitHubDirectoryContents(path, extension) {
@@ -142,41 +128,15 @@ class PackageManager {
         if (!(await fetch(url+".htaccess")).ok) {
             url = `https://api.github.com/repos/${conf.gitHubUser}${conf.gitHubProject}contents/Pyodide/${path}`;
         }
-
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching GitHub directory contents: ${response.status}`);
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/vnd.github.v3+json'
             }
-            const data = await response.json();
-            return data.filter(file => file.name.endsWith(extension)).map(file => file.name);
-        } catch (error) {
-            console.error('Error fetching GitHub directory contents:', error);
-            this.onError();
-            return [];
+        });
+        if (!response.ok) {
+            throw new Error(`Error fetching GitHub directory contents: ${response.status}`);
         }
-    }
-
-    hideProgressBar(){
-        let progressBarContainer = document.getElementById("pgr-bar-container");
-        progressBarContainer.style.display = "none";
-        document.title = "Circuit Selection";
-        pushPageViewMatomo("Ready");
-        state.pyodideReady = true;
-        state.pyodideLoading = false;
-    }
-
-    onError() {
-        let progressBar = document.getElementById('pgr-bar')
-        progressBar.classList.remove('bg-warning');
-        progressBar.classList.remove('progress-bar-striped');
-        progressBar.classList.add('bg-danger');
-        languageManager.currentLang.messages = ['An error occurred, please try to reload the page'];
-        document.getElementById('progress-bar-note').innerText = languageManager.currentLang.messages[0];
-        this.catchedError = true
+        const data = await response.json();
+        return data.filter(file => file.name.endsWith(extension)).map(file => file.name);
     }
 }
