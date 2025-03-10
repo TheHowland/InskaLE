@@ -344,7 +344,6 @@ async function createAndShowStep0(circuitMap) {
 
 function startSolving() {
     try{
-        throw new Error("Error in startSolving")
         createAndShowStep0(state.currentCircuitMap);
         //The div element that contains the SVG representation of the circuit diagram.
         const svgDiv = document.querySelector('.svg-container');
