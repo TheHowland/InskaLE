@@ -1,4 +1,4 @@
-# for lcapy version: 1.24+inskale.0.36
+# for lcapy version: 1.24+inskale.0.37
 import warnings
 warnings.filterwarnings('ignore')
 from lcapy import Circuit, FileToImpedance, DrawWithSchemdraw
@@ -79,7 +79,7 @@ class SolveInUserOrder:
                                            relation=ComponentRelation.parallel.value,
                                            lastStep=None, nextStep=None))
         else:
-            return DictExportBase.emptyExportDict
+            return DictExportBase.emptyExportDict()
 
         sol = Solution(self.steps, langSymbols=self.langSymbols)
         newestStep = sol.available_steps[-1]
