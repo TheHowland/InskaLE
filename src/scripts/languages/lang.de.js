@@ -42,6 +42,7 @@ const german = {
             "ind": "SPULEN",
             "mixed": "GEMISCHTE SCHALTUNGEN",
             "sym": "SYMBOLISCHE RECHNUNG",
+            "kirch": "KIRCHHOFF",
         },
     overviewModalBtn:
         "Übersicht",
@@ -68,9 +69,21 @@ const german = {
     infoGifText:
         "Klicke auf die Elemente die du vereinfachen m&oumlchtest und &uumlberpr&uumlfe deine Auswahl mit dem 'check' Button. " +
         "Wenn die Elemente vereinfacht werden k&oumlnnen, siehst du den n&aumlchsten Schritt und kannst dort die n&aumlchsten Elemente ausw&aumlhlen.",
+    kirchInfoGifHeading:
+        "Anleitung Kirchhoff",
+    kirchInfoGifText:
+        "Beispiel",
+    kirchhoffVoltageHeading:
+        "Spannungsmaschen",
+    kirchhoffCurrentHeading:
+        "Stromknoten",
     // next elements container and interactions
     nextElementsHeading:
         "N&aumlchste Elemente",
+    nextElementsVoltLawHeading:
+        "N&aumlchste Elemente f&uumlr Masche",
+    nextElementsCurrentHeading:
+        "N&aumlchste Elemente f&uumlr Knoten",
     showCalculationBtn:
         "Rechnung",
     hideCalculationBtn:

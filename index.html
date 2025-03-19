@@ -27,6 +27,7 @@
     <script src="src/scripts/dataObjects/stateObject.js"></script>
     <script src="src/scripts/dataObjects/stepObject.js"></script>
 
+    <script src="src/scripts/visualisation/kirchhoff.js"></script>
     <script src="src/scripts/visualisation/emojis.js"></script>
     <script src="src/scripts/visualisation/darkModeFunctions.js"></script>
     <script src="src/scripts/visualisation/selectorBuilder.js"></script>
@@ -66,6 +67,24 @@
                 </div>
                 <div class="modal-footer justify-content-center" id="info-gif-footer">
                     <button id="info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Gif Modal, needs to be on top level (child of body) for display purposes -->
+    <div class="modal modal-sm fade" id="kirchhoffInfoGif" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center" id="kirch-info-gif-header">
+                    <h5 class="modal-title" id="kirch-info-gif-title"></h5>
+                </div>
+                <div class="modal-body" id="kirch-info-gif-body">
+                    <p id="kirch-info-gif-text" class="text-center"></p>
+                    <img class="img-fluid rounded mx-auto d-block" src="./src/resources/simplifier/howto.gif" alt="click on two elements and then on check two simplify these two elements">
+                </div>
+                <div class="modal-footer justify-content-center" id="kirch-info-gif-footer">
+                    <button id="kirch-info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
                 </div>
             </div>
         </div>

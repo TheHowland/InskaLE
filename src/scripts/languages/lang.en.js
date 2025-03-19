@@ -40,6 +40,7 @@ const english = {
             "ind": "INDUCTORS",
             "mixed": "MIXED CIRCUITS",
             "sym": "SYMBOLIC CALCULATION",
+            "kirch": "KIRCHHOFF",
         },
     overviewModalBtn:
         "Overview",
@@ -65,9 +66,21 @@ const english = {
     infoGifText:
         "Click the elements you want to simplify and check your selection with the 'check' button. " +
         "If the elements can be simplified, you will see the next step and can choose the next elements there.",
+    kirchInfoGifHeading:
+        "Explanation Kirchhoff",
+    kirchInfoGifText:
+        "Example",
+    kirchhoffVoltageHeading:
+        "Voltage loops",
+    kirchhoffCurrentHeading:
+        "Junctions",
     // next elements container and interactions
     nextElementsHeading:
         "Next elements",
+    nextElementsVoltLawHeading:
+        "Next elements for loop",
+    nextElementsCurrentHeading:
+        "Next elements for junction",
     showCalculationBtn:
         "Calculation",
     hideCalculationBtn:

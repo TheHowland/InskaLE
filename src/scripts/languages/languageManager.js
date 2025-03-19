@@ -46,6 +46,10 @@ class LanguageManager {
         infoGifHeading.innerHTML = this.currentLang.infoGifHeading;
         const infoGifText = document.getElementById("info-gif-text");
         infoGifText.innerHTML = this.currentLang.infoGifText;
+        const kirchInfoGifHeading = document.getElementById("kirch-info-gif-title");
+        kirchInfoGifHeading.innerHTML = this.currentLang.kirchInfoGifHeading;
+        const kirchInfoGifText = document.getElementById("kirch-info-gif-text");
+        kirchInfoGifText.innerHTML = this.currentLang.kirchInfoGifText;
     }
 
     updateLanguageCheatSheetPage() {
