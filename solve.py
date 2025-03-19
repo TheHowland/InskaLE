@@ -1,7 +1,7 @@
 # for lcapy version: 1.24+inskale.0.37
 import warnings
 warnings.filterwarnings('ignore')
-from lcapy import Circuit, FileToImpedance, DrawWithSchemdraw
+from lcapy import Circuit, FileToImpedance
 from lcapy.solution import Solution
 from lcapy.componentRelation import ComponentRelation
 from lcapy.solutionStep import SolutionStep
@@ -10,6 +10,7 @@ from lcapy.langSymbols import LangSymbols
 from lcapy.dictExportBase import DictExportBase
 from json import dump as jdump
 from lcapy.dictExportBase import ExportDict
+from enum import Enum
 
 
 def solve_circuit(filename: str, filePath="Circuits/", savePath="Solutions/", langSymbols: dict = {}):
@@ -106,4 +107,51 @@ class SolveInUserOrder:
 
     def getSolution(self):
         return Solution(self.steps, self.langSymbols)
+
+
+class KirchhoffStates(Enum):
+    isNewEquation = 0
+    duplicateEquation = 1
+    notAValidEquation = 2
+
+class KirchhoffSolver:
+    def __init__(self, circuitFileName: str, path: str, language: LangSymbols):
+        self.equations: dict[int, str] = {}
+        self.language = language
+        self.fileName = circuitFileName
+        self.path = path
+        self.circuit = Circuit(os.path.join(path, circuitFileName))
+
+    def checkVoltageLoopRule(self, voltageNames: list[str]) -> tuple[KirchhoffStates, str]:
+        return  KirchhoffStates.isNewEquation, self.equations[0]
+
+    def checkJunctionRule(self, currentNames: list[str]) -> tuple[KirchhoffStates, tuple[str, str, str]]:
+        return KirchhoffStates.isNewEquation, (self.equations[3], self.equations[3], self.equations[3])
+
+    @staticmethod
+    def makeDummy() -> 'KirchhoffSolver':
+        circuit = '''V1 2 0 dc {10}; up
+                                W 2 3; up
+                                W 3 4; right
+                                R1 4 5 {1000}; down
+                                R2 5 6 {2000}; down
+                                R3 6 7 {200}; down
+                                R4 7 8 {400}; down
+                                W 7 11; right
+                                R5 11 12 {200}; down
+                                W 12 8; left
+                                W 8 9; left
+                                W 9 10; up
+                                W 10 0; up
+                                '''
+        f = open("tmp.txt", "w")
+        f.write(circuit)
+        f.close()
+        dummy = KirchhoffSolver("tmp.txt", "", LangSymbols())
+        dummy.equations = {0: "0 = Uges - U1 - U2 - U3 - U4", 1: "0 = U3 - U4", 2: "0 = I3 - I4 - I5", 3: "0 = I1 - I2", 4: "0 = I2 - I3"}
+        dummy.language = LangSymbols()
+        dummy.fileName = "##DummyHasNoName##"
+        dummy.path = "##DummyHasNoPath##"
+        os.remove("tmp.txt")
+        return dummy
 
