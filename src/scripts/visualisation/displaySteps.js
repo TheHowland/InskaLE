@@ -322,7 +322,7 @@ function addNameValueToggleBtn(svgDiv) {
 
 function toggleElements(svgDiv) {
      toggleElementSymbols(svgDiv);
-    if (state.step0Data.componentTypes !== "RLC" && state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff) {
+    if (state.step0Data.componentTypes !== "RLC") {
         // Don't show U/I values in complex circuits
         toggleUISymbols(svgDiv);
     }
