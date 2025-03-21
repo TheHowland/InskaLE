@@ -116,17 +116,21 @@ class KirchhoffStates(Enum):
 
 class KirchhoffSolver:
     def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
-        self._equations: list[str] = []
         self.elementSetsOfEquations: list[set] = []
         self.language = LangSymbols(langSymbols)
         self.fileName = circuitFileName
         self.path = path
         self.circuit = Circuit(os.path.join(path, circuitFileName))
         self.foundEq = 0
-        self.missingElmInVoltEq = set(self.circuit.branch_list)
+        elementNames = self.circuit.branch_list
+        self.numUnknownElements = len([elm for elm in elementNames if elm[0] != "V"]) # voltages of sources are known
+        self._equations: list[str] = []
+        for addPlaceholder in range(self.numUnknownElements):
+            self._equations.append("-")
+        self.missingElmInVoltEq = set(elementNames)
 
     def foundAllEquations(self) -> bool:
-        return len(self.circuit.branch_list) == self.foundEq
+        return self.numUnknownElements == self.foundEq
 
     def foundAllVoltEquations(self) -> bool:
         return not self.missingElmInVoltEq
@@ -138,7 +142,7 @@ class KirchhoffSolver:
         nameSet = set(cptNames)
         if nameSet in self.elementSetsOfEquations:
             return KirchhoffStates.duplicateEquation.value
-        self._equations.append(value)
+        self._equations[self.foundEq] = value
         self.foundEq += 1
         self.elementSetsOfEquations.append(nameSet)
         return KirchhoffStates.isNewEquation.value
