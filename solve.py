@@ -147,7 +147,7 @@ class KirchhoffSolver:
         eq = ""
         if self.foundAllVoltEquations():
             return KirchhoffStates.duplicateEquation.value, eq
-        state = KirchhoffStates.notAValidEquation
+        state = KirchhoffStates.notAValidEquation.value
         loop = khf.isValidVoltageLoop(self.circuit, cptNames)
 
         if loop:
@@ -155,7 +155,7 @@ class KirchhoffSolver:
             state = self.setEquation(eq, cptNames)
             self.missingElmInVoltEq -= set(cptNames)
 
-        return  state.value, eq
+        return  state, eq
 
     def checkJunctionRule(self, cptNames: list[str]) -> tuple[int, tuple[str, str, str]]:
         implicitCommonNode = khf.isImplicitCurrentEquation(self.circuit, cptNames)
@@ -163,11 +163,11 @@ class KirchhoffSolver:
         if implicitCommonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, implicitCommonNode, self.language)
             state = self.setEquation(eq, cptNames)
-            return state.value, (eq, eq, eq)
+            return state, (eq, eq, eq)
         elif commonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
             state = self.setEquation(eq, cptNames)
-            return state.value, (eq, eq, eq)
+            return state, (eq, eq, eq)
         else:
             return KirchhoffStates.notAValidEquation.value, ("", "", "")
 
