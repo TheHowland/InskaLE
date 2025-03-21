@@ -11,7 +11,7 @@ from lcapy.dictExportBase import DictExportBase
 from json import dump as jdump
 from lcapy.dictExportBase import ExportDict
 from enum import Enum
-import KirchhoffSolver.solver as khf
+import lcapy.KirchhoffSolver.solver as khf
 
 
 def solve_circuit(filename: str, filePath="Circuits/", savePath="Solutions/", langSymbols: dict = {}):
@@ -33,12 +33,11 @@ class SolveInUserOrder:
         :param filePath: str with path to circuit file if not in current directory
         :param savePath: str with path to save the result svg and jason files to
         """
-        langSym = LangSymbols(langSymbols)
 
         self.filename = os.path.splitext(filename)[0]
         self.filePath = filePath
         self.savePath = savePath
-        self.langSymbols = langSym
+        self.langSymbols = LangSymbols(langSymbols)
         self.circuit = Circuit(FileToImpedance(os.path.join(filePath, filename)))
         self.steps: list[SolutionStep] = [
             SolutionStep(self.circuit, [], None, None, None, None)
@@ -116,10 +115,10 @@ class KirchhoffStates(Enum):
     notAValidEquation = 2
 
 class KirchhoffSolver:
-    def __init__(self, circuitFileName: str, path: str, language: LangSymbols):
+    def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
         self._equations: dict[int, str] = {}
         self.elementSetsOfEquations: list[set] = []
-        self.language = language
+        self.language = LangSymbols(langSymbols)
         self.fileName = circuitFileName
         self.path = path
         self.circuit = Circuit(os.path.join(path, circuitFileName))
@@ -163,10 +162,12 @@ class KirchhoffSolver:
         commonNode = khf.isCurrentEquation(self.circuit, cptNames)
         if implicitCommonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, implicitCommonNode, self.language)
-            return KirchhoffStates.isNewEquation, (eq, eq, eq)
+            state = self.setEquation(eq, cptNames)
+            return state, (eq, eq, eq)
         elif commonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
-            return KirchhoffStates.isNewEquation, (eq, eq, eq)
+            state = self.setEquation(eq, cptNames)
+            return state, (eq, eq, eq)
         else:
             return KirchhoffStates.notAValidEquation, ("", "", "")
 
