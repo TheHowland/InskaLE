@@ -1,5 +1,6 @@
 
 class PackageManager {
+
     constructor() {
         if (PackageManager.instance) {
             return PackageManager.instance;
@@ -66,6 +67,12 @@ class PackageManager {
         }
 
         console.log("Imported: " + packages);
+
+        progressBarContainer.style.display = "none";
+        document.title = "Circuit Selection";
+        pushPageViewMatomo("Ready");
+        state.pyodideReady = true;
+        state.pyodideLoading = false;
     }
 
     async load_packages(optAddNames) {
@@ -101,42 +108,49 @@ class PackageManager {
     }
 
     async #fetchDirectoryListing(path, extension = "") {
-        const response = await fetch(path);
-        if (!response.ok) {
-            console.log(response)
-            throw new Error('Network response was not ok');
-        }
-        const htmlText = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-        const fileLinks = doc.querySelectorAll('a');
-        const fileNames = [];
-        fileLinks.forEach(link => {
-            const fileName = link.getAttribute('href');
-            if (fileName && !fileName.endsWith('/')) {
-                if (extension === "" || (extension !== "" && fileName.endsWith(extension))) {
-                    fileNames.push(fileName);
-                }
+        try {
+            const response = await fetch(path);
+            if (!response.ok) {
+                console.log(response)
+                throw new Error('Network response was not ok');
             }
-        });
-        return fileNames;
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            const fileLinks = doc.querySelectorAll('a');
+            const fileNames = [];
+            fileLinks.forEach(link => {
+                const fileName = link.getAttribute('href');
+                if (fileName && !fileName.endsWith('/')) {
+                    if (extension === "" || (extension !== "" && fileName.endsWith(extension))) {
+                        fileNames.push(fileName);
+                    }
+                }
+            });
+            return fileNames;
+        } catch (error) {
+            console.error('Error fetching directory listing:', error);
+            return [];
+        }
     }
 
     async #fetchGitHubDirectoryContents(path, extension) {
 
-        let url = `https://api.github.com/repos/${conf.gitHubUser}${conf.gitHubProject}contents/${path}`;
-        if (!(await fetch(url+".htaccess")).ok) {
-            url = `https://api.github.com/repos/${conf.gitHubUser}${conf.gitHubProject}contents/Pyodide/${path}`;
-        }
-        const response = await fetch(url, {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json'
+        const url = `https://api.github.com/repos/${conf.gitHubUser}${conf.gitHubProject}contents/${path}`;
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching GitHub directory contents: ${response.status}`);
             }
-        });
-        if (!response.ok) {
-            throw new Error(`Error fetching GitHub directory contents: ${response.status}`);
+            const data = await response.json();
+            return data.filter(file => file.name.endsWith(extension)).map(file => file.name);
+        } catch (error) {
+            console.error('Error fetching GitHub directory contents:', error);
+            return [];
         }
-        const data = await response.json();
-        return data.filter(file => file.name.endsWith(extension)).map(file => file.name);
     }
 }

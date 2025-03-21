@@ -180,13 +180,12 @@ function enableCheckBtn() {
 }
 
 function resetSimplifierPage(calledFromResetBtn = false) {
-    let checkBtn = document.getElementById("check-btn")
-    if (state.currentCircuitMap !== null && checkBtn) {
+    if (state.currentCircuitMap !== null) {
         // If the check btn is disabled, the user has finished the simplification
         // That means if the page is reset, the user aborted the simplification
         // If calledFromResetBtn, then don't push the event because it's reset, and not aborted
         // Also don't push the event if the user is on the first picture, maybe it was just a missclick
-        let checkBtnDisabled = checkBtn.classList.contains("disabled");
+        let checkBtnDisabled = document.getElementById("check-btn").classList.contains("disabled");
         if (!checkBtnDisabled && !calledFromResetBtn && state.pictureCounter > 1) {
             pushCircuitEventMatomo(circuitActions.Aborted, state.pictureCounter);
         }
@@ -343,20 +342,14 @@ async function createAndShowStep0(circuitMap) {
 }
 
 function startSolving() {
-    try{
-        createAndShowStep0(state.currentCircuitMap);
-        //The div element that contains the SVG representation of the circuit diagram.
-        const svgDiv = document.querySelector('.svg-container');
-        //The div element that contains the list of elements that have been clicked or selected in the circuit diagram.
-        const nextElementsContainer = document.querySelector('.next-elements-container');
-        if (svgDiv && nextElementsContainer) {
-            resetNextElements(svgDiv, nextElementsContainer);
-        }
+    createAndShowStep0(state.currentCircuitMap);
+    //The div element that contains the SVG representation of the circuit diagram.
+    const svgDiv = document.querySelector('.svg-container');
+    //The div element that contains the list of elements that have been clicked or selected in the circuit diagram.
+    const nextElementsContainer = document.querySelector('.next-elements-container');
+    if (svgDiv && nextElementsContainer) {
+        resetNextElements(svgDiv, nextElementsContainer);
     }
-    catch (error){
-        (new ErrorAlert()).show("Error on init circuit")
-    }
-
 }
 
 function setLanguageAndScheme() {

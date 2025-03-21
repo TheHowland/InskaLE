@@ -1,7 +1,7 @@
-# for lcapy version: 1.24+inskale.0.37
+# for lcapy version: 1.24+inskale.0.36
 import warnings
 warnings.filterwarnings('ignore')
-from lcapy import Circuit, FileToImpedance
+from lcapy import Circuit, FileToImpedance, DrawWithSchemdraw
 from lcapy.solution import Solution
 from lcapy.componentRelation import ComponentRelation
 from lcapy.solutionStep import SolutionStep
@@ -10,8 +10,6 @@ from lcapy.langSymbols import LangSymbols
 from lcapy.dictExportBase import DictExportBase
 from json import dump as jdump
 from lcapy.dictExportBase import ExportDict
-from enum import Enum
-import lcapy.KirchhoffSolver.solver as khf
 
 
 def solve_circuit(filename: str, filePath="Circuits/", savePath="Solutions/", langSymbols: dict = {}):
@@ -33,11 +31,12 @@ class SolveInUserOrder:
         :param filePath: str with path to circuit file if not in current directory
         :param savePath: str with path to save the result svg and jason files to
         """
+        langSym = LangSymbols(langSymbols)
 
         self.filename = os.path.splitext(filename)[0]
         self.filePath = filePath
         self.savePath = savePath
-        self.langSymbols = LangSymbols(langSymbols)
+        self.langSymbols = langSym
         self.circuit = Circuit(FileToImpedance(os.path.join(filePath, filename)))
         self.steps: list[SolutionStep] = [
             SolutionStep(self.circuit, [], None, None, None, None)
@@ -80,7 +79,7 @@ class SolveInUserOrder:
                                            relation=ComponentRelation.parallel.value,
                                            lastStep=None, nextStep=None))
         else:
-            return DictExportBase.emptyExportDict()
+            return DictExportBase.emptyExportDict
 
         sol = Solution(self.steps, langSymbols=self.langSymbols)
         newestStep = sol.available_steps[-1]
@@ -107,94 +106,4 @@ class SolveInUserOrder:
 
     def getSolution(self):
         return Solution(self.steps, self.langSymbols)
-
-
-class KirchhoffStates(Enum):
-    isNewEquation = 0
-    duplicateEquation = 1
-    notAValidEquation = 2
-
-class KirchhoffSolver:
-    def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
-        self._equations: list[str] = []
-        self.elementSetsOfEquations: list[set] = []
-        self.language = LangSymbols(langSymbols)
-        self.fileName = circuitFileName
-        self.path = path
-        self.circuit = Circuit(os.path.join(path, circuitFileName))
-        self.foundEq = 0
-        self.missingElmInVoltEq = set(self.circuit.branch_list)
-
-    def foundAllEquations(self) -> bool:
-        return len(self.circuit.branch_list) == self.foundEq
-
-    def foundAllVoltEquations(self) -> bool:
-        return not self.missingElmInVoltEq
-
-    def equations(self):
-        return self._equations
-
-    def setEquation(self, value, cptNames) -> int:
-        nameSet = set(cptNames)
-        if nameSet in self.elementSetsOfEquations:
-            return KirchhoffStates.duplicateEquation.value
-        self._equations.append(value)
-        self.foundEq += 1
-        self.elementSetsOfEquations.append(nameSet)
-        return KirchhoffStates.isNewEquation.value
-
-    def checkVoltageLoopRule(self, cptNames: list[str]) -> tuple[int, str]:
-        eq = ""
-        if self.foundAllVoltEquations():
-            return KirchhoffStates.duplicateEquation.value, eq
-        state = KirchhoffStates.notAValidEquation.value
-        loop = khf.isValidVoltageLoop(self.circuit, cptNames)
-
-        if loop:
-            eq = khf.makeVoltageEquations(self.circuit, cptNames, loop, self.language)
-            state = self.setEquation(eq, cptNames)
-            self.missingElmInVoltEq -= set(cptNames)
-
-        return  state, eq
-
-    def checkJunctionRule(self, cptNames: list[str]) -> tuple[int, tuple[str, str, str]]:
-        implicitCommonNode = khf.isImplicitCurrentEquation(self.circuit, cptNames)
-        commonNode = khf.isCurrentEquation(self.circuit, cptNames)
-        if implicitCommonNode:
-            eq = khf.makeCurrentEquation(self.circuit, cptNames, implicitCommonNode, self.language)
-            state = self.setEquation(eq, cptNames)
-            return state, (eq, eq, eq)
-        elif commonNode:
-            eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
-            state = self.setEquation(eq, cptNames)
-            return state, (eq, eq, eq)
-        else:
-            return KirchhoffStates.notAValidEquation.value, ("", "", "")
-
-    @staticmethod
-    def makeDummy() -> 'KirchhoffSolver':
-        circuit = '''V1 2 0 dc {10}; up
-                                W 2 3; up
-                                W 3 4; right
-                                R1 4 5 {1000}; down
-                                R2 5 6 {2000}; down
-                                R3 6 7 {200}; down
-                                R4 7 8 {400}; down
-                                W 7 11; right
-                                R5 11 12 {200}; down
-                                W 12 8; left
-                                W 8 9; left
-                                W 9 10; up
-                                W 10 0; up
-                                '''
-        f = open("tmp.txt", "w")
-        f.write(circuit)
-        f.close()
-        dummy = KirchhoffSolver("tmp.txt", "", {"volt": "U", "total": "ges"})
-        dummy._equations = {0: "0 = Uges - U1 - U2 - U3 - U4", 1: "0 = U3 - U4", 2: "0 = I3 - I4 - I5", 3: "0 = I1 - I2", 4: "0 = I2 - I3"}
-        dummy.language = LangSymbols()
-        dummy.fileName = "##DummyHasNoName##"
-        dummy.path = "##DummyHasNoPath##"
-        os.remove("tmp.txt")
-        return dummy
 
