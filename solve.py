@@ -1,4 +1,4 @@
-# for lcapy version: 0.37
+# for lcapy version: 1.24+inskale.0.37
 import warnings
 warnings.filterwarnings('ignore')
 from lcapy import Circuit, FileToImpedance
@@ -113,6 +113,7 @@ class KirchhoffStates(Enum):
     isNewEquation = 0
     duplicateEquation = 1
     notAValidEquation = 2
+    isMultipleEquations = 3
 
 class KirchhoffSolver:
     def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
@@ -172,6 +173,8 @@ class KirchhoffSolver:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
             state = self.setEquation(eq, cptNames)
             return state, (eq, eq, eq)
+        elif all(cpt in self.circuit.in_series(cptNames[0]) for cpt in cptNames[1::]):
+            return KirchhoffStates.isMultipleEquations.value, ("", "", "")
         else:
             return KirchhoffStates.notAValidEquation.value, ("", "", "")
 
