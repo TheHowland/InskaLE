@@ -309,6 +309,34 @@ function showArrows(contentCol) {
     }
 }
 
+function hideVoltageArrows(svgDiv) {
+    let voltageArrows = svgDiv.querySelectorAll(".arrow.voltage-label");
+    for (let arrow of voltageArrows) {
+        arrow.style.display = "none";
+    }
+}
+
+function showVoltageArrows(svgDiv) {
+    let voltageArrows = svgDiv.querySelectorAll(".arrow.voltage-label");
+    for (let arrow of voltageArrows) {
+        arrow.style.display = "block";
+    }
+}
+
+function hideCurrentArrows(svgDiv) {
+    let currentArrows = svgDiv.querySelectorAll(".arrow.current-label");
+    for (let arrow of currentArrows) {
+        arrow.style.display = "none";
+    }
+}
+
+function showCurrentArrows(svgDiv) {
+    let currentArrows = svgDiv.querySelectorAll(".arrow.current-label");
+    for (let arrow of currentArrows) {
+        arrow.style.display = "block";
+    }
+}
+
 function whenAvailable(name, callback) {
     var interval = 10; // ms
     window.setTimeout(function() {

@@ -40,6 +40,7 @@ const english = {
             "ind": "INDUCTORS",
             "mixed": "MIXED CIRCUITS",
             "sym": "SYMBOLIC CALCULATION",
+            "kirch": "KIRCHHOFF",
         },
     overviewModalBtn:
         "Overview",
@@ -65,9 +66,25 @@ const english = {
     infoGifText:
         "Click the elements you want to simplify and check your selection with the 'check' button. " +
         "If the elements can be simplified, you will see the next step and can choose the next elements there.",
+    kirchVInfoGifHeading:
+        "Explanation Kirchhoff V",
+    kirchVInfoGifText:
+        "Voltage",
+    kirchIInfoGifHeading:
+        "Explanation Kirchhoff I",
+    kirchIInfoGifText:
+        "Current",
+    kirchhoffVoltageHeading:
+        "Voltage loops",
+    kirchhoffCurrentHeading:
+        "Junctions",
     // next elements container and interactions
     nextElementsHeading:
         "Next elements",
+    nextElementsVoltLawHeading:
+        "Next elements for loop",
+    nextElementsCurrentHeading:
+        "Next elements for junction",
     showCalculationBtn:
         "Calculation",
     hideCalculationBtn:
@@ -88,7 +105,7 @@ const english = {
         "Well done, you finished the circuit!",
     alertCanNotSimplify:
         "Can not simplify those elements",
-    alertChooseAtLeastOneElement:
+    alertChooseAtLeastTwoElements:
         "Choose at least two elements",
     alertNotToggleable:
         "Complex elements can not be toggled here, see calculations",
