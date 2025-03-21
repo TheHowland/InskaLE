@@ -1,4 +1,4 @@
-# for lcapy version: 1.24+inskale.0.37
+# for lcapy version: 0.37
 import warnings
 warnings.filterwarnings('ignore')
 from lcapy import Circuit, FileToImpedance
