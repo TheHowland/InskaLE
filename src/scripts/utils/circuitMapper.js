@@ -22,8 +22,6 @@ class CircuitMapper {
                 this.addCircuitMaps(dir, this._mixed, this.selectorIds.mixedId);
             } else if (dir === allowedDirNames.symbolic) {
                 this.addCircuitMaps(dir, this._symbolic, this.selectorIds.symbolic);
-            } else if (dir === allowedDirNames.kirchhoff) {
-                this.addCircuitMaps(dir, this._kirchhoff, this.selectorIds.kirchhoff);
             } else {
                 console.error("Unknown directory: " + dir);
                 console.error("Allowed Names: " + Object.values(allowedDirNames));
@@ -46,7 +44,6 @@ class CircuitMapper {
         ind: "ind",
         mixedId: "mixed",
         symbolic: "sym",
-        kirchhoff: "kirch",
     }
 
     _quickstart = {
@@ -73,10 +70,6 @@ class CircuitMapper {
         identifier: this.selectorIds.symbolic,
         set: []
     }
-    _kirchhoff = {
-        identifier: this.selectorIds.kirchhoff,
-        set: []
-    }
 
     circuitSets = [];
 
@@ -99,9 +92,6 @@ class CircuitMapper {
         }
         if (this._mixed.set.length !== 0) {
             this.circuitSets.push(this._mixed);
-        }
-        if (this._kirchhoff.set.length !== 0) {
-            this.circuitSets.push(this._kirchhoff);
         }
     }
 

@@ -16,7 +16,6 @@ const eventCategories = {
     Inductor: "Spulen",
     Mixed: "Gemischte Schaltungen",
     Symbolic: "Symbolische Rechnung",
-    Kirchhoff: "Kirchhoff",
     Configurations: "Konfigurationen",
     _SymIdx: " - sym",
 }
@@ -72,7 +71,6 @@ function mapCategory(category) {
     if (["ind"].includes(category)) return eventCategories.Inductor;
     if (["mixed"].includes(category)) return eventCategories.Mixed;
     if (["sym"].includes(category)) return eventCategories.Symbolic;
-    if (["kirch"].includes(category)) return eventCategories.Kirchhoff;
     console.log("Category not possible, check: " + category);
     return null;
 }

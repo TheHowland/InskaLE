@@ -322,7 +322,7 @@ function addNameValueToggleBtn(svgDiv) {
 
 function toggleElements(svgDiv) {
      toggleElementSymbols(svgDiv);
-    if (state.step0Data.componentTypes !== "RLC" && state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff) {
+    if (state.step0Data.componentTypes !== "RLC") {
         // Don't show U/I values in complex circuits
         toggleUISymbols(svgDiv);
     }
@@ -466,7 +466,7 @@ async function checkAndSimplifyNext(div){
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
 
     if (state.selectedElements.length <= 1) {
-        showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
+        showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastOneElement);
     } else {
         let obj = await stepSolve.simplifyNCpts(state.selectedElements).toJs({dict_converter: Object.fromEntries});
         obj.__proto__ = StepObject.prototype;
@@ -686,7 +686,7 @@ function cloneAndAdaptStep0Svg() {
     }
     clonedSvgData.id = "clonedOverviewSvg";
     // Adapt svg data, remove info and toggle btn
-    clonedSvgData.removeChild(clonedSvgData.querySelector(".open-info-gif-btn"));
+    clonedSvgData.removeChild(clonedSvgData.querySelector("#open-info-gif-btn"));
     let toggleBtnClone = clonedSvgData.querySelector("#toggle-view-1");
     if (toggleBtnClone !== null) {
         // Can be null for symbolic circuits
