@@ -116,7 +116,7 @@ class KirchhoffStates(Enum):
 
 class KirchhoffSolver:
     def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
-        self._equations: dict[int, str] = {}
+        self._equations: list[str] = []
         self.elementSetsOfEquations: list[set] = []
         self.language = LangSymbols(langSymbols)
         self.fileName = circuitFileName
@@ -138,7 +138,7 @@ class KirchhoffSolver:
         nameSet = set(cptNames)
         if nameSet in self.elementSetsOfEquations:
             return KirchhoffStates.duplicateEquation
-        self._equations[self.foundEq] = value
+        self._equations.append(value)
         self.foundEq += 1
         self.elementSetsOfEquations.append(nameSet)
         return KirchhoffStates.isNewEquation
