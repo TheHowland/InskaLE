@@ -1,5 +1,5 @@
 // ####################################################################################################################
-// #################################### Key function for simplifier circuits  #########################################
+// #################################### Key function for displaying new svgs ##########################################
 // ####################################################################################################################
 function display_step(stepObject) {
     console.log(stepObject);
@@ -29,11 +29,28 @@ function display_step(stepObject) {
     appendTotalValues(stepObject, electricalElements);
     congratsAndVCDisplayIfFinished(electricalElements, contentCol, stepObject);
     MathJax.typeset();
+    // ##############################
 }
 
 // ####################################################################################################################
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
+
+function getSourceVoltageVal() {
+    return state.step0Data.source.sources.U.val;
+}
+
+function getSourceCurrentVal() {
+    return state.step0Data.source.sources.I.val;
+}
+
+function getSourceFrequency() {
+    return state.step0Data.source.frequency;
+}
+
+function sourceIsAC() {
+    return getSourceFrequency() !== "0";
+}
 
 function MJtoText(mjStr) {
     if (mjStr === undefined || mjStr === null) return "";
@@ -305,7 +322,7 @@ function addNameValueToggleBtn(svgDiv) {
 
 function toggleElements(svgDiv) {
      toggleElementSymbols(svgDiv);
-    if (state.step0Data.componentTypes !== "RLC" && state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff) {
+    if (state.step0Data.componentTypes !== "RLC") {
         // Don't show U/I values in complex circuits
         toggleUISymbols(svgDiv);
     }
@@ -449,7 +466,7 @@ async function checkAndSimplifyNext(div){
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
 
     if (state.selectedElements.length <= 1) {
-        showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
+        showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastOneElement);
     } else {
         let obj = await stepSolve.simplifyNCpts(state.selectedElements).toJs({dict_converter: Object.fromEntries});
         obj.__proto__ = StepObject.prototype;
@@ -669,7 +686,7 @@ function cloneAndAdaptStep0Svg() {
     }
     clonedSvgData.id = "clonedOverviewSvg";
     // Adapt svg data, remove info and toggle btn
-    clonedSvgData.removeChild(clonedSvgData.querySelector(".open-info-gif-btn"));
+    clonedSvgData.removeChild(clonedSvgData.querySelector("#open-info-gif-btn"));
     let toggleBtnClone = clonedSvgData.querySelector("#toggle-view-1");
     if (toggleBtnClone !== null) {
         // Can be null for symbolic circuits
@@ -859,4 +876,40 @@ function generateSolutionsTable() {
     tableData += `</tbody></table></div>`;
     table.innerHTML = tableData;
     return table;
+}
+
+function createTotalCurrentContainer() {
+    const firstStepContainer = document.createElement("div");
+    firstStepContainer.id = "firstVCStepContainer";
+    firstStepContainer.classList.add("container", "justify-content-center");
+    return firstStepContainer;
+}
+
+function createSolutionsBtnContainer() {
+    const solutionsContainer = document.createElement("div");
+    solutionsContainer.id = "solutionsBtnContainer";
+    solutionsContainer.classList.add("container", "mb-5", "justify-content-center");
+    return solutionsContainer;
+}
+
+function createTotalCurrentBtn() {
+    const totalCurrentBtn = setupVoltageCurrentBtn();
+    totalCurrentBtn.textContent = languageManager.currentLang.firstVCStepBtn;
+    totalCurrentBtn.disabled = false;
+    return totalCurrentBtn;
+}
+
+function createSolutionsBtn() {
+    const totalCurrentBtn = setupVoltageCurrentBtn();
+    totalCurrentBtn.textContent = languageManager.currentLang.solutionsBtn;
+    totalCurrentBtn.disabled = false;
+    return totalCurrentBtn;
+}
+
+function setStyleAndEvent(element, nextElementsList) {
+    element.style.pointerEvents = "bounding-box";
+    element.style.cursor = 'pointer';
+    element.addEventListener('click', () =>
+        chooseElement(element, nextElementsList)
+    );
 }

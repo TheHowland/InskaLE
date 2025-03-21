@@ -19,10 +19,8 @@
     <script src="src/scripts/utils/packageManager.js"></script>
     <script src="src/scripts/utils/matomoHelper.js"></script>
     <script src="src/scripts/utils/loadFonts.js"></script>
-    <script src="src/scripts/utils/romanNumbersMap.js"></script>
 
     <script src="src/scripts/definitions/toggleSymbolDefinition.js"></script>
-    <script src="src/scripts/definitions/kirchhoffLoopDirectionSymbol.js"></script>
     <script src="src/scripts/definitions/allowedCircuitDirectories.js"></script>
     <script src="src/scripts/definitions/colorDefinitions.js"></script>
 
@@ -33,10 +31,10 @@
     <script src="src/scripts/visualisation/darkModeFunctions.js"></script>
     <script src="src/scripts/visualisation/selectorBuilder.js"></script>
     <script src="src/scripts/visualisation/pageManager.js"></script>
-    <script src="src/scripts/visualisation/kirchhoff/kirchhoff.js"></script>
-    <script src="src/scripts/visualisation/simplifier/explanationTexts.js"></script>
-    <script src="src/scripts/visualisation/simplifier/helperFunctions.js"></script>
-    <script src="src/scripts/visualisation/simplifier/simplifier.js"></script>
+    <script src="src/scripts/visualisation/explanationTexts.js"></script>
+    <script src="src/scripts/visualisation/helperFunctions.js"></script>
+    <script src="src/scripts/visualisation/displaySteps.js"></script>
+    <script src="src/scripts/visualisation/errorAlert.js"></script>
 
     <script src="src/scripts/main.js"></script>
 
@@ -55,7 +53,7 @@
 
 <body id="bootstrap-overrides" class="bg-dark">
 
-    <!-- Info Gif Modal for simplifier, needs to be on top level (child of body) for display purposes -->
+    <!-- Info Gif Modal, needs to be on top level (child of body) for display purposes -->
     <div class="modal modal-sm fade" id="infoGif" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -68,42 +66,6 @@
                 </div>
                 <div class="modal-footer justify-content-center" id="info-gif-footer">
                     <button id="info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Gif Modal for Kirchhoff's Voltage Law, needs to be on top level (child of body) for display purposes -->
-    <div class="modal modal-sm fade" id="kirchhoffVInfoGif" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center" id="kirchV-info-gif-header">
-                    <h5 class="modal-title" id="kirchV-info-gif-title"></h5>
-                </div>
-                <div class="modal-body" id="kirchV-info-gif-body">
-                    <p id="kirchV-info-gif-text" class="text-center"></p>
-                    <img class="img-fluid rounded mx-auto d-block" src="./src/resources/simplifier/howto.gif" alt="click on two elements and then on check two simplify these two elements">
-                </div>
-                <div class="modal-footer justify-content-center" id="kirchV-info-gif-footer">
-                    <button id="kirchV-info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Gif Modal for Kirchhoff's Junction Law, needs to be on top level (child of body) for display purposes -->
-    <div class="modal modal-sm fade" id="kirchhoffIInfoGif" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center" id="kirchI-info-gif-header">
-                    <h5 class="modal-title" id="kirchI-info-gif-title"></h5>
-                </div>
-                <div class="modal-body" id="kirchI-info-gif-body">
-                    <p id="kirchI-info-gif-text" class="text-center"></p>
-                    <img class="img-fluid rounded mx-auto d-block" src="./src/resources/simplifier/howto.gif" alt="click on two elements and then on check two simplify these two elements">
-                </div>
-                <div class="modal-footer justify-content-center" id="kirchI-info-gif-footer">
-                    <button id="kirchI-info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
                 </div>
             </div>
         </div>

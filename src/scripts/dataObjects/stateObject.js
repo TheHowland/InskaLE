@@ -20,11 +20,6 @@ class StateObject {
     //The Python module imported from the Pyodide environment for solving circuits.
     solve;
 
-    // Solver object
-    kirchhoffSolver = null;
-    stepSolve = null;
-
-
     //Boolean to track if the Pyodide environment is ready.
     pyodide = null;
     pyodideReady = false;
@@ -39,5 +34,4 @@ class StateObject {
     // Toggle variables
     valuesShown = new Map();
 
-    voltEquations = [];
 }

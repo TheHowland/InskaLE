@@ -86,7 +86,7 @@ function setSvgWidthTo(svgData, width) {
 }
 
 // Displays a temporary message to the user in a message box.
-function showMessage(container, message, prio = "warning", fixedBottom = true, yPxHeight = 0, autoHide = true) {
+function showMessage(container, message, prio = "warning", fixedBottom = true, yPxHeight = 0) {
     let bootstrapAlert;
     let emoji;
     if (prio === "only2") {
@@ -101,11 +101,7 @@ function showMessage(container, message, prio = "warning", fixedBottom = true, y
     } else if (prio === "info") {
         emoji = "";
         bootstrapAlert = "secondary";
-    } else if (prio === "danger") {
-        emoji = "";
-        bootstrapAlert = "danger";
-    }
-    else {
+    } else {
         emoji = "";
         bootstrapAlert = "secondary";
     }
@@ -147,14 +143,12 @@ function showMessage(container, message, prio = "warning", fixedBottom = true, y
             }
         });
     }
-    if (autoHide) {
-        // Remove the message after 3 seconds if not clicked already
-        setTimeout(() => {
-            if (container.contains(msg)) {
-                container.removeChild(msg);
-            }
-        }, 3000);
-    }
+    // Remove the message after 3 seconds if not clicked already
+    setTimeout(() => {
+        if (container.contains(msg)) {
+            container.removeChild(msg);
+        }
+    }, 3000);
 }
 
 function setPgrBarTo(percent) {
@@ -203,7 +197,6 @@ function resetSimplifierPage(calledFromResetBtn = false) {
     state.selectedElements = [];
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
-    state.voltEquations = [];
     scrollBodyToTop();
     if (calledFromResetBtn && state.pyodideReady) {
         startSolving();  // Draw the first picture again
@@ -316,42 +309,6 @@ function showArrows(contentCol) {
     }
 }
 
-function hideVoltageArrows(svgDiv) {
-    let voltageArrows = svgDiv.querySelectorAll(".arrow.voltage-label");
-    for (let arrow of voltageArrows) {
-        arrow.style.display = "none";
-    }
-}
-
-function hideItotArrow(svgDiv) {
-    // TODO
-    let itotArrow = svgDiv.querySelectorAll(".current-label.arrow.Itot");
-    for (let arrow of itotArrow) {
-        arrow.style.display = "none";
-    }
-}
-
-function showVoltageArrows(svgDiv) {
-    let voltageArrows = svgDiv.querySelectorAll(".arrow.voltage-label");
-    for (let arrow of voltageArrows) {
-        arrow.style.display = "block";
-    }
-}
-
-function hideCurrentArrows(svgDiv) {
-    let currentArrows = svgDiv.querySelectorAll(".arrow.current-label");
-    for (let arrow of currentArrows) {
-        arrow.style.display = "none";
-    }
-}
-
-function showCurrentArrows(svgDiv) {
-    let currentArrows = svgDiv.querySelectorAll(".arrow.current-label");
-    for (let arrow of currentArrows) {
-        arrow.style.display = "block";
-    }
-}
-
 function whenAvailable(name, callback) {
     var interval = 10; // ms
     window.setTimeout(function() {
@@ -397,10 +354,7 @@ function startSolving() {
         }
     }
     catch (error){
-        setTimeout(() => {
-            showMessage(document.getElementsByTagName("body")[0],
-                languageManager.currentLang.alertErrorInit, "danger", true, 0, false);
-        }, 0);
+        (new ErrorAlert()).show("Error on init circuit")
     }
 
 }
@@ -459,56 +413,4 @@ function setBodyPaddingForFixedTopNavbar() {
     body.style.paddingTop = height + "px";
 }
 
-
-function createTotalCurrentContainer() {
-    const firstStepContainer = document.createElement("div");
-    firstStepContainer.id = "firstVCStepContainer";
-    firstStepContainer.classList.add("container", "justify-content-center");
-    return firstStepContainer;
-}
-
-function createSolutionsBtnContainer() {
-    const solutionsContainer = document.createElement("div");
-    solutionsContainer.id = "solutionsBtnContainer";
-    solutionsContainer.classList.add("container", "mb-5", "justify-content-center");
-    return solutionsContainer;
-}
-
-function createTotalCurrentBtn() {
-    const totalCurrentBtn = setupVoltageCurrentBtn();
-    totalCurrentBtn.textContent = languageManager.currentLang.firstVCStepBtn;
-    totalCurrentBtn.disabled = false;
-    return totalCurrentBtn;
-}
-
-function createSolutionsBtn() {
-    const totalCurrentBtn = setupVoltageCurrentBtn();
-    totalCurrentBtn.textContent = languageManager.currentLang.solutionsBtn;
-    totalCurrentBtn.disabled = false;
-    return totalCurrentBtn;
-}
-
-function setStyleAndEvent(element, nextElementsList) {
-    element.style.pointerEvents = "bounding-box";
-    element.style.cursor = 'pointer';
-    element.addEventListener('click', () =>
-        chooseElement(element, nextElementsList)
-    );
-}
-
-function getSourceVoltageVal() {
-    return state.step0Data.source.sources.U.val;
-}
-
-function getSourceCurrentVal() {
-    return state.step0Data.source.sources.I.val;
-}
-
-function getSourceFrequency() {
-    return state.step0Data.source.frequency;
-}
-
-function sourceIsAC() {
-    return getSourceFrequency() !== "0";
-}
 

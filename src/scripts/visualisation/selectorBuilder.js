@@ -221,7 +221,6 @@ class SelectorBuilder {
         this.setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
         startBtn.addEventListener("click", () =>
             this.circuitSelectorStartButtonPressed(circuitMap, pageManager))
-
     }
 
     addVoltFreqOverlay(circuitDiv, circuitMap) {
@@ -295,20 +294,14 @@ class SelectorBuilder {
     }
 
     circuitSelectorStartButtonPressed(circuitMap, pageManager){
+        document.title = "Simplifier";
+        pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
         clearSimplifierPageContent();
         state.currentCircuitMap = circuitMap;
         state.pictureCounter = 0;
         state.allValuesMap = new Map();
         if (state.pyodideReady) {
-            if (circuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
-                document.title = "Kirchhoff";
-                pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile);
-                startKirchhoff();
-            } else {
-                document.title = "Simplifier";
-                pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
-                startSolving();
-            }
+            startSolving();
         }
 
         pageManager.disableSettings();
