@@ -1,17 +1,21 @@
-# for lcapy version: 1.24+inskale.0.37
+# for simplipfy version: 0.1
 import warnings
 warnings.filterwarnings('ignore')
-from lcapy import Circuit, FileToImpedance
+import os
+
+from lcapy import Circuit
 from lcapy.solution import Solution
 from lcapy.componentRelation import ComponentRelation
 from lcapy.solutionStep import SolutionStep
-import os
-from lcapy.langSymbols import LangSymbols
-from lcapy.dictExportBase import DictExportBase
+
+import simplipfy.KirchhoffSolver.solver as khf
+from simplipfy.langSymbols import LangSymbols
+from simplipfy.Export.dictExportBase import DictExportBase
+from simplipfy.Export.dictExportBase import ExportDict
+from simplipfy.impedanceConverter import FileToImpedance
+
 from json import dump as jdump
-from lcapy.dictExportBase import ExportDict
 from enum import Enum
-import lcapy.KirchhoffSolver.solver as khf
 
 
 def solve_circuit(filename: str, filePath="Circuits/", savePath="Solutions/", langSymbols: dict = {}):
@@ -113,7 +117,6 @@ class KirchhoffStates(Enum):
     isNewEquation = 0
     duplicateEquation = 1
     notAValidEquation = 2
-    isMultipleEquations = 3
 
 class KirchhoffSolver:
     def __init__(self, circuitFileName: str, path: str, langSymbols: dict = {}):
@@ -173,8 +176,6 @@ class KirchhoffSolver:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
             state = self.setEquation(eq, cptNames)
             return state, (eq, eq, eq)
-        elif all(cpt in self.circuit.in_series(cptNames[0]) for cpt in cptNames[1::]):
-            return KirchhoffStates.isMultipleEquations.value, ("", "", "")
         else:
             return KirchhoffStates.notAValidEquation.value, ("", "", "")
 
