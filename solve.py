@@ -134,19 +134,19 @@ class KirchhoffSolver:
     def equations(self):
         return self._equations
 
-    def setEquation(self, value, cptNames) -> KirchhoffStates:
+    def setEquation(self, value, cptNames) -> int:
         nameSet = set(cptNames)
         if nameSet in self.elementSetsOfEquations:
-            return KirchhoffStates.duplicateEquation
+            return KirchhoffStates.duplicateEquation.value
         self._equations.append(value)
         self.foundEq += 1
         self.elementSetsOfEquations.append(nameSet)
-        return KirchhoffStates.isNewEquation
+        return KirchhoffStates.isNewEquation.value
 
-    def checkVoltageLoopRule(self, cptNames: list[str]) -> tuple[KirchhoffStates, str]:
+    def checkVoltageLoopRule(self, cptNames: list[str]) -> tuple[int, str]:
         eq = ""
         if self.foundAllVoltEquations():
-            return KirchhoffStates.duplicateEquation, eq
+            return KirchhoffStates.duplicateEquation.value, eq
         state = KirchhoffStates.notAValidEquation
         loop = khf.isValidVoltageLoop(self.circuit, cptNames)
 
@@ -155,21 +155,21 @@ class KirchhoffSolver:
             state = self.setEquation(eq, cptNames)
             self.missingElmInVoltEq -= set(cptNames)
 
-        return  state, eq
+        return  state.value, eq
 
-    def checkJunctionRule(self, cptNames: list[str]) -> tuple[KirchhoffStates, tuple[str, str, str]]:
+    def checkJunctionRule(self, cptNames: list[str]) -> tuple[int, tuple[str, str, str]]:
         implicitCommonNode = khf.isImplicitCurrentEquation(self.circuit, cptNames)
         commonNode = khf.isCurrentEquation(self.circuit, cptNames)
         if implicitCommonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, implicitCommonNode, self.language)
             state = self.setEquation(eq, cptNames)
-            return state, (eq, eq, eq)
+            return state.value, (eq, eq, eq)
         elif commonNode:
             eq = khf.makeCurrentEquation(self.circuit, cptNames, commonNode, self.language)
             state = self.setEquation(eq, cptNames)
-            return state, (eq, eq, eq)
+            return state.value, (eq, eq, eq)
         else:
-            return KirchhoffStates.notAValidEquation, ("", "", "")
+            return KirchhoffStates.notAValidEquation.value, ("", "", "")
 
     @staticmethod
     def makeDummy() -> 'KirchhoffSolver':
@@ -190,7 +190,7 @@ class KirchhoffSolver:
         f = open("tmp.txt", "w")
         f.write(circuit)
         f.close()
-        dummy = KirchhoffSolver("tmp.txt", "", LangSymbols())
+        dummy = KirchhoffSolver("tmp.txt", "", {"volt": "U", "total": "ges"})
         dummy._equations = {0: "0 = Uges - U1 - U2 - U3 - U4", 1: "0 = U3 - U4", 2: "0 = I3 - I4 - I5", 3: "0 = I1 - I2", 4: "0 = I2 - I3"}
         dummy.language = LangSymbols()
         dummy.fileName = "##DummyHasNoName##"
