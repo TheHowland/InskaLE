@@ -8,4 +8,5 @@ const allowedDirNames = {
     inductor: "inductor",
     mixed: "mixed",
     symbolic: "symbolic",
+    kirchhoff: "kirchhoff",
 }

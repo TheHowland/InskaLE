@@ -46,6 +46,14 @@ class LanguageManager {
         infoGifHeading.innerHTML = this.currentLang.infoGifHeading;
         const infoGifText = document.getElementById("info-gif-text");
         infoGifText.innerHTML = this.currentLang.infoGifText;
+        const kirchVInfoGifHeading = document.getElementById("kirchV-info-gif-title");
+        kirchVInfoGifHeading.innerHTML = this.currentLang.kirchVInfoGifHeading;
+        const kirchVInfoGifText = document.getElementById("kirchV-info-gif-text");
+        kirchVInfoGifText.innerHTML = this.currentLang.kirchVInfoGifText;
+        const kirchIInfoGifHeading = document.getElementById("kirchI-info-gif-title");
+        kirchIInfoGifHeading.innerHTML = this.currentLang.kirchIInfoGifHeading;
+        const kirchIInfoGifText = document.getElementById("kirchI-info-gif-text");
+        kirchIInfoGifText.innerHTML = this.currentLang.kirchIInfoGifText;
     }
 
     updateLanguageCheatSheetPage() {

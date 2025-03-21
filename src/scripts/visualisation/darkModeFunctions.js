@@ -19,6 +19,7 @@ function changeToDarkMode() {
     updateNavigationColorsTo(colors.bootstrapDark, colors.languagesDarkBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeDark);
     updateSimplifierPageColors();
+    updateKirchhoffModalColors();
     updateSelectorPageColors();
     updateAboutPageColors();
     if (circuitMapper !== null) {
@@ -32,6 +33,7 @@ function changeToLightMode() {
     updateNavigationColorsTo(colors.bootstrapWhite, colors.languagesLightBg);
     updateCheatSheetPageColorsTo(colors.bsColorSchemeLight);
     updateSimplifierPageColors();
+    updateKirchhoffModalColors();
     updateSelectorPageColors();
     updateAboutPageColors();
     if (circuitMapper !== null) {
@@ -93,7 +95,18 @@ function updateOverviewModals() {
     }
 }
 
+function updateKirchhoffModalColors() {
+    const info1 = document.getElementById("kirchhoffVInfoGif");
+    const info2 = document.getElementById("kirchhoffIInfoGif");
+    for (let modal of [info1, info2]) {
+        let content = modal.querySelector(".modal-content");
+        content.style.color = colors.currentForeground;
+        content.style.backgroundColor = colors.currentBsBackground;
+    }
+}
+
 function updateSimplifierPageColors() {
+    // Info modal
     const infoGifHeader = document.getElementById("info-gif-header");
     infoGifHeader.style.color = colors.currentForeground;
     infoGifHeader.style.backgroundColor = colors.currentBsBackground;
@@ -104,6 +117,7 @@ function updateSimplifierPageColors() {
     infoGifFooter.style.color = colors.currentForeground;
     infoGifFooter.style.backgroundColor = colors.currentBsBackground;
 
+    // Toggle buttons
     const toggleViewButtons = document.getElementsByClassName("toggle-view");
     for (const toggleViewButton of toggleViewButtons) {
         toggleViewButton.style.color = colors.currentForeground;
@@ -168,6 +182,7 @@ function updateCheatSheetPageColorsTo(bsColorScheme) {
     const formula = document.getElementById("pRX");
     formula.style.color = colors.currentForeground;
 }
+
 function updateSelectorPageSvgStrokeColor(fromSvgColor, toSvgColor) {
     // Change border color of selectors
     const svgSelectors = document.getElementsByClassName("svg-selector");

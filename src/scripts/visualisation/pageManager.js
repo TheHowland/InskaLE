@@ -257,6 +257,7 @@ class PageManager {
     setupSimplifierPage() {
         languageManager.updateLanguageSimplifierPage();
         updateSimplifierPageColors();
+        updateKirchhoffModalColors();
     }
 
     setupCheatSheet() {
