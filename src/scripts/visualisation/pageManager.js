@@ -3,7 +3,6 @@ class PageManager {
         this.landingPage = document.getElementById("landing-page-container");
         this.selectPage = document.getElementById("select-page-container");
         this.simplifierPage = document.getElementById("simplifier-page-container");
-        this.editorPage = document.getElementById("editor-page-container");
         this.cheatSheet = document.getElementById("cheat-sheet-container");
         this.aboutPage = document.getElementById("about-page-container");
         this.languageSelect = document.getElementById("Dropdown");
@@ -16,7 +15,6 @@ class PageManager {
         this.landingPage.style.display = "block";
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "none";
-        this.editorPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.aboutPage.style.display = "none";
         this.enableSettings();
@@ -33,13 +31,12 @@ class PageManager {
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "block";
         this.simplifierPage.style.display = "none";
-        this.editorPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.aboutPage.style.display = "none";
         this.enableSettings();
         document.title = "Circuit Selection";
         if (state.pyodideReady) {
-             pushPageViewMatomo("Ready");
+            pushPageViewMatomo("Ready");
         } else {
             pushPageViewMatomo("Loading");
         }
@@ -50,7 +47,6 @@ class PageManager {
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "block";
-        this.editorPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.aboutPage.style.display = "none";
         this.disableSettings();
@@ -59,23 +55,10 @@ class PageManager {
         scrollBodyToTop();
     }
 
-    showEditorPage() {
-        this.landingPage.style.display = "none";
-        this.selectPage.style.display = "none";
-        this.simplifierPage.style.display = "none";
-        this.editorPage.style.display = "block";
-        this.cheatSheet.style.display = "none";
-        this.aboutPage.style.display = "none";
-        this.enableSettings();
-        document.title = "Editor";
-        pushPageViewMatomo();
-    }
-
     showCheatSheet() {
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "none";
-        this.editorPage.style.display = "none";
         this.cheatSheet.style.display = "block";
         this.aboutPage.style.display = "none";
         this.enableSettings();
@@ -88,7 +71,6 @@ class PageManager {
         this.landingPage.style.display = "none";
         this.selectPage.style.display = "none";
         this.simplifierPage.style.display = "none";
-        this.editorPage.style.display = "none";
         this.cheatSheet.style.display = "none";
         this.aboutPage.style.display = "block";
         this.enableSettings();
@@ -135,37 +117,51 @@ class PageManager {
         if (state.pyodideLoading || state.pyodideReady) {
             this.showSelectPage();
         } else {
-            this.showSelectPage();
-            setPgrBarTo(0);
-            const note = showWaitingNote();
-            setPgrBarTo(1);
-            state.pyodideLoading = true;
-            // Get the pyodide instance and setup pages with functionality
-            state.pyodide = await loadPyodide();
-            setInterval(() => {
-                    note.innerHTML = languageManager.currentLang.messages[Math.floor(Math.random() * languageManager.currentLang.messages.length)]},
-                8000);
-            setPgrBarTo(5);
-            // Map all circuits into map and build the selectors
-            circuitMapper = new CircuitMapper();
-            await circuitMapper.mapCircuits();
-            setPgrBarTo(10);
-            selectorBuilder.buildSelectorsForAllCircuitSets();
-            updateSelectorPageColors();
+            try{
+                this.showSelectPage();
+                setPgrBarTo(0);
+                const note = showWaitingNote();
+                setPgrBarTo(1);
+                state.pyodideLoading = true;
+                // Get the pyodide instance and setup pages with functionality
+                state.pyodide = await loadPyodide();
+                setInterval(() => {
+                        note.innerHTML = languageManager.currentLang.messages[Math.floor(Math.random() * languageManager.currentLang.messages.length)]},
+                    8000);
+                setPgrBarTo(5);
+                // Map all circuits into map and build the selectors
+                circuitMapper = new CircuitMapper();
+                await circuitMapper.mapCircuits();
 
-            hideQuickstart();
-            hideAccordion();
+                setPgrBarTo(10);
+                selectorBuilder.buildSelectorsForAllCircuitSets();
+                updateSelectorPageColors();
 
-            // Starts with 10%
-            await packageManager.doLoadsAndImports();
+                hideQuickstart();
+                hideAccordion();
 
-            selectorBuilder.adaptSelectorFrameColor();
+                // Starts with 10%
+                await packageManager.doLoadsAndImports();
+                if (packageManager.catchedError){
+                    //this has local error handling, so we need to rethrow an error to break out
+                    pageManager.onError()
+                    throw new Error("packageManager error")
+                }
 
-            showQuickstart();
-            showAccordion();
-            note.innerHTML = "";
+                selectorBuilder.adaptSelectorFrameColor();
 
-            pageManager.setupSelectPage();
+                this.hideProgressBar();
+
+                showQuickstart();
+                showAccordion();
+                note.innerHTML = "";
+
+                pageManager.setupSelectPage();
+            }
+            catch (error){
+                console.error(error)
+                pageManager.onError()
+            }
         }
     }
 
@@ -180,7 +176,6 @@ class PageManager {
     setupNavigation() {
         const navHomeLink = document.getElementById("nav-home");
         const navSelectLink = document.getElementById("nav-select");
-        const navEditorLink = document.getElementById("nav-editor");
         const navCheatLink = document.getElementById("nav-cheat");
         const navAboutLink = document.getElementById("nav-about");
         const navLogo = document.getElementById("nav-logo");
@@ -201,11 +196,6 @@ class PageManager {
             else {
                 await this.landingPageStartBtnClicked();
             }
-        })
-        navEditorLink.addEventListener("click", () => {
-            checkIfSimplifierPageNeedsReset(this.pyodide);
-            closeNavbar();
-            this.showEditorPage();
         })
         navCheatLink.addEventListener("click", () => {
             checkIfSimplifierPageNeedsReset();
@@ -321,5 +311,24 @@ class PageManager {
     setupAboutPage() {
         languageManager.updateLanguageAboutPage();
         updateAboutPageColors();
+    }
+
+    onError() {
+        let progressBar = document.getElementById('pgr-bar')
+        progressBar.classList.remove('bg-warning');
+        progressBar.classList.remove('progress-bar-striped');
+        progressBar.classList.add('bg-danger');
+        languageManager.currentLang.messages = ['An error occurred, please try to reload the page'];
+        document.getElementById('progress-bar-note').innerText = languageManager.currentLang.messages[0];
+        this.catchedError = true
+    }
+
+    hideProgressBar(){
+        let progressBarContainer = document.getElementById("pgr-bar-container");
+        progressBarContainer.style.display = "none";
+        document.title = "Circuit Selection";
+        pushPageViewMatomo("Ready");
+        state.pyodideReady = true;
+        state.pyodideLoading = false;
     }
 }

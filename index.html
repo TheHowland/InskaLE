@@ -34,6 +34,7 @@
     <script src="src/scripts/visualisation/explanationTexts.js"></script>
     <script src="src/scripts/visualisation/helperFunctions.js"></script>
     <script src="src/scripts/visualisation/displaySteps.js"></script>
+    <script src="src/scripts/visualisation/errorAlert.js"></script>
 
     <script src="src/scripts/main.js"></script>
 
@@ -42,7 +43,6 @@
 
     <link rel="stylesheet" href="src/styles/allStyles.css">
     <link rel="stylesheet" href="src/styles/bootstrap.min.css">
-    <link rel="stylesheet" href="src/styles/editor.css">
 
     <script src="src/scripts/extern/confetti.browser.min.js"></script>
 
@@ -84,9 +84,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link m-0 p-0" id="nav-select">CIRCUIT SIMPLIFIER</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link m-0 p-0" id="nav-editor">CIRCUIT EDITOR</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link m-0 p-0" id="nav-cheat">CHEAT SHEET</a>
@@ -184,32 +181,12 @@
     </div>
 
     <!--####################################################################################################
-    ###################################           Simplifier page        ###################################
+    ###################################           Simplifier page        #########################################
     #####################################################################################################-->
     <div class="container-fluid m-0 p-0 text-center justify-content-center bg-dark" id="simplifier-page-container">
         <div class="container-fluid pb-5 mb-5">
             <div class="col justify-content-center" id="content-col">
                 <!-- content is added step by step -->
-            </div>
-        </div>
-    </div>
-    <!--####################################################################################################
-    ###################################           Editor page        #######################################
-    #####################################################################################################-->
-    <div class="container-fluid m-0 p-0 text-center justify-content-center bg-dark" id="editor-page-container">
-        <div class="container-fluid pb-5 mb-5">
-            <div class="col justify-content-center" id="content-col">
-                <input type="hidden" class="schematic" height="460" width="800" />
-                <div id="editor-wrapper"></div>
-                <script type="text/javascript" src="src/scripts/extern/editor.hammer.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.fontawesome.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.download.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.language.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.fet_vsp.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.fet_vsparms.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.cktsimvsp_sn.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.schematic.js"></script>
-                <script type="text/javascript" src="src/scripts/extern/editor.custom.js"></script>
             </div>
         </div>
     </div>
