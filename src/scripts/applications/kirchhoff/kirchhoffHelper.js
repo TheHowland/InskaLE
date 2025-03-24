@@ -235,8 +235,6 @@ function getEquationsTable(equations) {
 
 function resetKirchhoffPage() {
     clearSimplifierPageContent();
-    //resetSolverObject();
-    //resetKirchhoffSolverObject();
     state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;

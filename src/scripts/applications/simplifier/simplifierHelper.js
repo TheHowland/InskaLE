@@ -11,18 +11,6 @@ function setSvgColorMode(svgData) {
     }
 }
 
-function twoElementsChosen() {
-    return state.selectedElements.length === 2;
-}
-
-function resetSolverObject() {
-    let paramMap = new Map();
-    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
-    paramMap.set("total", languageManager.currentLang.totalSuffix);
-
-    stepSolve = state.solve.SolveInUserOrder(state.currentCircuitMap.circuitFile, `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`, `${conf.pyodideSolutionsPath}/`, paramMap);
-}
-
 function enableCheckBtn() {
     document.getElementById("check-btn").disabled = false;
 }
@@ -40,7 +28,6 @@ function resetSimplifierPage(calledFromResetBtn = false) {
         }
     }
     clearSimplifierPageContent();
-    resetSolverObject();
     state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;
