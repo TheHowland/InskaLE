@@ -214,14 +214,16 @@ class PageManager {
         })
         selectEnglish.addEventListener("click", () => {
             languageManager.currentLang = english;
-            this.activeLangFlag.setAttribute("src", "src/resources/navigation/uk.png");
+            const activeFlagIcon = document.getElementById("activeLanguageFlag");
+            activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
             pushLanguageEventMatomo(configLanguageValues.English);
         })
         selectGerman.addEventListener("click", () => {
             languageManager.currentLang = german;
-            this.activeLangFlag.setAttribute("src", "src/resources/navigation/germany.png");
+            const activeFlagIcon = document.getElementById("activeLanguageFlag");
+            activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
             pushLanguageEventMatomo(configLanguageValues.German);
@@ -232,11 +234,12 @@ class PageManager {
             this.updatePagesOpacity();
         })
 
+        const activeFlagIcon = document.getElementById("activeLanguageFlag");
         if (languageManager.currentLang === german) {
-            this.activeLangFlag.setAttribute("src", "src/resources/navigation/germany.png");
+            activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
         }
         else if (languageManager.currentLang === english) {
-            this.activeLangFlag.setAttribute("src", "src/resources/navigation/uk.png");
+            activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
         }
     }
 
