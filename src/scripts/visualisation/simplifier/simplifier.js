@@ -273,7 +273,10 @@ function fillLabels(svgDiv) {
     for (let label of labels) {
         if (label.nodeName === "path") continue;
         let span = label.querySelector("tspan");
-        if ((state.step0Data.componentTypes !== "RLC") && state.valuesShown.get(svgDiv.id)) {
+        // If RLC circuit or kirchhoff, don't show U/I values
+        if ((state.step0Data.componentTypes !== "RLC")
+            && state.valuesShown.get(svgDiv.id)
+            && (state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff)) {
             // If RLC, show U/I values if values are shown
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
         } else {

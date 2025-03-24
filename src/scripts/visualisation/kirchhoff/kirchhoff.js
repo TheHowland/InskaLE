@@ -87,8 +87,10 @@ function checkVoltageLoop() {
 
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
+        let rect = svgDiv.getBoundingClientRect();
+        let y = rect.y + window.scrollY + 20;
         setTimeout(() => {
-            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
+            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements, "warning",false, y);
         }, 0);
         return;
     }
@@ -98,7 +100,7 @@ function checkVoltageLoop() {
     // TODO define direction
     let [errorCode, eq] = state.kirchhoffSolver.checkVoltageLoopRule(state.selectedElements).toJs();
     if (errorCode) {
-        handleError(errorCode, svgDiv);
+        handleVoltageError(errorCode, svgDiv);
         return;
     }
 
@@ -152,8 +154,10 @@ async function checkJunctionLaw() {
 
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
+        let rect = svgDiv.getBoundingClientRect();
+        let y = rect.y + window.scrollY + 20;
         setTimeout(() => {
-            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
+            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements, "warning", false, y);
         }, 0);
         checkBtn.classList.remove("disabled");
         return;
@@ -163,7 +167,7 @@ async function checkJunctionLaw() {
 
     let [errorCode, eqs] = state.kirchhoffSolver.checkJunctionRule(state.selectedElements).toJs();
     if (errorCode) {
-        handleError(errorCode, svgDiv);
+        handleJunctionError(errorCode, svgDiv);
         checkBtn.classList.remove("disabled");
         return;
     }
@@ -196,27 +200,19 @@ async function checkJunctionLaw() {
 
         if (value === "0") {
             // wrong answer
-            let rect = svgDiv.getBoundingClientRect();
-            let y = rect.y + window.scrollY + 20;
             setTimeout(() => {
-                setTimeout(() => {
-                    showMessage(contentCol, languageManager.currentLang.alertWrongAnswer,"warning", false, y);
-                }, 0);
                 let checkBox = nextElementList.querySelector(`#${id}`);
                 checkBox.style.backgroundColor = "red";
                 checkBox.style.borderColor = "red";
                 checkBox.disabled = true;
-
             }, 250);
         } else {
             // right answer
             let checkBox = nextElementList.querySelector(`#${id}`);
+            let label = document.querySelector(`label[for=${id}]`);
             setTimeout(() => {
                 checkBox.style.backgroundColor = "green";
                 checkBox.style.borderColor = "green";
-            }, 250);
-            setTimeout(() => {
-                let label = document.querySelector(`label[for=${id}]`);
                 label.classList.add("fade-out");
             }, 250);
             await new Promise(resolve => setTimeout(resolve, 1000))
@@ -230,6 +226,7 @@ async function checkJunctionLaw() {
             resetNextElements(svgDiv, nextElementsContainer);
 
             if (state.kirchhoffSolver.foundAllEquations()) {
+                // Remove text above equations
                 equationContainer.innerHTML = "";
                 equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
                 confetti({
@@ -277,7 +274,7 @@ function shuffleArray(array) {
     }
 }
 
-function handleError(errorCode, svgDiv) {
+function handleVoltageError(errorCode, svgDiv) {
     let contentCol = document.getElementById("content-col");
     let rect = svgDiv.getBoundingClientRect();
     let y = rect.y + window.scrollY + 20;
@@ -290,6 +287,25 @@ function handleError(errorCode, svgDiv) {
         // Invalid selection
         setTimeout(() => {
             showMessage(contentCol, languageManager.currentLang.alertInvalidVoltageLoop, "warning", false, y);
+        }, 0);
+    } else if (errorCode === 3) {
+        // Only for junction law
+    }
+}
+
+function handleJunctionError(errorCode, svgDiv) {
+    let contentCol = document.getElementById("content-col");
+    let rect = svgDiv.getBoundingClientRect();
+    let y = rect.y + window.scrollY + 20;
+    if (errorCode === 1) {
+        // Equation already exists
+        setTimeout(() => {
+            showMessage(contentCol, languageManager.currentLang.alertJunctionAlreadyExists, "warning", false, y);
+        }, 0);
+    } else if (errorCode === 2) {
+        // Invalid selection
+        setTimeout(() => {
+            showMessage(contentCol, languageManager.currentLang.alertInvalidJunction, "warning", false, y);
         }, 0);
     } else if (errorCode === 3) {
         // Only for junction law, if more than 2 elements in series are chosen we can't generate
