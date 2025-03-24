@@ -89,9 +89,9 @@ function initSolverObjects() {
 function getLoopDirection(svgDiv) {
     let direction;
     if (svgDiv.querySelector("#loop-dir-btn").innerText === kirchhoffLoopDirectionSymbol.clockwise) {
-        direction = "clockwise";
+        direction = "clockwise";  // 1
     } else {
-        direction = "counterclockwise";
+        direction = "counterclockwise";  // 0
     }
     return direction;
 }
@@ -243,7 +243,7 @@ function resetKirchhoffPage() {
     state.allValuesMap = new Map();
     state.voltEquations = [];
     scrollBodyToTop();
-    startKirchhoff();
+    startKirchhoff();  // Draw the first picture again
 }
 
 function allElementsGrayedOut(svgDiv) {

@@ -1,7 +1,7 @@
 // ####################################################################################################################
 // #################################### Key function for simplifier circuits  #########################################
 // ####################################################################################################################
-function display_step(stepObject) {
+function nextSimplifierStep(stepObject) {
     console.log(stepObject);
     state.pictureCounter++;  // increment before usage in the below functions
 
@@ -472,7 +472,7 @@ function checkAndSimplify(stepObject, contentCol, div) {
         }
         // Remove event listeners from old picture elements
         removeOldEventListeners();
-        display_step(stepObject);
+        nextSimplifierStep(stepObject);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);

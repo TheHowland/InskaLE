@@ -184,6 +184,9 @@ async function checkJunctionLaw() {
     shuffleArray(eqs);
 
     for (let [i, {equation, isCorrect}] of eqs.entries()) {
+        if (i !== 0) {
+            equation = "x = falsch";
+        }
         let choice = document.createElement('li');
         choice.innerHTML = `
         <div class="form-check d-flex justify-content-center" style="gap: 5px">

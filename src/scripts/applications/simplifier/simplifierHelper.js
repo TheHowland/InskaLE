@@ -48,7 +48,7 @@ function resetSimplifierPage(calledFromResetBtn = false) {
     state.voltEquations = [];
     scrollBodyToTop();
     if (calledFromResetBtn && state.pyodideReady) {
-        startSolving();  // Draw the first picture again
+        startSimplifier();  // Draw the first picture again
     }
 }
 
@@ -104,10 +104,10 @@ async function createAndShowStep0(circuitMap) {
     state.currentStep = 0;
     state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltageVal());
     state.allValuesMap.set(`I${languageManager.currentLang.totalSuffix}`, getSourceCurrentVal());
-    display_step(state.step0Data);
+    nextSimplifierStep(state.step0Data);
 }
 
-function startSolving() {
+function startSimplifier() {
     try{
         createAndShowStep0(state.currentCircuitMap);
         //The div element that contains the SVG representation of the circuit diagram.
