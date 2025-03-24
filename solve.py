@@ -2,7 +2,7 @@
 import warnings
 warnings.filterwarnings('ignore')
 from simplipfy.SimplifyStepWise.simplifyStepwise import solve as ssw
-solve = ssw
+solveStepwise = ssw
 
 from simplipfy.SimplifyInUserOrder.solvInUserOrder import SolveInUserOrder as siuo
 SolveInUserOrder = siuo

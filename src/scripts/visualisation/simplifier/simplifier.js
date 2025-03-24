@@ -1,7 +1,7 @@
 // ####################################################################################################################
 // #################################### Key function for simplifier circuits  #########################################
 // ####################################################################################################################
-function nextSimplifierStep(stepObject) {
+function display_step(stepObject) {
     console.log(stepObject);
     state.pictureCounter++;  // increment before usage in the below functions
 
@@ -273,10 +273,7 @@ function fillLabels(svgDiv) {
     for (let label of labels) {
         if (label.nodeName === "path") continue;
         let span = label.querySelector("tspan");
-        // If RLC circuit or kirchhoff, don't show U/I values
-        if ((state.step0Data.componentTypes !== "RLC")
-            && state.valuesShown.get(svgDiv.id)
-            && (state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff)) {
+        if ((state.step0Data.componentTypes !== "RLC") && state.valuesShown.get(svgDiv.id)) {
             // If RLC, show U/I values if values are shown
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
         } else {
@@ -472,7 +469,7 @@ function checkAndSimplify(stepObject, contentCol, div) {
         }
         // Remove event listeners from old picture elements
         removeOldEventListeners();
-        nextSimplifierStep(stepObject);
+        display_step(stepObject);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
