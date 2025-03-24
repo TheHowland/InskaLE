@@ -633,25 +633,23 @@ th, td {
     color: #a8a8a8;
 }
 
-/* TODO Adapt a little, as liked :) */
+/* Kirchhoff */
 @keyframes floatAndFadeOut {
     0% {
-        transform: translateY(0);  /* Anfang: keine Verschiebung */
-        opacity: 1;                /* Anfang: vollständig sichtbar */
+        transform: translateY(0);
+        opacity: 1;
     }
     100% {
-        transform: translateY(50px); /* Verschieben nach unten */
-        opacity: 0;                  /* Vollständig unsichtbar */
+        transform: translateY(200px);
+        opacity: 0;
     }
 }
 
-/* Stil für die Gleichung */
 .equation {
-    transition: opacity 1s ease-out; /* Sanfter Übergang beim Ausblenden */
+    transition: opacity 1.5s ease-in-out;
 }
 
-/* Wenn die Gleichung ausgeblendet werden soll */
 .equation.fade-out {
-    animation: floatAndFadeOut 1s forwards; /* Animation wird angewendet */
+    animation: floatAndFadeOut 1.5s forwards;
 }
 

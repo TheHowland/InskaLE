@@ -1,7 +1,7 @@
 // ####################################################################################################################
 // #################################### Key function for simplifier circuits  #########################################
 // ####################################################################################################################
-function display_step(stepObject) {
+function nextSimplifierStep(stepObject) {
     console.log(stepObject);
     state.pictureCounter++;  // increment before usage in the below functions
 
@@ -10,7 +10,8 @@ function display_step(stepObject) {
     const {circuitContainer, svgContainer} = setupCircuitContainer(stepObject);
 
     const {newCalcBtn, newVCBtn} = setupExplanationButtons();
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
+    let electricalElements = getElementsFromSvgContainer(svgContainer);
+    electricalElements = removeSourceFromElements(electricalElements);
     const nextElementsContainer = setupNextElementsContainer(electricalElements);
     const contentCol = document.getElementById("content-col");
     contentCol.append(circuitContainer);
@@ -34,6 +35,12 @@ function display_step(stepObject) {
 // ####################################################################################################################
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
+
+function removeSourceFromElements(electricalElements) {
+    let withOutSource = [];
+    withOutSource = electricalElements.filter(element => !element.getAttribute('id').startsWith("V"));
+    return withOutSource;
+}
 
 function MJtoText(mjStr) {
     if (mjStr === undefined || mjStr === null) return "";
@@ -273,7 +280,10 @@ function fillLabels(svgDiv) {
     for (let label of labels) {
         if (label.nodeName === "path") continue;
         let span = label.querySelector("tspan");
-        if ((state.step0Data.componentTypes !== "RLC") && state.valuesShown.get(svgDiv.id)) {
+        // If RLC circuit or kirchhoff, don't show U/I values
+        if ((state.step0Data.componentTypes !== "RLC")
+            && state.valuesShown.get(svgDiv.id)
+            && (state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff)) {
             // If RLC, show U/I values if values are shown
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
         } else {
@@ -357,7 +367,7 @@ function toggleNameValue(svgDiv, nameValueToggleBtn) {
 function getElementsFromSvgContainer(svgContainer) {
     const pathElements = svgContainer.querySelectorAll('path');
     return Array.from(pathElements).filter(path => (path.getAttribute('class') !== 'na')
-        && (!path.getAttribute('class').includes("arrow")))
+        && (!path.getAttribute('class').includes("arrow")));
 }
 
 function setupBboxRect(bbox, bboxId) {
@@ -469,7 +479,7 @@ function checkAndSimplify(stepObject, contentCol, div) {
         }
         // Remove event listeners from old picture elements
         removeOldEventListeners();
-        display_step(stepObject);
+        nextSimplifierStep(stepObject);
     } else {
         showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
