@@ -1,3 +1,72 @@
+# Verhindert Ausführung von .py-Dateien
 <FilesMatch "\.py$">
     SetHandler default-handler
 </FilesMatch>
+
+# GZIP-Kompression für typische Web-Dateien + Pyodide-Ressourcen
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE text/javascript
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+  AddOutputFilterByType DEFLATE font/woff2
+  AddOutputFilterByType DEFLATE application/octet-stream
+  AddOutputFilterByType DEFLATE application/zip
+  AddOutputFilterByType DEFLATE application/gzip
+
+  <FilesMatch "\.(js|css|html|json|xml|svg|whl|zip|tar\.gz|woff2)$">
+    SetOutputFilter DEFLATE
+  </FilesMatch>
+</IfModule>
+
+# Brotli-Kompression (wenn auf dem Server verfügbar)
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html
+  AddOutputFilterByType BROTLI_COMPRESS text/css
+  AddOutputFilterByType BROTLI_COMPRESS text/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/json
+  AddOutputFilterByType BROTLI_COMPRESS application/xml
+  AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+  AddOutputFilterByType BROTLI_COMPRESS font/woff2
+  AddOutputFilterByType BROTLI_COMPRESS application/octet-stream
+  AddOutputFilterByType BROTLI_COMPRESS application/zip
+  AddOutputFilterByType BROTLI_COMPRESS application/gzip
+
+  <FilesMatch "\.(js|css|html|json|xml|svg|whl|zip|tar\.gz|woff2)$">
+    SetOutputFilter BROTLI_COMPRESS
+  </FilesMatch>
+</IfModule>
+
+# Cache-Control für alle wichtigen Dateitypen – Gültigkeit: 1 Stunde
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # HTML
+  ExpiresByType text/html "access plus 1 hour"
+
+  # JavaScript
+  ExpiresByType application/javascript "access plus 1 hour"
+  ExpiresByType application/x-javascript "access plus 1 hour"
+  ExpiresByType text/javascript "access plus 1 hour"
+
+  # CSS
+  ExpiresByType text/css "access plus 1 hour"
+
+  # JSON / XML / SVG
+  ExpiresByType application/json "access plus 1 hour"
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType image/svg+xml "access plus 1 hour"
+
+  # Fonts
+  ExpiresByType font/woff2 "access plus 1 hour"
+
+  # Pyodide & Binary Packages
+  ExpiresByType application/octet-stream "access plus 1 hour"
+  ExpiresByType application/zip "access plus 1 hour"
+  ExpiresByType application/gzip "access plus 1 hour"
+</IfModule>
