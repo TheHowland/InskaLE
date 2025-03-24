@@ -307,7 +307,7 @@ class SelectorBuilder {
             } else {
                 document.title = "Simplifier";
                 pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
-                startSimplifier();
+                startSolving();
             }
         }
 
