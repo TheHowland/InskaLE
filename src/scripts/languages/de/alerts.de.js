@@ -19,4 +19,6 @@ window.alertsDeTexts = {
         "Fehler beim Initialisieren der Schaltung",
     alertWrongAnswer:
         "Falsche Antwort",
+    alertGameOver:
+        "Keine Leben mehr",
 }

@@ -83,6 +83,31 @@ function showWrongSelection(checkBoxId) {
         checkBox.style.backgroundColor = colors.wrongEquationColor;
         checkBox.style.borderColor = colors.wrongEquationColor;
         checkBox.disabled = true;
+
+        let lives = document.getElementById("lives");
+        if (lives.innerHTML === "3") {
+            lives.innerHTML = "2";
+        } else if (lives.innerHTML === "2") {
+            lives.innerHTML = "1";
+        } else if (lives.innerHTML === "1") {
+            lives.innerHTML = "0";
+
+            let contentCol = document.getElementById("content-col");
+            let svgDiv = document.getElementById("svgDiv2");
+            let rect = svgDiv.getBoundingClientRect();
+            let y = rect.y + window.scrollY + 200;
+            setTimeout(() => {
+                showMessage(contentCol, languageManager.currentLang.alertGameOver, "danger", false, y);
+            }, 0);
+            document.getElementById("check-btn").classList.add("disabled");
+            let cb1 = document.getElementById("option0");
+            let cb2 = document.getElementById("option1");
+            let cb3 = document.getElementById("option2");
+            for (let cb of [cb1, cb2, cb3]) {
+                if (cb !== null) cb.disabled = true;
+            }
+        }
+
     }, 250);
 }
 

@@ -19,4 +19,6 @@ window.alertsEnTexts = {
         "Selection contains more than one node",
     alertWrongAnswer:
         "Wrong answer",
+    alertGameOver:
+        "No lives left",
 }
