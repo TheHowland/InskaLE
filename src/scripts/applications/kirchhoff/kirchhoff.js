@@ -47,6 +47,13 @@ function startKirchhoffCurrent() {
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
 
+function showEquations(contentCol) {
+    let equationsContainer = document.getElementById("equations-container");
+    equationsContainer.innerHTML = "";
+    let equations = createEquationsOverviewContainer();
+    contentCol.append(equations);
+}
+
 function checkVoltageLoop() {
     let contentCol = document.getElementById("content-col");
     let svgDiv = document.getElementById("svgDiv1");
@@ -83,6 +90,7 @@ function checkVoltageLoop() {
 
     if (allElementsGrayedOut(svgDiv)) {
         if (state.kirchhoffSolver.foundAllEquations()) {
+            showEquations(contentCol);
             finishKirchhoff(contentCol);
         } else {
             // If not all equations are found, start junction node selection
