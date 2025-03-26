@@ -348,7 +348,7 @@ function toggleNameValue(svgDiv, nameValueToggleBtn) {
     let containsZ = divContainsZLabels(svgDiv);
     if (containsZ) {
         let rect = svgDiv.getBoundingClientRect();
-        let y = rect.y + window.scrollY + 20;
+        let y = rect.y + window.scrollY + 200;
         showMessage(document.getElementById("content-col"), languageManager.currentLang.alertNotToggleable, "info", false, y);
         return;
     }

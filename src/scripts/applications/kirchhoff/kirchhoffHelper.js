@@ -80,22 +80,19 @@ function showWrongSelection(checkBoxId) {
     setTimeout(() => {
         let nextElementList = document.querySelector('#nextElementsContainer ul');
         let checkBox = nextElementList.querySelector(`#${checkBoxId}`);
-        // TODO add color to color definitions
-        checkBox.style.backgroundColor = "red";
-        checkBox.style.borderColor = "red";
+        checkBox.style.backgroundColor = colors.wrongEquationColor;
+        checkBox.style.borderColor = colors.wrongEquationColor;
         checkBox.disabled = true;
     }, 250);
 }
 
-async function showCorrectSelection(checkBoxId, svgDiv) {
-    let contentCol = document.getElementById("content-col");
-    let nextElementsContainer = document.getElementById("nextElementsContainer");
+async function showCorrectSelection(checkBoxId) {
     let nextElementList = document.querySelector('#nextElementsContainer ul');
     let checkBox = nextElementList.querySelector(`#${checkBoxId}`);
     let label = document.querySelector(`label[for=${checkBoxId}]`);
     setTimeout(() => {
-        checkBox.style.backgroundColor = "green";
-        checkBox.style.borderColor = "green";
+        checkBox.style.backgroundColor = colors.correctEquationColor;
+        checkBox.style.borderColor = colors.correctEquationColor;
     }, 250);
     await new Promise(resolve => setTimeout(resolve, 250)); // Wait for animation to start
     label.classList.add("fade-out");
@@ -115,7 +112,7 @@ async function waitForCorrectSelection(svgDiv) {
         const {checkBoxId, isCorrectEq} = await waitForCheckboxSelection();
 
         if (isCorrectEq) {
-            await showCorrectSelection(checkBoxId, svgDiv);
+            await showCorrectSelection(checkBoxId);
             updateEquationsAndReset(svgDiv);
             document.getElementById("check-btn").classList.remove("disabled");
             break;

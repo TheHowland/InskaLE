@@ -55,7 +55,7 @@ function checkVoltageLoop() {
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
         let rect = svgDiv.getBoundingClientRect();
-        let y = rect.y + window.scrollY + 20;
+        let y = rect.y + window.scrollY + 200;
         setTimeout(() => {
             showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements, "warning",false, y);
         }, 0);
@@ -101,7 +101,7 @@ async function checkJunctionLaw() {
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
         let rect = svgDiv.getBoundingClientRect();
-        let y = rect.y + window.scrollY + 20;
+        let y = rect.y + window.scrollY + 200;
         setTimeout(() => {
             showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements, "warning", false, y);
         }, 0);
