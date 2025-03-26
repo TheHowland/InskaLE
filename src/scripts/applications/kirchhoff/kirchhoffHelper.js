@@ -1,61 +1,3 @@
-// ####################################################################################################################
-// #################################### Key function for kirchhoff circuits ###########################################
-// ####################################################################################################################
-async function startKirchhoff() {
-    await clearSolutionsDir();
-    state.pictureCounter++;
-    initSolverObjects();
-
-    let obj = await state.stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});
-    obj.__proto__ = Step0Object.prototype;
-    state.step0Data = obj;
-    state.currentStep = 0;
-    // TODO remove unnecessary values
-    state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltageVal());
-    state.allValuesMap.set(`I${languageManager.currentLang.totalSuffix}`, getSourceCurrentVal());
-
-    appendKirchhoffValuesToAllValuesMap();  // Before setupKirchhoffStep because values are needed for labels
-    const {circuitContainer, svgContainer} = setupKirchhoffStep();
-    const contentCol = document.getElementById("content-col");
-    let voltHeading = createVoltHeading();
-    let equationsContainer = createEquationsContainer();
-    contentCol.appendChild(voltHeading);
-    contentCol.append(circuitContainer);
-    contentCol.append(equationsContainer);
-
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
-    addVoltageSourceToElements(svgContainer, electricalElements);
-
-    const nextElementsContainer = setupNextElementsVoltageLawContainer();
-    makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements);
-    prepareNextElementsContainer(contentCol, nextElementsContainer);
-    MathJax.typeset();
-}
-
-function startKirchhoffCurrent() {
-    state.pictureCounter++;
-    const {circuitContainer, svgContainer} = setupKirchhoffStep();
-    const contentCol = document.getElementById("content-col");
-    let currentHeading = createCurrentHeading();
-    contentCol.append(currentHeading);
-    contentCol.append(circuitContainer);
-
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
-    const nextElementsContainer = setupNextElementsCurrentLawContainer();
-    makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements);
-    prepareNextElementsContainer(contentCol, nextElementsContainer);
-
-    let equations = createEquationsOverviewContainer();
-    contentCol.append(equations);
-    MathJax.typeset();
-    // TODO Remove event listeners from voltage law ?
-}
-
-// ####################################################################################################################
-// ############################################# Helper functions #####################################################
-// ####################################################################################################################
-
-// ############################################# Voltage Rule #########################################################
 function setupNextElementsVoltageLawContainer() {
     const nextElementsContainer = document.createElement('div');
     nextElementsContainer.className = 'next-elements-container';
@@ -80,46 +22,6 @@ function setupNextElementsVoltageLawContainer() {
     return nextElementsContainer;
 }
 
-function checkVoltageLoop() {
-    let contentCol = document.getElementById("content-col");
-    let svgDiv = document.getElementById("svgDiv1");
-    let direction;
-
-    if (state.selectedElements.length <= 1) {
-        // Timeout so that the message is shown after the click event
-        setTimeout(() => {
-            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
-        }, 0);
-        return;
-    }
-
-    direction = getLoopDirection(svgDiv);
-
-    // TODO define direction
-    let [errorCode, eq] = state.kirchhoffSolver.checkVoltageLoopRule(state.selectedElements).toJs();
-    if (errorCode) {
-        handleError(errorCode, svgDiv);
-        return;
-    }
-
-    state.voltEquations.push(eq);
-    let equationContainer = document.getElementById("equations-container");
-    equationContainer.innerHTML = "";
-    equationContainer.appendChild(getEquationsTable(state.voltEquations));
-
-    let nextElementsContainer = document.getElementById("nextElementsContainer");
-    nextElementsContainer.querySelector("#reset-btn").classList.remove("disabled");
-
-    grayOutSelectedElements(svgDiv);
-    resetNextElements(svgDiv, nextElementsContainer);
-
-    if (allElementsGrayedOut(svgDiv)) {
-        startKirchhoffCurrent();
-    }
-    MathJax.typeset();
-}
-
-// ############################################# Junction Rule ########################################################
 function setupNextElementsCurrentLawContainer() {
     const nextElementsContainer = document.createElement('div');
     nextElementsContainer.className = 'next-elements-container';
@@ -144,37 +46,20 @@ function setupNextElementsCurrentLawContainer() {
     return nextElementsContainer;
 }
 
-async function checkJunctionLaw() {
-    let contentCol = document.getElementById("content-col");
-    let svgDiv = document.getElementById("svgDiv2");
-    let checkBtn = document.getElementById("check-btn");
-    checkBtn.classList.add("disabled");
+async function solveFirstStep() {
+    let obj = await state.stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});
+    obj.__proto__ = Step0Object.prototype;
+    state.step0Data = obj;
+    state.currentStep = 0;
+}
 
-    if (state.selectedElements.length <= 1) {
-        // Timeout so that the message is shown after the click event
-        setTimeout(() => {
-            showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
-        }, 0);
-        checkBtn.classList.remove("disabled");
-        return;
-    }
-    let nextElementsContainer = document.getElementById("nextElementsContainer");
-    nextElementsContainer.querySelector("#reset-btn").classList.remove("disabled");
-
-    let [errorCode, eqs] = state.kirchhoffSolver.checkJunctionRule(state.selectedElements).toJs();
-    if (errorCode) {
-        handleError(errorCode, svgDiv);
-        checkBtn.classList.remove("disabled");
-        return;
-    }
-
-    // Multiple choice for different junction law equations
-    let nextElementList = nextElementsContainer.querySelector('ul');
-    nextElementList.innerHTML = 'Wähle die korrekte Gleichung aus';
+function generateMultipleChoiceEquations(eqs) {
+    let nextElementList = document.querySelector('#nextElementsContainer ul');
+    nextElementList.innerHTML = languageManager.currentLang.chooseCorrectEquation;
 
     eqs = eqs.map((eq, index) => ({
         equation: eq,
-        isCorrect: index === 0 // always the correct one at position 0
+        isCorrect: index === 0 // always the correct equation at position 0
     }));
 
     shuffleArray(eqs);
@@ -189,65 +74,56 @@ async function checkJunctionLaw() {
         nextElementList.appendChild(choice);
     }
     MathJax.typeset();
-
-    for (let i = 0; i < 1000; i++) {
-        const {id, value} = await waitForCheckboxSelection(); // wait for user input
-        let eq = "";
-
-        if (value === "0") {
-            // wrong answer
-            let rect = svgDiv.getBoundingClientRect();
-            let y = rect.y + window.scrollY + 20;
-            setTimeout(() => {
-                setTimeout(() => {
-                    showMessage(contentCol, languageManager.currentLang.alertWrongAnswer,"warning", false, y);
-                }, 0);
-                let checkBox = nextElementList.querySelector(`#${id}`);
-                checkBox.style.backgroundColor = "red";
-                checkBox.style.borderColor = "red";
-                checkBox.disabled = true;
-
-            }, 250);
-        } else {
-            // right answer
-            let checkBox = nextElementList.querySelector(`#${id}`);
-            setTimeout(() => {
-                checkBox.style.backgroundColor = "green";
-                checkBox.style.borderColor = "green";
-            }, 250);
-            setTimeout(() => {
-                let label = document.querySelector(`label[for=${id}]`);
-                label.classList.add("fade-out");
-            }, 250);
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            eq = eqs.find(e => e.isCorrect).equation;
-            checkBtn.classList.remove("disabled");
-
-            let equationContainer = document.getElementById("equations-overview-container");
-            equationContainer.innerHTML = languageManager.currentLang.missingEquations;
-            equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
-
-            resetNextElements(svgDiv, nextElementsContainer);
-
-            if (state.kirchhoffSolver.foundAllEquations()) {
-                equationContainer.innerHTML = "";
-                equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
-                confetti({
-                    particleCount: 150,
-                    angle: 90,
-                    spread: 60,
-                    scalar: 0.8,
-                    origin: {x: 0.5, y: 1}
-                });
-                document.getElementById("nextElementsContainer").remove();
-            }
-            break;
-        }
-    }
-    MathJax.typeset();
 }
 
-// ####################################################################################################################
+function showWrongSelection(checkBoxId) {
+    setTimeout(() => {
+        let nextElementList = document.querySelector('#nextElementsContainer ul');
+        let checkBox = nextElementList.querySelector(`#${checkBoxId}`);
+        // TODO add color to color definitions
+        checkBox.style.backgroundColor = "red";
+        checkBox.style.borderColor = "red";
+        checkBox.disabled = true;
+    }, 250);
+}
+
+async function showCorrectSelection(checkBoxId, svgDiv) {
+    let contentCol = document.getElementById("content-col");
+    let nextElementsContainer = document.getElementById("nextElementsContainer");
+    let nextElementList = document.querySelector('#nextElementsContainer ul');
+    let checkBox = nextElementList.querySelector(`#${checkBoxId}`);
+    let label = document.querySelector(`label[for=${checkBoxId}]`);
+    setTimeout(() => {
+        checkBox.style.backgroundColor = "green";
+        checkBox.style.borderColor = "green";
+    }, 250);
+    await new Promise(resolve => setTimeout(resolve, 250)); // Wait for animation to start
+    label.classList.add("fade-out");
+    await new Promise(resolve => setTimeout(resolve, 750)); // Wait for animation to fade out
+}
+
+function updateEquationsAndReset(svgDiv) {
+    let nextElementsContainer = document.getElementById("nextElementsContainer");
+    let equationContainer = document.getElementById("equations-overview-container");
+    equationContainer.innerHTML = languageManager.currentLang.missingEquations;
+    equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
+    resetNextElements(svgDiv, nextElementsContainer);
+}
+
+async function waitForCorrectSelection(svgDiv) {
+    for (let i = 0; i < 10; i++) {
+        const {checkBoxId, isCorrectEq} = await waitForCheckboxSelection();
+
+        if (isCorrectEq) {
+            await showCorrectSelection(checkBoxId, svgDiv);
+            updateEquationsAndReset(svgDiv);
+            document.getElementById("check-btn").classList.remove("disabled");
+            break;
+        } else {
+            showWrongSelection(checkBoxId);
+        }
+    }
+}
 
 function waitForCheckboxSelection() {
     let nextElementsContainer = document.getElementById("nextElementsContainer");
@@ -257,7 +133,7 @@ function waitForCheckboxSelection() {
             if (event.target.classList.contains('form-check-input')) {
                 const selectedValue = event.target.value;
                 const selectedId = event.target.id;
-                resolve({id: selectedId, value: selectedValue});
+                resolve({checkBoxId: selectedId, isCorrectEq: selectedValue === "1"});
                 nextElementList.removeEventListener('change', handler);
             }
         });
@@ -277,10 +153,10 @@ function shuffleArray(array) {
     }
 }
 
-function handleError(errorCode, svgDiv) {
+function handleVoltageError(errorCode, svgDiv) {
     let contentCol = document.getElementById("content-col");
     let rect = svgDiv.getBoundingClientRect();
-    let y = rect.y + window.scrollY + 20;
+    let y = rect.y + window.scrollY + 200;
     if (errorCode === 1) {
         // Equation already exists
         setTimeout(() => {
@@ -290,6 +166,25 @@ function handleError(errorCode, svgDiv) {
         // Invalid selection
         setTimeout(() => {
             showMessage(contentCol, languageManager.currentLang.alertInvalidVoltageLoop, "warning", false, y);
+        }, 0);
+    } else if (errorCode === 3) {
+        // Only for junction law
+    }
+}
+
+function handleJunctionError(errorCode, svgDiv) {
+    let contentCol = document.getElementById("content-col");
+    let rect = svgDiv.getBoundingClientRect();
+    let y = rect.y + window.scrollY + 200;
+    if (errorCode === 1) {
+        // Equation already exists
+        setTimeout(() => {
+            showMessage(contentCol, languageManager.currentLang.alertJunctionAlreadyExists, "warning", false, y);
+        }, 0);
+    } else if (errorCode === 2) {
+        // Invalid selection
+        setTimeout(() => {
+            showMessage(contentCol, languageManager.currentLang.alertInvalidJunction, "warning", false, y);
         }, 0);
     } else if (errorCode === 3) {
         // Only for junction law, if more than 2 elements in series are chosen we can't generate
@@ -321,9 +216,9 @@ function initSolverObjects() {
 function getLoopDirection(svgDiv) {
     let direction;
     if (svgDiv.querySelector("#loop-dir-btn").innerText === kirchhoffLoopDirectionSymbol.clockwise) {
-        direction = "clockwise";
+        direction = 1; //clockwise
     } else {
-        direction = "counterclockwise";
+        direction = 0; //counterclockwise
     }
     return direction;
 }
@@ -376,7 +271,8 @@ function appendKirchhoffValuesToAllValuesMap() {
     for (let component of state.step0Data.allComponents) {
         addKirchhoffComponentValues(component);
     }
-    state.allValuesMap.set(`volt_V1`, `${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`);
+    // TODO sources list []
+    state.allValuesMap.set("volt_" + state.step0Data.source.sources.Z.name, state.step0Data.source.sources.U.name);
 }
 
 function addKirchhoffComponentValues(component) {
@@ -388,15 +284,12 @@ function addKirchhoffComponentValues(component) {
         }
         state.allValuesMap.set(`volt_${component.Z.name}`, component.U.name);
         state.allValuesMap.set(`curr_${component.Z.name}`, component.I.name);
-        state.allValuesMap.set(component.U.name, component.U.val);
-        state.allValuesMap.set(component.I.name, component.I.val);
     }
 }
 
 function makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements) {
     const nextElementsList = nextElementsContainer.querySelector(`#next-elements-list`);
     electricalElements.forEach(element => setKirchhoffStyleAndEvent(element, nextElementsList));
-
 }
 
 function setKirchhoffStyleAndEvent(element, nextElementsList) {
@@ -427,12 +320,16 @@ function chooseKirchhoffElement(element, nextElementsList) {
 
 function addKirchhoffVoltageTextToBox(element, bboxId, nextElementsList) {
     let id = element.getAttribute('id') || 'no id';
+    // If id starts with V, remove stuff after _
+    if (id.startsWith("V")) {
+        id = id.split("_")[0];
+    }
     let index = `volt_${id}`;
     let listItem = document.createElement('li');
     listItem.innerHTML = `\\(${state.allValuesMap.get(index)}\\)`;
     listItem.setAttribute('data-bbox-id', bboxId);
     nextElementsList.appendChild(listItem);
-    state.selectedElements.push(element.getAttribute('id') || 'no id');
+    state.selectedElements.push(id);
 }
 
 function addKirchhoffCurrentTextToBox(element, bboxId, nextElementsList) {
@@ -467,15 +364,13 @@ function getEquationsTable(equations) {
 
 function resetKirchhoffPage() {
     clearSimplifierPageContent();
-    //resetSolverObject();
-    //resetKirchhoffSolverObject();
     state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
     state.voltEquations = [];
     scrollBodyToTop();
-    startKirchhoff();
+    startKirchhoff();  // Draw the first picture again
 }
 
 function allElementsGrayedOut(svgDiv) {
@@ -486,7 +381,7 @@ function allElementsGrayedOut(svgDiv) {
             return false;
         }
     }
-    let source = svgDiv.querySelector("#V1");
+    let source = svgDiv.querySelector("#V1_Circle");  // Check Circle is enough
     if (source.style.opacity !== "0.5") {
         return false;
     }
@@ -496,6 +391,18 @@ function allElementsGrayedOut(svgDiv) {
 function grayOutSelectedElements(svgDiv) {
     let selectedElements = state.selectedElements;
     for (let elementId of selectedElements) {
+        // Gray out all source elements
+        if (elementId.startsWith("V")) {
+            let sourceElements = ["Circle", "line", "sourceLne", "minusSign", "plusSign1", "plusSign2"];
+            for (let sourceElement of sourceElements) {
+                let element = svgDiv.querySelector(`#${elementId}_${sourceElement}`);
+                if (element === null || element === undefined) {
+                } else {
+                    element.style.opacity = "0.5";
+                }
+            }
+            continue;
+        }
         let element = svgDiv.querySelector(`#${elementId}`);
         element.style.opacity = "0.5";
         let elementLabel = svgDiv.querySelector(`.element-label.${elementId}`);
@@ -546,11 +453,6 @@ function setupKirchhoffSVGandData(stepObject) {
         hideVoltageArrows(svgDiv);
         hideItotArrow(svgDiv);
     }
-
-    // TODO Remove this when the svg data is fixed
-    let source = svgDiv.querySelector("circle");
-    source.classList.add("10V")
-    source.id = "V1";
 
     // SVG Data written, now add eventListeners, only afterward because they would be removed on rewrite of svgData
     addKirchhoffInfoHelpButton(svgDiv);
