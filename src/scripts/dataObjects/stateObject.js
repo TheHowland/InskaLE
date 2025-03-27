@@ -23,7 +23,8 @@ class StateObject {
     // Solver object
     kirchhoffSolver = null;
     stepSolve = null;
-
+    voltEquations = [];
+    gamification = false;
 
     //Boolean to track if the Pyodide environment is ready.
     pyodide = null;
@@ -39,5 +40,4 @@ class StateObject {
     // Toggle variables
     valuesShown = new Map();
 
-    voltEquations = [];
 }

@@ -6,51 +6,67 @@
     <link rel="icon" type="image/svg" href="src/resources/navigation/icon.svg"/>
     <title>simpliPFy</title>
     <link rel="canonical" href="https://simplipfy.org" />
-
-    <!-- JS Scripts Import -->
-    <script src="src/scripts/extern/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
-
-    <script src="src/scripts/languages/lang.en.js"></script>
-    <script src="src/scripts/languages/lang.de.js"></script>
+    <!----------------------- Language Files ------------------------>
+    <!------------------------- German ------------------------------>
+    <script src="src/scripts/languages/de/alerts.de.js"></script>
+    <script src="src/scripts/languages/de/cheatsheet.de.js"></script>
+    <script src="src/scripts/languages/de/dataLegalAbout.de.js"></script>
+    <script src="src/scripts/languages/de/kirchhoff.de.js"></script>
+    <script src="src/scripts/languages/de/landing.de.js"></script>
+    <script src="src/scripts/languages/de/selector.de.js"></script>
+    <script src="src/scripts/languages/de/simplifier.de.js"></script>
+    <script src="src/scripts/languages/de/lang.de.js"></script>
+    <!------------------------- English ------------------------------>
+    <script src="src/scripts/languages/en/alerts.en.js"></script>
+    <script src="src/scripts/languages/en/cheatsheet.en.js"></script>
+    <script src="src/scripts/languages/en/dataLegalAbout.en.js"></script>
+    <script src="src/scripts/languages/en/kirchhoff.en.js"></script>
+    <script src="src/scripts/languages/en/landing.en.js"></script>
+    <script src="src/scripts/languages/en/selector.en.js"></script>
+    <script src="src/scripts/languages/en/simplifier.en.js"></script>
+    <script src="src/scripts/languages/en/lang.en.js"></script>
+    <!----------------------- Language Manager ----------------------->
     <script src="src/scripts/languages/languageManager.js"></script>
-
+    <!----------------------- Objects -------------------------------->
+    <script src="src/scripts/dataObjects/stateObject.js"></script>
+    <script src="src/scripts/dataObjects/stepObject.js"></script>
+    <!----------------------- Utils ---------------------------------->
     <script src="src/scripts/utils/circuitMapper.js"></script>
     <script src="src/scripts/utils/configurations.js"></script>
     <script src="src/scripts/utils/packageManager.js"></script>
     <script src="src/scripts/utils/matomoHelper.js"></script>
     <script src="src/scripts/utils/loadFonts.js"></script>
-    <script src="src/scripts/utils/romanNumbersMap.js"></script>
-
+    <script src="src/scripts/utils/darkModeFunctions.js"></script>
+    <script src="src/scripts/utils/selectorBuilder.js"></script>
+    <script src="src/scripts/utils/pageManager.js"></script>
+    <!----------------------- Definitions ---------------------------->
+    <script src="src/scripts/definitions/romanNumbersMap.js"></script>
     <script src="src/scripts/definitions/toggleSymbolDefinition.js"></script>
     <script src="src/scripts/definitions/kirchhoffLoopDirectionSymbol.js"></script>
     <script src="src/scripts/definitions/allowedCircuitDirectories.js"></script>
     <script src="src/scripts/definitions/colorDefinitions.js"></script>
-
-    <script src="src/scripts/dataObjects/stateObject.js"></script>
-    <script src="src/scripts/dataObjects/stepObject.js"></script>
-
-    <script src="src/scripts/visualisation/emojis.js"></script>
-    <script src="src/scripts/visualisation/darkModeFunctions.js"></script>
-    <script src="src/scripts/visualisation/selectorBuilder.js"></script>
-    <script src="src/scripts/visualisation/pageManager.js"></script>
-    <script src="src/scripts/visualisation/kirchhoff/kirchhoff.js"></script>
-    <script src="src/scripts/visualisation/simplifier/explanationTexts.js"></script>
-    <script src="src/scripts/visualisation/simplifier/helperFunctions.js"></script>
-    <script src="src/scripts/visualisation/simplifier/simplifier.js"></script>
+    <script src="src/scripts/definitions/emojis.js"></script>
+    <!----------------------- Applications -------------------------------->
+    <!----------------------- Kirchhoff ---------------------------------->
+    <script src="src/scripts/applications/kirchhoff/kirchhoff.js"></script>
+    <script src="src/scripts/applications/kirchhoff/kirchhoffHelper.js"></script>
+    <!----------------------- Simplifier ---------------------------------->
+    <script src="src/scripts/applications/simplifier/explanationTexts.js"></script>
+    <script src="src/scripts/applications/simplifier/simplifierHelper.js"></script>
+    <script src="src/scripts/applications/simplifier/simplifier.js"></script>
+    <!----------------------- Common -------------------------------------->
+    <script src="src/scripts/applications/common/helpers.js"></script>
+    <script src="src/scripts/applications/common/svgManipulation.js"></script>
 
     <script src="src/scripts/main.js"></script>
 
-    <!--Pyodide Import -->
+    <!-- CSS Styles Import, Pyodide, Matomo, Extern -->
     <script src="pyodide.js"></script>
-
     <link rel="stylesheet" href="src/styles/allStyles.css">
     <link rel="stylesheet" href="src/styles/bootstrap.min.css">
-
     <script src="src/scripts/extern/confetti.browser.min.js"></script>
-
-    <!-- Matomo -->
+    <script src="src/scripts/extern/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
     <script>loadMatomo()</script>
-    <!-- End Matomo Code -->
 </head>
 
 <body id="bootstrap-overrides" class="bg-dark">
@@ -104,6 +120,24 @@
                 </div>
                 <div class="modal-footer justify-content-center" id="kirchI-info-gif-footer">
                     <button id="kirchI-info-gif-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Out of lives modal, needs to be on top level (child of body) for display purposes -->
+    <div class="modal modal-sm fade" id="gameOverModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center" id="game-over-header">
+                    <h5 class="modal-title" id="game-over-title"></h5>
+                </div>
+                <div class="modal-body" id="game-over-body">
+                    <p id="game-over-text" class="text-center"></p>
+                    <img style="transform: rotate(-4deg) translate(-5px, 0px) scale(0.8)" class="img-fluid rounded mx-auto d-block" src="./src/resources/mascot/sad.svg" alt="mascot_sad">
+                </div>
+                <div class="modal-footer justify-content-center" id="game-over-footer">
+                    <button id="game-over-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schlie&szligen</button>
                 </div>
             </div>
         </div>
