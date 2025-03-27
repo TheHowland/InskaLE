@@ -118,6 +118,9 @@ class PageManager {
             this.showSelectPage();
         } else {
             try{
+                let loadingProcess = "loadingProcess"
+                console.time(loadingProcess);
+
                 this.showSelectPage();
                 setPgrBarTo(0);
                 const note = showWaitingNote();
@@ -157,6 +160,8 @@ class PageManager {
                 note.innerHTML = "";
 
                 pageManager.setupSelectPage();
+
+                console.timeEnd(loadingProcess);
             }
             catch (error){
                 console.error(error)
