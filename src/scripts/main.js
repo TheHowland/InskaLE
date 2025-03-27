@@ -38,7 +38,6 @@ async function main() {
     // Selector page is set up when start button is clicked
 
     setupDarkModeSwitch();
-    setupGameModeSwitch();
     enableStartBtnAndSimplifierLink();
     setBodyPaddingForFixedTopNavbar();
     scrollBodyToTop();

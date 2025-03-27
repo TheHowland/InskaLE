@@ -8,8 +8,6 @@ class ColorDefinitions {
     bootstrapWhite = "#f8f9fa";
     languagesDarkBg = "#33393f";
     languagesLightBg = "#efefef";
-    correctEquationColor = "green";
-    wrongEquationColor = "red";
 
 
     currentForeground = this.keyLight;
