@@ -2,8 +2,6 @@
 // #################################### Key function for kirchhoff circuits ###########################################
 // ####################################################################################################################
 async function startKirchhoff() {
-    state.gamification = true;
-
     // Add heart
     if (state.gamification) {
         addLivesField();

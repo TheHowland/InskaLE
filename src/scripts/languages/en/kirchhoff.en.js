@@ -19,5 +19,9 @@ window.kirchhoffEnTexts = {
     gameOverHeading:
         "You have no lives left!",
     gameOverText:
-        "Oh no, try again",
+        "You have already used your extra life, try again",
+    extraLiveText:
+        "Oh no, try again or solve the task correctly to get an extra life",
+    extraLiveQuestion:
+        "Whats the meaning of life?",
 }

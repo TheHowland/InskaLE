@@ -25,6 +25,7 @@ class StateObject {
     stepSolve = null;
     voltEquations = [];
     gamification = false;
+    extraLiveUsed = false;
 
     //Boolean to track if the Pyodide environment is ready.
     pyodide = null;

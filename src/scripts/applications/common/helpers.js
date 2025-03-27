@@ -223,6 +223,8 @@ function checkIfSimplifierPageNeedsReset() {
         resetSimplifierPage();
         if (state.gamification) {
             removeLivesAndShowLogo();
+            state.extraLiveUsed = false;
+            resetExtraLiveModal();
         }
         let msg = document.getElementById("alert-msg");
         if (msg !== null) {

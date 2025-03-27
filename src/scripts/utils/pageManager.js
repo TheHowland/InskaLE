@@ -7,6 +7,7 @@ class PageManager {
         this.aboutPage = document.getElementById("about-page-container");
         this.languageSelect = document.getElementById("Dropdown");
         this.darkModeSwitch = document.getElementById("darkmode-switch");
+        this.gameModeSwitch = document.getElementById("game-switch");
         this.activeLangFlag = document.getElementById("activeLanguageFlag");
         this.pages = [this.landingPage, this.selectPage, this.simplifierPage, this.cheatSheet, this.aboutPage]
     }
@@ -82,12 +83,14 @@ class PageManager {
     disableSettings() {
         this.languageSelect.disabled = true;
         this.darkModeSwitch.disabled = true;
+        this.gameModeSwitch.disabled = true;
         this.activeLangFlag.style.filter = "brightness(0.5)";
     }
 
     enableSettings() {
         this.languageSelect.disabled = false;
         this.darkModeSwitch.disabled = false;
+        this.gameModeSwitch.disabled = false;
         this.activeLangFlag.style.filter = "brightness(1)";
     }
 

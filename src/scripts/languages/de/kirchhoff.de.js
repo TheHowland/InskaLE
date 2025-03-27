@@ -19,6 +19,9 @@ window.kirchhoffDeTexts = {
     gameOverHeading:
         "Du hast keine Leben mehr!",
     gameOverText:
-        "Oh nein, probiere es noch einmal",
-
+        "Du hast dein Extra-Leben bereits verbraucht, probiere es noch einmal",
+    extraLiveText:
+        "Oh nein, probiere es noch einmal oder l&oumlse die Aufgabe richtig um ein Leben zu erhalten",
+    extraLiveQuestion:
+        "Was ist der Sinn des Lebens?",
 }

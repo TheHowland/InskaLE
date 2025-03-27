@@ -90,7 +90,6 @@ function subtract1Live() {
         lives.innerHTML = "0";
         showBrokenHeart();
 
-
         setTimeout(() => {
             let msg = document.getElementById("alert-msg");
             if (msg !== null) {
@@ -98,14 +97,18 @@ function subtract1Live() {
                 msg.remove();
                 document.removeEventListener("click", removeMsgHandler);
             }
-            let modal = document.getElementById("gameOverModal");
-            let modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
-            modalInstance.show();
-
-            /*showMessage("💔<br>" + languageManager.currentLang.alertGameOver, "danger", false);
-            },
-            0);*/
+            if (state.extraLiveUsed) {
+                let modal = document.getElementById("gameOverModal");
+                let modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+                modalInstance.show();
+            } else {
+                setupModalQuestions();
+                let modal = document.getElementById("extraLiveModal");
+                let modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+                modalInstance.show();
+            }
         },0);
+
         document.getElementById("check-btn").classList.add("disabled");
         let cb1 = document.getElementById("option0");
         let cb2 = document.getElementById("option1");
@@ -118,6 +121,63 @@ function subtract1Live() {
             resetBtn.classList.remove("disabled");
         }
     }
+}
+
+function setupModalQuestions() {
+    let question = document.getElementById("extra-live-question");
+    question.innerHTML = languageManager.currentLang.extraLiveQuestion;
+
+    let eq1 = document.getElementById("saveLive1");
+    let eq2 = document.getElementById("saveLive2");
+    let eq3 = document.getElementById("saveLive3");
+    let eq4 = document.getElementById("saveLive4");
+    for (let eq of [eq1, eq2, eq3, eq4]) {
+        eq.style.margin = "5px";
+        eq.style.padding = "10px";
+        eq.style.border = `1px solid ${colors.currentForeground}`;
+        eq.style.borderRadius = "5px";
+        eq.style.color = colors.currentForeground;
+        if (eq.id === "saveLive1") {
+            eq.innerHTML = "17";
+            eq.value = 0;
+        } else if (eq.id === "saveLive2") {
+            eq.innerHTML = "42";
+            eq.value = 1;
+        } else if (eq.id === "saveLive3") {
+            eq.innerHTML = "Wie viele Straßen muss ein Mensch entlanggehen?"
+            eq.value = 0;
+        } else if (eq.id === "saveLive4") {
+            eq.innerHTML = "Baum";
+            eq.value = 0;
+        }
+        eq.addEventListener("click", () => {
+            if (eq.value === 1) {
+                eq.style.border = `1px solid ${colors.keyYellow}`;
+                eq.style.backgroundColor = colors.keyYellow;
+                eq.style.color = colors.currentBackground;
+                let img = document.getElementById("extra-live-mascot-img");
+                img.src = "./src/resources/mascot/smiling.svg";
+                img.style.transform = "rotate(-6deg)";
+                let lives = document.getElementById("lives");
+                lives.innerHTML = "1";
+                let modal = document.getElementById("extraLiveModal");
+                let modalInstance = bootstrap.Modal.getInstance(modal);
+                setTimeout(() => {
+                    modalInstance.hide();
+                }, 750);
+                let checkBtn = document.getElementById("check-btn");
+                if (checkBtn.classList.contains("disabled")) {
+                    checkBtn.classList.remove("disabled");
+                }
+                state.extraLiveUsed = true;
+            } else {
+                eq.style.border = "1px solid #888";
+                eq.style.color = "#888";
+            }
+        });
+    }
+
+
 }
 
 function showWrongSelection(checkBoxId) {
@@ -140,8 +200,7 @@ function addLivesField() {
         let toggler = document.getElementById("nav-toggler");
         let heartDiv = document.createElement("div");
         heartDiv.id = "heart-container";
-        // TODO Color
-        heartDiv.innerHTML = "<svg id='hearts' xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\" image-rendering=\"optimizeQuality\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" viewBox=\"0 0 512 456.079\"><path fill=\"#FFC107\" d=\"M253.647 83.481c130.392-219.054 509.908 65.493-.512 372.598-514.787-328.94-101.874-598.694.512-372.598z\"/><path fill=\"#F4B34A\" d=\"M344.488 10.579c146.33-39.079 316.839 185.127-65.021 429.133C561.646 215.547 470.393 36.15 344.488 10.579zM121.413.645C170.08-4.2 221.438 18.567 250.749 77.574a201.544 201.544 0 013.537 11.587c10.541 34.29.093 49.643-12.872 50.552-18.137 1.271-20.216-14.851-24.967-27.643C192.689 48.096 158.774 12.621 116.43 1.862c1.653-.434 3.315-.84 4.983-1.217z\"/><path fill=\"#FBE393\" d=\"M130.558 35.501c-42.657-4.246-87.652 23.898-99.173 66.067-7.868 25.593-.07 37.052 9.607 37.73 13.537.949 15.088-11.084 18.635-20.632 17.732-47.748 43.045-74.226 74.65-82.256a107.173 107.173 0 00-3.719-.909z\"/></svg>";
+        heartDiv.innerHTML = `<svg id='hearts' xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\" image-rendering=\"optimizeQuality\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" viewBox=\"0 0 512 456.079\"><path fill=\"${colors.keyYellow}\" d=\"M253.647 83.481c130.392-219.054 509.908 65.493-.512 372.598-514.787-328.94-101.874-598.694.512-372.598z\"/><path fill=\"#F4B34A\" d=\"M344.488 10.579c146.33-39.079 316.839 185.127-65.021 429.133C561.646 215.547 470.393 36.15 344.488 10.579zM121.413.645C170.08-4.2 221.438 18.567 250.749 77.574a201.544 201.544 0 013.537 11.587c10.541 34.29.093 49.643-12.872 50.552-18.137 1.271-20.216-14.851-24.967-27.643C192.689 48.096 158.774 12.621 116.43 1.862c1.653-.434 3.315-.84 4.983-1.217z\"/><path fill=\"#FBE393\" d=\"M130.558 35.501c-42.657-4.246-87.652 23.898-99.173 66.067-7.868 25.593-.07 37.052 9.607 37.73 13.537.949 15.088-11.084 18.635-20.632 17.732-47.748 43.045-74.226 74.65-82.256a107.173 107.173 0 00-3.719-.909z\"/></svg>`;
         let heart = heartDiv.firstChild;
         heart.style.height = "15px";
         let lives = document.createElement("span");
@@ -151,7 +210,6 @@ function addLivesField() {
         lives.style.fontFamily = "Roboto Condensed";
         lives.style.fontSize = "large";
         lives.style.fontWeight = "bold";
-        lives.style.color = "white";
         lives.style.paddingLeft = "5px";
         lives.style.paddingTop = "5px";
         heartDiv.appendChild(lives);
@@ -169,7 +227,7 @@ function showBrokenHeart() {
     overlay.style.top = hearts.getBoundingClientRect().top + "px";
     overlay.style.left = hearts.getBoundingClientRect().left + "px";
     overlay.style.zIndex = "2000";
-    overlay.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\" image-rendering=\"optimizeQuality\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" viewBox=\"0 0 512 446.552\"><path fill=\"#FFC107\" d=\"M274.352 55.023c142.916-160.902 456.84 102.665-4.677 390.935l3.115-65.418 31.764-47.077c2.92-4.337 3.598-10.039 1.291-15.155L258.8 214.786l45.415-56.166c3.296-4.106 4.434-9.784 2.507-15.098l-32.37-88.499zm-35.95 391.529c-481.053-317.395-103.859-575.206 7.958-377.206l27.999 76.552-45.933 56.8c-3.805 4.734-4.398 11.011-2.078 16.201l47.41 104.324-29.303 43.414a15.556 15.556 0 00-2.671 8.917l-3.382 70.998z\"/><path fill=\"#F4B34A\" d=\"M121.349.632c46.356-4.613 95.153 15.818 125.022 68.746l9.84 26.902 17.709 48.533c-34.378 2.414-53.845-26.353-65.657-52.676-23.124-51.495-54.164-80.699-91.898-90.285 1.654-.435 3.316-.841 4.984-1.22zM344.485 10.57c146.37-39.089 316.925 185.178-65.038 429.25C561.702 215.594 470.424 36.148 344.485 10.57z\"/><path fill=\"#FBE393\" d=\"M130.498 35.5c-42.67-4.248-87.676 23.904-99.2 66.084-7.87 25.6-.07 37.062 9.609 37.741 13.541.948 15.093-11.087 18.64-20.638 17.737-47.761 43.057-74.246 74.671-82.279a108.342 108.342 0 00-3.72-.908z\"/></svg>";
+    overlay.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\" image-rendering=\"optimizeQuality\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" viewBox=\"0 0 512 446.552\"><path fill=\"${colors.keyYellow}\" d=\"M274.352 55.023c142.916-160.902 456.84 102.665-4.677 390.935l3.115-65.418 31.764-47.077c2.92-4.337 3.598-10.039 1.291-15.155L258.8 214.786l45.415-56.166c3.296-4.106 4.434-9.784 2.507-15.098l-32.37-88.499zm-35.95 391.529c-481.053-317.395-103.859-575.206 7.958-377.206l27.999 76.552-45.933 56.8c-3.805 4.734-4.398 11.011-2.078 16.201l47.41 104.324-29.303 43.414a15.556 15.556 0 00-2.671 8.917l-3.382 70.998z\"/><path fill=\"#F4B34A\" d=\"M121.349.632c46.356-4.613 95.153 15.818 125.022 68.746l9.84 26.902 17.709 48.533c-34.378 2.414-53.845-26.353-65.657-52.676-23.124-51.495-54.164-80.699-91.898-90.285 1.654-.435 3.316-.841 4.984-1.22zM344.485 10.57c146.37-39.089 316.925 185.178-65.038 429.25C561.702 215.594 470.424 36.148 344.485 10.57z\"/><path fill=\"#FBE393\" d=\"M130.498 35.5c-42.67-4.248-87.676 23.904-99.2 66.084-7.87 25.6-.07 37.062 9.609 37.741 13.541.948 15.093-11.087 18.64-20.638 17.737-47.761 43.057-74.246 74.671-82.279a108.342 108.342 0 00-3.72-.908z\"/></svg>`;
     let svg = overlay.querySelector("svg");
     svg.style.height = "17px";
     // Ease in display of overlay
@@ -483,8 +541,28 @@ function resetKirchhoffPage() {
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
     state.voltEquations = [];
+    state.extraLiveUsed = false;
+    resetExtraLiveModal();
     scrollBodyToTop();
     startKirchhoff();  // Draw the first picture again
+}
+
+function resetExtraLiveModal() {
+    if (state.gamification) {
+        let img = document.getElementById("extra-live-mascot-img");
+        img.src = "./src/resources/mascot/sad.svg";
+        img.style.transform = "rotate(6deg) scale(0.5)";
+        let eq1 = document.getElementById("saveLive1");
+        let eq2 = document.getElementById("saveLive2");
+        let eq3 = document.getElementById("saveLive3");
+        let eq4 = document.getElementById("saveLive4");
+        for (let eq of [eq1, eq2, eq3, eq4]) {
+            eq.style.border = `1px solid ${colors.currentForeground}`;
+            eq.style.backgroundColor = "transparent";
+            eq.style.color = colors.currentForeground;
+            eq.value = 0;
+        }
+    }
 }
 
 function allElementsGrayedOut(svgDiv) {

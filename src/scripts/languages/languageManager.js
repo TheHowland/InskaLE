@@ -64,6 +64,12 @@ class LanguageManager {
         gameOverText.innerHTML = this.currentLang.gameOverText;
         const gameOverCloseBtn = document.getElementById("game-over-close-btn");
         gameOverCloseBtn.innerHTML = this.currentLang.closeBtn;
+        const extraLiveHeading = document.getElementById("extra-live-title");
+        extraLiveHeading.innerHTML = this.currentLang.gameOverHeading;
+        const extraLiveText = document.getElementById("extra-live-text");
+        extraLiveText.innerHTML = this.currentLang.extraLiveText;
+        const extraLiveCloseBtn = document.getElementById("extra-live-close-btn");
+        extraLiveCloseBtn.innerHTML = this.currentLang.closeBtn;
     }
 
     updateLanguageCheatSheetPage() {
