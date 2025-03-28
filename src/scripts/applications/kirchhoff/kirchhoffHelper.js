@@ -275,7 +275,8 @@ function updateEquationsAndReset(svgDiv) {
     let equationContainer = document.getElementById("equations-overview-container");
     equationContainer.innerHTML = languageManager.currentLang.missingEquations;
     equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
-    resetNextElements(svgDiv, nextElementsContainer);
+    resetArrowHighlights(svgDiv);
+    resetNextElementsTextAndList(nextElementsContainer);
 }
 
 async function waitForCorrectSelection(svgDiv) {
@@ -523,8 +524,8 @@ function chooseKirchhoffElement(element, nextElementsList) {
     MathJax.typeset();
 }
 
-function resetHighlights(svgDiv) {
-    let arrows = svgDiv.querySelectorAll(".voltage-label.arrow");
+function resetArrowHighlights(svgDiv) {
+    let arrows = svgDiv.querySelectorAll(".arrow");
     for (let arrow of arrows) {
         if (elementMarkedDone(arrow)) {
             grayOutElement(arrow);
@@ -536,9 +537,15 @@ function resetHighlights(svgDiv) {
 
 function highlightElement(element) {
     element.style.fontWeight = "bold";
-    element.style.color = "#9898ff";
-    element.style.stroke = "#9898ff";
-    element.style.fill = "#9898ff";
+    if (element.classList.contains("voltage-label")) {
+        element.style.color = "#9898ff";
+        element.style.stroke = "#9898ff";
+        element.style.fill = "#9898ff";
+    } else {
+        element.style.color = "red";
+        element.style.stroke = "red";
+        element.style.fill = "red";
+    }
 }
 
 function grayOutElement(element) {
@@ -549,10 +556,10 @@ function grayOutElement(element) {
 }
 
 function removeHighlight(element) {
+    element.style.fontWeight = "normal";
     element.style.color = colors.currentForeground;
     element.style.stroke = colors.currentForeground;
     element.style.fill = colors.currentForeground;
-    element.style.fontWeight = "normal";
 }
 
 function elementMarkedDone(element) {
@@ -631,6 +638,14 @@ function resetKirchhoffPage() {
     resetExtraLiveModal();
     scrollBodyToTop();
     startKirchhoff();  // Draw the first picture again
+}
+
+function removeSvgEventHandlers(id) {
+    let svgDiv = document.getElementById(id);
+    let svg = svgDiv.querySelector("svg");
+    let svgClone = svg.cloneNode(true);
+    svgDiv.removeChild(svg);
+    svgDiv.appendChild(svgClone);
 }
 
 function resetExtraLiveModal() {
@@ -715,7 +730,7 @@ function setupKirchhoffSVGandData(stepObject) {
 
     if (state.pictureCounter === 1) {
         hideCurrentArrows(svgDiv);
-        addVoltageOverlay(svgDiv);
+        //addVoltageOverlay(svgDiv);
     } else if (state.pictureCounter === 2) {
         hideVoltageArrows(svgDiv);
         hideItotArrow(svgDiv);

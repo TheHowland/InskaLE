@@ -11,8 +11,8 @@ async function startKirchhoff() {
     state.pictureCounter++;
     initSolverObjects();
     await solveFirstStep();
+    appendKirchhoffValuesToAllValuesMap();
 
-    appendKirchhoffValuesToAllValuesMap();  // Before setupKirchhoffStep because values are needed for labels
     const {circuitContainer, svgContainer} = setupKirchhoffStep();
     const contentCol = document.getElementById("content-col");
     let voltHeading = createVoltHeading();
@@ -21,12 +21,7 @@ async function startKirchhoff() {
     contentCol.append(circuitContainer);
     contentCol.append(equationsContainer);
 
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
-    addVoltageSourceToElements(svgContainer, electricalElements);
-
-    // TODO remove nextElementsContainer parameter
     const nextElementsContainer = setupNextElementsVoltageLawContainer();
-
 
     let arrows = svgContainer.querySelectorAll("text.arrow.voltage-label");
     makeElementsClickableForKirchhoff(nextElementsContainer, arrows);
@@ -42,9 +37,10 @@ function startKirchhoffCurrent() {
     contentCol.append(currentHeading);
     contentCol.append(circuitContainer);
 
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
     const nextElementsContainer = setupNextElementsCurrentLawContainer();
-    makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements);
+
+    let arrows = svgContainer.querySelectorAll("text.arrow.current-label");
+    makeElementsClickableForKirchhoff(nextElementsContainer, arrows);
     prepareNextElementsContainer(contentCol, nextElementsContainer);
 
     let equations = createEquationsOverviewContainer();
@@ -59,7 +55,6 @@ function startKirchhoffCurrent() {
 function checkVoltageLoop() {
     let contentCol = document.getElementById("content-col");
     let svgDiv = document.getElementById("svgDiv1");
-    let direction = 1;
 
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
@@ -86,7 +81,7 @@ function checkVoltageLoop() {
     nextElementsContainer.querySelector("#reset-btn").classList.remove("disabled");
 
     markVoltagesDone(svgDiv);
-    resetHighlights(svgDiv);
+    resetArrowHighlights(svgDiv);
     resetNextElementsTextAndList(nextElementsContainer);
 
     if (allVoltagesDone(svgDiv)) {
@@ -95,6 +90,7 @@ function checkVoltageLoop() {
             finishKirchhoff(contentCol);
         } else {
             // If not all equations are found, start junction node selection
+            removeSvgEventHandlers("svgDiv1");
             startKirchhoffCurrent();
         }
     }
@@ -140,6 +136,7 @@ async function checkJunctionLaw() {
 
 
 function finishKirchhoff(contentCol) {
+    removeSvgEventHandlers("svgDiv2");
     // Remove text above equations
     let equationContainer = document.getElementById("equations-overview-container");
     equationContainer.innerHTML = "";
