@@ -56,6 +56,11 @@ function hideSourceLabel(svgDiv) {
     }
 }
 
+function hideElementLabels(svgDiv) {
+    let labels = svgDiv.querySelectorAll(".element-label");
+    labels.forEach(label => label.style.display = "none");
+}
+
 function hideLabels(svgDiv) {
     let labels = svgDiv.querySelectorAll(".element-label");
     labels.forEach(label => label.style.display = "none");
