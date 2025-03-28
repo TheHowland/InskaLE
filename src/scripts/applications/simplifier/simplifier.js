@@ -800,6 +800,10 @@ function createRLCTable(vMap, helperValueRegex, tableData, color, zMap, zPMap, u
             <td style="color: ${color}">$$\\mathbf{${iKey}} = ${iMap.get(iKey)}$$</td>
             </tr>`;
     }
+    if (state.currentCircuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
+        // Return table without total values since nothing is simplified
+        return tableData;
+    }
     // Total values
     let iTot = `I${languageManager.currentLang.totalSuffix}`;
     let uTot = `${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`;

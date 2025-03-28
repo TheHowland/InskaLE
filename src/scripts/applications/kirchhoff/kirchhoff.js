@@ -85,12 +85,12 @@ function checkVoltageLoop() {
     resetNextElementsTextAndList(nextElementsContainer);
 
     if (allVoltagesDone(svgDiv)) {
+        removeSvgEventHandlers("svgDiv1");
         if (state.kirchhoffSolver.foundAllEquations()) {
             showEquations(contentCol);
             finishKirchhoff(contentCol);
         } else {
             // If not all equations are found, start junction node selection
-            removeSvgEventHandlers("svgDiv1");
             startKirchhoffCurrent();
         }
     }
@@ -135,6 +135,71 @@ async function checkJunctionLaw() {
 }
 
 
+function appendResetBtn(contentCol) {
+    let resetContainer = document.createElement("div");
+    resetContainer.classList.add("text-center", "justify-content-center", "mt-4");
+    resetContainer.innerHTML = `
+                    <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
+                `;
+    resetContainer.querySelector("#reset-btn").addEventListener('click', () => {
+        pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
+        resetKirchhoffPage();
+    });
+    contentCol.appendChild(resetContainer);
+}
+
+function createValuesContainer() {
+    const valuesContainer = document.createElement("div");
+    valuesContainer.id = "valuesContainer";
+    valuesContainer.classList.add("container", "mb-5", "justify-content-center");
+    valuesContainer.style.color = colors.currentForeground;
+
+    let list = document.createElement("ul");
+    list.style.lineHeight = "2";
+    list.style.padding = "0";
+
+    let given = document.createElement("li");
+    given.innerHTML = languageManager.currentLang.givenValues;
+    list.appendChild(given);
+
+    let source = document.createElement("li");
+    source.innerHTML = `\\(${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}=${getSourceVoltageVal()}\\)`;
+    list.appendChild(source);
+
+    for (let element of state.step0Data.allComponents) {
+        let liElement = document.createElement("li");
+        liElement.innerHTML = `\\(${element.Z.name}=${element.Z.val}\\)`;
+        list.appendChild(liElement);
+    }
+    valuesContainer.appendChild(list);
+    return valuesContainer;
+}
+
+function createKirchhoffSolutions() {
+    const solBtnContainer = createSolutionsBtnContainer();
+    const solutionsBtn = createSolutionsBtn();
+    solBtnContainer.appendChild(solutionsBtn);
+    prepareAllValuesMap();
+    let table = generateSolutionsTable();
+    let results = document.createElement("div");
+    results.classList.add("circuit-container", "row", "justify-content-center");
+    results.appendChild(table);
+    solutionsBtn.addEventListener("click", () => {
+        if (solutionsBtn.textContent === languageManager.currentLang.solutionsBtn) {
+            // Open explanation
+            solutionsBtn.textContent = languageManager.currentLang.hideVoltageBtn;
+            solBtnContainer.appendChild(results);
+            MathJax.typeset();
+            pushCircuitEventMatomo(circuitActions.ViewSolutions);
+        } else {
+            // Close explanation
+            solutionsBtn.textContent = languageManager.currentLang.solutionsBtn;
+            solBtnContainer.removeChild(results);
+        }
+    })
+    return solBtnContainer;
+}
+
 function finishKirchhoff(contentCol) {
     removeSvgEventHandlers("svgDiv2");
     // Remove text above equations
@@ -149,15 +214,13 @@ function finishKirchhoff(contentCol) {
         origin: {x: 0.5, y: 1}
     });
     document.getElementById("nextElementsContainer").remove();
-    let resetContainer = document.createElement("div");
-    resetContainer.classList.add("text-center", "justify-content-center", "mt-4");
-    resetContainer.innerHTML = `
-                    <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
-                `;
-    resetContainer.querySelector("#reset-btn").addEventListener('click', () => {
-        pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
-        resetKirchhoffPage();
-    });
-    contentCol.appendChild(resetContainer);
+
+    // Show values and solutions button
+    let valuesContainer = createValuesContainer();
+    contentCol.appendChild(valuesContainer);
+    const solBtnContainer = createKirchhoffSolutions();
+    contentCol.appendChild(solBtnContainer);
+    appendResetBtn(contentCol);
+    MathJax.typeset();
 }
 

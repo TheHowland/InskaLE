@@ -24,4 +24,6 @@ window.kirchhoffEnTexts = {
         "Oh no, try again or solve the task correctly to get an extra life",
     extraLiveQuestion:
         "Whats the meaning of life?",
+    givenValues:
+        "Given values",
 }

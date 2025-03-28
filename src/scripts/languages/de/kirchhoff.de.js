@@ -24,4 +24,6 @@ window.kirchhoffDeTexts = {
         "Oh nein, probiere es noch einmal oder l&oumlse die Aufgabe richtig um ein Leben zu erhalten",
     extraLiveQuestion:
         "Was ist der Sinn des Lebens?",
+    givenValues:
+        "Gegebene Werte",
 }

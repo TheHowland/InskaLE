@@ -25,7 +25,7 @@ window.simplifierEnTexts = {
     firstVCStepBtn:
         "Total current",
     solutionsBtn:
-        "All values",
+        "Solutions",
     msgVoltAndCurrentAvailable:
         "You can now go back and check how to calculate the voltages and currents",
     msgShowVoltage:

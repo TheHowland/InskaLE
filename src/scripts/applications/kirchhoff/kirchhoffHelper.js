@@ -463,8 +463,15 @@ function addKirchhoffComponentValues(component) {
         } else {
             state.allValuesMap.set(component.Z.name, component.Z.impedance);
         }
-        state.allValuesMap.set(component.U.name, component.U.val);
-        state.allValuesMap.set(component.I.name, component.I.val);
+        if (state.step0Data.componentTypes === "RLC") {
+            state.allValuesMap.set(`Z_{${component.Z.name}}`, component.Z.cpxVal);
+            state.allValuesMap.set(`Zpolar_{${component.Z.name}}`, toPolar(component.Z.impedance, component.Z.phase));
+            state.allValuesMap.set(component.U.name, toPolar(component.U.val, component.U.phase));
+            state.allValuesMap.set(component.I.name, toPolar(component.I.val, component.I.phase));
+        } else {
+            state.allValuesMap.set(component.U.name, component.U.val);
+            state.allValuesMap.set(component.I.name, component.I.val);
+        }
         // To map U1 to R1, I1 to R1
         state.allValuesMap.set(`element_${component.U.name}`, component.Z.name);
         state.allValuesMap.set(`element_${component.I.name}`, component.Z.name);
@@ -549,7 +556,7 @@ function highlightElement(element) {
 }
 
 function grayOutElement(element) {
-    element.style.fontWeight = "bold";
+    element.style.fontWeight = "normal";
     element.style.color = colors.kirchhoffGray;
     element.style.stroke = colors.kirchhoffGray;
     element.style.fill = colors.kirchhoffGray;
@@ -642,6 +649,7 @@ function resetKirchhoffPage() {
 
 function removeSvgEventHandlers(id) {
     let svgDiv = document.getElementById(id);
+    if (svgDiv === null) return;
     let svg = svgDiv.querySelector("svg");
     let svgClone = svg.cloneNode(true);
     svgDiv.removeChild(svg);
@@ -686,6 +694,15 @@ function markVoltagesDone(svgDiv) {
             a.setAttribute("value", "done");
         }
     }
+}
+
+function createSolutionsContainer() {
+    let solutionsContainer = document.createElement("div");
+    solutionsContainer.id = "solutions-container";
+    solutionsContainer.style.color = colors.currentForeground;
+    solutionsContainer.classList.add("text-center", "py-1", "mb-3", "mx-auto");
+    solutionsContainer.innerHTML = "languageManager.currentLang.solutions";
+    return solutionsContainer;
 }
 
 function setupKirchhoffStep() {
