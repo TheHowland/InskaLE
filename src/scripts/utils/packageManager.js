@@ -39,7 +39,7 @@ class PackageManager {
     }
 
     async importPyodidePackages() {
-        await this.load_packages(["sqlite3-1.0.0.zip"]);
+        await this.load_packages();
         await this.import_packages();
     }
 
@@ -49,7 +49,7 @@ class PackageManager {
     }
 
     async import_packages() {
-        let packages = ["matplotlib", "numpy", "sympy", "networkx", "IPython", "schemdraw", "ordered_set", "lcapy"];
+        let packages = ["matplotlib", "numpy", "sympy", "networkx", "IPython", "schemdrawInskale", "ordered_set", "lcapyInskale"];
         let progressBarContainer = document.getElementById("pgr-bar-container");
         // set the bar to 40% because we already did some stuff, just a ruff estimation
         // this will enable us to start the new calculation from a fixed point
