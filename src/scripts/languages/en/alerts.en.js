@@ -21,4 +21,8 @@ window.alertsEnTexts = {
         "Wrong answer",
     alertGameOver:
         "No lives left",
+    alertInvalidLoopOrder:
+        "Invalid order of voltages",
+    alertSomethingIsWrong:
+        "Something went wrong",
 }

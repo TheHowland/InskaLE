@@ -71,9 +71,7 @@ function checkVoltageLoop() {
         return;
     }
 
-    //direction = getLoopDirection(svgDiv);
-
-    let [errorCode, eq] = state.kirchhoffSolver.checkVoltageLoopRule(state.selectedElements, direction).toJs();
+    let [errorCode, eq] = state.kirchhoffSolver.checkVoltageLoopRule(state.selectedElements).toJs();
     if (errorCode) {
         handleVoltageError(errorCode, svgDiv);
         return;

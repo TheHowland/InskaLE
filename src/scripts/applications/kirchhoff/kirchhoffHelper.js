@@ -338,6 +338,16 @@ function handleVoltageError(errorCode, svgDiv) {
         subtract1Live();
     } else if (errorCode === 3) {
         // Only for junction law
+    } else if (errorCode === 4) {
+        // Not a valid loop order
+        setTimeout(() => {
+            showMessage(languageManager.currentLang.alertInvalidLoopOrder, "warning");
+        }, 0);
+    } else {
+        // Default error
+        setTimeout(() => {
+            showMessage(languageManager.currentLang.alertSomethingIsWrong, "warning");
+        }, 0);
     }
 }
 
@@ -365,6 +375,13 @@ function handleJunctionError(errorCode, svgDiv) {
             showMessage(languageManager.currentLang.alertTooManyJunctionNodes, "warning");
         }, 0);
         subtract1Live();
+    } else if (errorCode === 4) {
+        // Only for voltage law
+    } else {
+        // Default error
+        setTimeout(() => {
+            showMessage(languageManager.currentLang.alertSomethingIsWrong, "warning");
+        }, 0);
     }
 }
 
@@ -383,16 +400,6 @@ function initSolverObjects() {
         state.currentCircuitMap.circuitFile,
         `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`,
         paramMap);
-}
-
-function getLoopDirection(svgDiv) {
-    let direction;
-    if (svgDiv.querySelector("#loop-dir-btn").innerText === kirchhoffLoopDirectionSymbol.clockwise) {
-        direction = 1; //clockwise
-    } else {
-        direction = 0; //counterclockwise
-    }
-    return direction;
 }
 
 function createVoltHeading() {
@@ -472,6 +479,7 @@ function makeElementsClickableForKirchhoff(nextElementsContainer, electricalElem
 }
 
 function setKirchhoffStyleAndEvent(element, nextElementsList) {
+    element.style.cursor = "pointer";
     element.addEventListener('click', () => {
         chooseKirchhoffElement(element, nextElementsList);
     });

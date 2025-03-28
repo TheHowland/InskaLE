@@ -21,4 +21,8 @@ window.alertsDeTexts = {
         "Falsche Antwort",
     alertGameOver:
         "Keine Leben mehr",
+    alertInvalidLoopOrder:
+        "Ung&uumlltige Reihenfolge der Spannungen",
+    alertSomethingIsWrong:
+        "Etwas lief falsch",
 }
