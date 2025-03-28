@@ -444,7 +444,6 @@ function appendKirchhoffValuesToAllValuesMap() {
         addKirchhoffComponentValues(component);
     }
     // TODO sources list []
-    state.allValuesMap.set("element_" + state.step0Data.source.sources.U.name, state.step0Data.source.sources.Z.name);
     state.allValuesMap.set("volt_" + state.step0Data.source.sources.Z.name, state.step0Data.source.sources.U.name);
 }
 
@@ -455,12 +454,6 @@ function addKirchhoffComponentValues(component) {
         } else {
             state.allValuesMap.set(component.Z.name, component.Z.impedance);
         }
-        state.allValuesMap.set(component.U.name, component.U.val);
-        state.allValuesMap.set(component.I.name, component.I.val);
-        // To map U1 to R1, I1 to R1
-        state.allValuesMap.set(`element_${component.U.name}`, component.Z.name);
-        state.allValuesMap.set(`element_${component.I.name}`, component.Z.name);
-        // To map from R1 to U1, R1 to I1
         state.allValuesMap.set(`volt_${component.Z.name}`, component.U.name);
         state.allValuesMap.set(`curr_${component.Z.name}`, component.I.name);
     }
@@ -472,97 +465,53 @@ function makeElementsClickableForKirchhoff(nextElementsContainer, electricalElem
 }
 
 function setKirchhoffStyleAndEvent(element, nextElementsList) {
-    element.addEventListener('click', () => {
-        chooseKirchhoffElement(element, nextElementsList);
-    });
-}
-
-function checkIfAlreadySelected(nextElementsList, element) {
-    let alreadyClicked = false,
-        nextElements = nextElementsList.querySelectorAll("li");
-    for (let nextElement of nextElements) {
-        let id = "li-" + element.classList[2];
-        if (nextElement.id === id) {
-            alreadyClicked = true;
-            break;
-        }
-    }
-    return alreadyClicked;
-}
-
-function selectKirchArrow(element) {
-    highlightElement(element);
-    let svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    let arrows = svgDiv.querySelectorAll(`path.arrow.${element.classList[2]}`);
-    for (let arrow of arrows) {
-        highlightElement(arrow);
-    }
+    element.style.pointerEvents = "bounding-box";
+    element.style.cursor = 'pointer';
+    element.addEventListener('click', () =>
+        chooseKirchhoffElement(element, nextElementsList)
+    );
 }
 
 function chooseKirchhoffElement(element, nextElementsList) {
-    let alreadyClicked = checkIfAlreadySelected(nextElementsList, element);
-    if (alreadyClicked) {
-        unselectKirchArrow(element);
+    const bboxId = `bbox-${element.getAttribute('id')}`;
+    const existingBox = document.getElementById(bboxId);
+
+    if (existingBox) {
+        removeExistingBoxAndText(existingBox, bboxId, element);
     }
     else {
-        selectKirchArrow(element);
+        createNewHighlightedBoundingBox(element, bboxId);
         if (state.pictureCounter === 1) {
-            addKirchhoffVoltageTextToBox(element, nextElementsList);
+            addKirchhoffVoltageTextToBox(element, bboxId, nextElementsList);
         } else if (state.pictureCounter === 2) {
-            addKirchhoffCurrentTextToBox(element, nextElementsList);
+            addKirchhoffCurrentTextToBox(element, bboxId, nextElementsList);
         }
     }
     MathJax.typeset();
 }
 
-function resetHighlights(svgDiv) {
-    let arrows = svgDiv.querySelectorAll(".voltage-label.arrow");
-    for (let arrow of arrows) {
-        removeHighlight(arrow);
+function addKirchhoffVoltageTextToBox(element, bboxId, nextElementsList) {
+    let id = element.getAttribute('id') || 'no id';
+    // If id starts with V, remove stuff after _
+    if (id.startsWith("V")) {
+        id = id.split("_")[0];
     }
-}
-
-function highlightElement(element) {
-    element.style.opacity = "1";
-    element.style.fontWeight = "bold";
-}
-
-function removeHighlight(element) {
-    element.style.opacity = "0.6";
-    element.style.fontWeight = "normal";
-}
-
-function unselectKirchArrow(element) {
-    removeHighlight(element);
-    let svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    let arrows = svgDiv.querySelectorAll(`path.arrow.${element.classList[2]}`);
-    for (let arrow of arrows) {
-        removeHighlight(arrow);
-    }
-    const listItem = document.querySelector(`#li-${element.classList[2]}`);
-    if (listItem) {
-        listItem.remove();
-        let correspondingElement = state.allValuesMap.get("element_" + element.classList[2]);
-        state.selectedElements = state.selectedElements.filter(e => e !== correspondingElement);
-    }
-}
-
-function addKirchhoffVoltageTextToBox(element, nextElementsList) {
-    let name = element.classList[2];
+    let index = `volt_${id}`;
     let listItem = document.createElement('li');
-    listItem.innerHTML = `\\(${name}\\)`;
-    listItem.setAttribute("id", "li-" + name);
+    listItem.innerHTML = `\\(${state.allValuesMap.get(index)}\\)`;
+    listItem.setAttribute('data-bbox-id', bboxId);
     nextElementsList.appendChild(listItem);
-    state.selectedElements.push(state.allValuesMap.get("element_" + name));
+    state.selectedElements.push(id);
 }
 
-function addKirchhoffCurrentTextToBox(element, nextElementsList) {
-    let name = element.classList[2];
+function addKirchhoffCurrentTextToBox(element, bboxId, nextElementsList) {
+    let id = element.getAttribute('id') || 'no id';
+    let index = `curr_${id}`;
     let listItem = document.createElement('li');
-    listItem.innerHTML = `\\(${name}\\)`;
-    listItem.setAttribute("id", "li-" + name);
+    listItem.innerHTML = `\\(${state.allValuesMap.get(index)}\\)`;
+    listItem.setAttribute('data-bbox-id', bboxId);
     nextElementsList.appendChild(listItem);
-    state.selectedElements.push(state.allValuesMap.get("element_" + name));
+    state.selectedElements.push(element.getAttribute('id') || 'no id');
 }
 
 function getEquationsTable(equations) {
@@ -616,25 +565,40 @@ function resetExtraLiveModal() {
     }
 }
 
-function allVoltagesDone(svgDiv) {
+function allElementsGrayedOut(svgDiv) {
     // Check if all elements including the source are grayed out
-    let arrows = svgDiv.querySelectorAll("text.voltage-label.arrow");
-    for (let arrow of arrows) {
-        if (arrow.getAttribute("value") !== "done") {
+    for (let cpt of state.step0Data.allComponents) {
+        let element = svgDiv.querySelector(`#${cpt.Z.name}`);
+        if (element.style.opacity !== "0.5") {
             return false;
         }
+    }
+    let source = svgDiv.querySelector("#V1_Circle");  // Check Circle is enough
+    if (source.style.opacity !== "0.5") {
+        return false;
     }
     return true;
 }
 
-function markVoltagesDone(svgDiv) {
+function grayOutSelectedElements(svgDiv) {
     let selectedElements = state.selectedElements;
     for (let elementId of selectedElements) {
-        let arrowClass = state.allValuesMap.get(`volt_${elementId}`);
-        let arrow = svgDiv.querySelectorAll(`text.voltage-label.arrow.${arrowClass}`);
-        for (let a of arrow) {
-            a.setAttribute("value", "done");
+        // Gray out all source elements
+        if (elementId.startsWith("V")) {
+            let sourceElements = ["Circle", "line", "sourceLne", "minusSign", "plusSign1", "plusSign2"];
+            for (let sourceElement of sourceElements) {
+                let element = svgDiv.querySelector(`#${elementId}_${sourceElement}`);
+                if (element === null || element === undefined) {
+                } else {
+                    element.style.opacity = "0.5";
+                }
+            }
+            continue;
         }
+        let element = svgDiv.querySelector(`#${elementId}`);
+        element.style.opacity = "0.5";
+        let elementLabel = svgDiv.querySelector(`.element-label.${elementId}`);
+        elementLabel.style.opacity = "0.5";
     }
 }
 
@@ -658,8 +622,8 @@ function setupKirchhoffSVGandData(stepObject) {
     svgDiv.style.maxWidth = "350px;";
     svgDiv.style.position = "relative";
 
-    // Svg manipulation
-    svgData = setKirchSvgColorToGray(svgData);
+    // Svg manipulation - set width and color for dark mode
+    svgData = setSvgColorMode(svgData);
     svgDiv.innerHTML = svgData;
     let containsZ = divContainsZLabels(svgDiv);
 
@@ -673,11 +637,7 @@ function setupKirchhoffSVGandData(stepObject) {
     }
 
     fillLabels(svgDiv);
-    colorArrows(svgDiv);
-    increaseLabelFontSize(svgDiv);
     hideSourceLabel(svgDiv);
-    hideElementLabels(svgDiv);
-
     if (state.pictureCounter === 1) {
         hideCurrentArrows(svgDiv);
         addVoltageOverlay(svgDiv);
@@ -688,32 +648,12 @@ function setupKirchhoffSVGandData(stepObject) {
 
     // SVG Data written, now add eventListeners, only afterward because they would be removed on rewrite of svgData
     addKirchhoffInfoHelpButton(svgDiv);
-    //addNameValueToggleBtn(svgDiv);
-    /*if (state.pictureCounter === 1) {
+    addNameValueToggleBtn(svgDiv);
+    if (state.pictureCounter === 1) {
         addLoopDirectionBtn(svgDiv);
-    }*/
+    }
 
     return svgDiv;
-}
-
-function colorArrows(svgDiv) {
-    let labels = svgDiv.querySelectorAll(".arrow");
-    for (let label of labels) {
-        if (label.classList.contains("voltage-label")) {
-            label.style.color = "#9898ff";
-            label.style.stroke = "#9898ff";
-            label.style.fill = "#9898ff";
-        } else if (label.classList.contains("current-label")) {
-            label.style.color = "red";
-            label.style.stroke = "red";
-            label.style.fill = "red";
-        }
-    }
-}
-
-function increaseLabelFontSize(svgDiv) {
-    let labels = svgDiv.querySelectorAll("text.arrow");
-    labels.forEach(label => label.style.fontSize = "20px");
 }
 
 function addLoopDirectionBtn(svgDiv) {

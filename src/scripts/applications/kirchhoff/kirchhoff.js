@@ -24,12 +24,8 @@ async function startKirchhoff() {
     const electricalElements = getElementsFromSvgContainer(svgContainer);
     addVoltageSourceToElements(svgContainer, electricalElements);
 
-    // TODO remove nextElementsContainer parameter
     const nextElementsContainer = setupNextElementsVoltageLawContainer();
-
-
-    let arrows = svgContainer.querySelectorAll("text.arrow");
-    makeElementsClickableForKirchhoff(nextElementsContainer, arrows);
+    makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements);
     prepareNextElementsContainer(contentCol, nextElementsContainer);
     MathJax.typeset();
 }
@@ -59,7 +55,7 @@ function startKirchhoffCurrent() {
 function checkVoltageLoop() {
     let contentCol = document.getElementById("content-col");
     let svgDiv = document.getElementById("svgDiv1");
-    let direction = 1;
+    let direction;
 
     if (state.selectedElements.length <= 1) {
         // Timeout so that the message is shown after the click event
@@ -71,7 +67,7 @@ function checkVoltageLoop() {
         return;
     }
 
-    //direction = getLoopDirection(svgDiv);
+    direction = getLoopDirection(svgDiv);
 
     let [errorCode, eq] = state.kirchhoffSolver.checkVoltageLoopRule(state.selectedElements, direction).toJs();
     if (errorCode) {
@@ -87,11 +83,10 @@ function checkVoltageLoop() {
     let nextElementsContainer = document.getElementById("nextElementsContainer");
     nextElementsContainer.querySelector("#reset-btn").classList.remove("disabled");
 
-    markVoltagesDone(svgDiv);
-    resetHighlights(svgDiv);
-    resetNextElementsTextAndList(nextElementsContainer);
+    grayOutSelectedElements(svgDiv);
+    resetNextElements(svgDiv, nextElementsContainer);
 
-    if (allVoltagesDone(svgDiv)) {
+    if (allElementsGrayedOut(svgDiv)) {
         if (state.kirchhoffSolver.foundAllEquations()) {
             showEquations(contentCol);
             finishKirchhoff(contentCol);

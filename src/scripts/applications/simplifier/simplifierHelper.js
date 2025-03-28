@@ -11,10 +11,6 @@ function setSvgColorMode(svgData) {
     }
 }
 
-function setKirchSvgColorToGray(svgData) {
-    return svgData.replaceAll(colors.lightModeSvgStrokeColor, colors.kirchhoffGray);
-}
-
 function enableCheckBtn() {
     document.getElementById("check-btn").disabled = false;
 }
