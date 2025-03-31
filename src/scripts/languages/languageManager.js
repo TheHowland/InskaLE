@@ -50,26 +50,10 @@ class LanguageManager {
         kirchVInfoGifHeading.innerHTML = this.currentLang.kirchVInfoGifHeading;
         const kirchVInfoGifText = document.getElementById("kirchV-info-gif-text");
         kirchVInfoGifText.innerHTML = this.currentLang.kirchVInfoGifText;
-        const kirchVCloseBtn = document.getElementById("kirchV-info-gif-close-btn");
-        kirchVCloseBtn.innerHTML = this.currentLang.closeBtn;
         const kirchIInfoGifHeading = document.getElementById("kirchI-info-gif-title");
         kirchIInfoGifHeading.innerHTML = this.currentLang.kirchIInfoGifHeading;
         const kirchIInfoGifText = document.getElementById("kirchI-info-gif-text");
         kirchIInfoGifText.innerHTML = this.currentLang.kirchIInfoGifText;
-        const kirchICloseBtn = document.getElementById("kirchI-info-gif-close-btn");
-        kirchICloseBtn.innerHTML = this.currentLang.closeBtn;
-        const gameOverHeading = document.getElementById("game-over-title");
-        gameOverHeading.innerHTML = this.currentLang.gameOverHeading;
-        const gameOverText = document.getElementById("game-over-text");
-        gameOverText.innerHTML = this.currentLang.gameOverText;
-        const gameOverCloseBtn = document.getElementById("game-over-close-btn");
-        gameOverCloseBtn.innerHTML = this.currentLang.closeBtn;
-        const extraLiveHeading = document.getElementById("extra-live-title");
-        extraLiveHeading.innerHTML = this.currentLang.gameOverHeading;
-        const extraLiveText = document.getElementById("extra-live-text");
-        extraLiveText.innerHTML = this.currentLang.extraLiveText;
-        const extraLiveCloseBtn = document.getElementById("extra-live-close-btn");
-        extraLiveCloseBtn.innerHTML = this.currentLang.closeBtn;
     }
 
     updateLanguageCheatSheetPage() {

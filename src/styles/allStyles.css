@@ -261,10 +261,18 @@ mjx-container mjx-c::before {
 }
 
 #bootstrap-overrides .current-label {
+    color: red !important;
+    stroke: red !important;
+    fill: red !important;
+    opacity: 0.8 !important;
     stroke-width: 0;
 }
 
 #bootstrap-overrides .voltage-label {
+    color: #9898ff !important;
+    stroke: #9898ff !important;
+    fill: #9898ff !important;
+    opacity: 0.8 !important;
     stroke-width: 0;
 }
 
@@ -432,13 +440,6 @@ th, td {
     cursor: pointer;
 }
 
-#bootstrap-overrides #game-label {
-    font-family: 'Roboto Condensed', sans-serif;
-    font-size: small;
-    color: white;
-    cursor: pointer;
-}
-
 #bootstrap-overrides #heading-logo {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 48px;
@@ -587,9 +588,7 @@ th, td {
 #bootstrap-overrides #solutionsTable {
     tbody {
         tr {
-            vertical-align: baseline;
             td {
-                vertical-align: baseline;
                 border: none;
                 mjx-container {
                     margin-top: 0;
@@ -634,22 +633,25 @@ th, td {
     color: #a8a8a8;
 }
 
-/* Kirchhoff */
+/* TODO Adapt a little, as liked :) */
 @keyframes floatAndFadeOut {
     0% {
-        transform: translateY(0);
-        opacity: 1;
+        transform: translateY(0);  /* Anfang: keine Verschiebung */
+        opacity: 1;                /* Anfang: vollständig sichtbar */
     }
     100% {
-        transform: translateY(200px);
-        opacity: 0;
+        transform: translateY(50px); /* Verschieben nach unten */
+        opacity: 0;                  /* Vollständig unsichtbar */
     }
 }
 
+/* Stil für die Gleichung */
 .equation {
-    transition: opacity 1.5s ease-in-out;
+    transition: opacity 1s ease-out; /* Sanfter Übergang beim Ausblenden */
 }
 
+/* Wenn die Gleichung ausgeblendet werden soll */
 .equation.fade-out {
-    animation: floatAndFadeOut 1.5s forwards;
+    animation: floatAndFadeOut 1s forwards; /* Animation wird angewendet */
 }
+

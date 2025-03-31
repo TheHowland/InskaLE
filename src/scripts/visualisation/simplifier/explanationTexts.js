@@ -183,9 +183,7 @@ function generateTextForVoltageCurrent(stepObject) {
 function getTotalCurrent(stepObject) {
     let str = "";
     let sfx = languageManager.currentLang.totalSuffix;
-    if ([circuitMapper.selectorIds.cap,
-        circuitMapper.selectorIds.ind,
-        circuitMapper.selectorIds.mixed].includes(state.currentCircuitMap.selectorGroup)) {
+    if ([circuitMapper.selectorIds.cap, circuitMapper.selectorIds.ind, circuitMapper.selectorIds.mixed].includes(state.currentCircuitMap.selectorGroup)) {
         sfx += "," + languageManager.currentLang.effectiveSuffix;
     }
 
