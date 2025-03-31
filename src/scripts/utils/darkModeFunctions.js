@@ -13,6 +13,15 @@ function setupDarkModeSwitch() {
     });
 }
 
+function setupGameModeSwitch() {
+    const gameModeSwitch = document.getElementById("game-switch");
+    gameModeSwitch.addEventListener("change", () => {
+        state.gamification = !!gameModeSwitch.checked;
+        closeNavbar();
+    });
+}
+
+
 function changeToDarkMode() {
     colors.setDarkModeColors()
     updateAvailableBsClassesTo(colors.bsColorSchemeDark);
@@ -98,7 +107,9 @@ function updateOverviewModals() {
 function updateKirchhoffModalColors() {
     const info1 = document.getElementById("kirchhoffVInfoGif");
     const info2 = document.getElementById("kirchhoffIInfoGif");
-    for (let modal of [info1, info2]) {
+    const gameOver = document.getElementById("gameOverModal");
+    const extraLiveModal = document.getElementById("extraLiveModal");
+    for (let modal of [info1, info2, gameOver, extraLiveModal]) {
         let content = modal.querySelector(".modal-content");
         content.style.color = colors.currentForeground;
         content.style.backgroundColor = colors.currentBsBackground;
@@ -209,6 +220,7 @@ function updateSelectorPageSvgStrokeColor(fromSvgColor, toSvgColor) {
 
 function updateLanguageSelectorColor(languagesBackground) {
     document.getElementById("darkmode-label").style.color = colors.currentForeground;
+    document.getElementById("game-label").style.color = colors.currentForeground;
     document.getElementById("Dropdown").style.color = colors.currentForeground;
     document.getElementById("languagesDropdown").style.color = colors.currentForeground;
     document.getElementById("select-english").style.color = colors.currentForeground;

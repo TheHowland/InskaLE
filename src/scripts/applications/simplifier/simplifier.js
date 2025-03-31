@@ -1,8 +1,7 @@
 // ####################################################################################################################
 // #################################### Key function for simplifier circuits  #########################################
 // ####################################################################################################################
-function display_step(stepObject) {
-    console.log(stepObject);
+function nextSimplifierStep(stepObject) {
     state.pictureCounter++;  // increment before usage in the below functions
 
     // Create the new elements for the current step
@@ -10,7 +9,8 @@ function display_step(stepObject) {
     const {circuitContainer, svgContainer} = setupCircuitContainer(stepObject);
 
     const {newCalcBtn, newVCBtn} = setupExplanationButtons();
-    const electricalElements = getElementsFromSvgContainer(svgContainer);
+    let electricalElements = getElementsFromSvgContainer(svgContainer);
+    electricalElements = removeSourceFromElements(electricalElements);
     const nextElementsContainer = setupNextElementsContainer(electricalElements);
     const contentCol = document.getElementById("content-col");
     contentCol.append(circuitContainer);
@@ -34,6 +34,12 @@ function display_step(stepObject) {
 // ####################################################################################################################
 // ############################################# Helper functions #####################################################
 // ####################################################################################################################
+
+function removeSourceFromElements(electricalElements) {
+    let withOutSource = [];
+    withOutSource = electricalElements.filter(element => !element.getAttribute('id').startsWith("V"));
+    return withOutSource;
+}
 
 function MJtoText(mjStr) {
     if (mjStr === undefined || mjStr === null) return "";
@@ -230,6 +236,7 @@ function setupSvgDivContainerAndData(stepObject) {
     fillLabels(svgDiv);
     hideSourceLabel(svgDiv);
     hideSvgArrows(svgDiv);
+    colorArrowsColorful(svgDiv);
     // SVG Data written, now add eventListeners, only afterward because they would be removed on rewrite of svgData
     if (state.pictureCounter === 1) {
         addInfoHelpButton(svgDiv);
@@ -273,7 +280,10 @@ function fillLabels(svgDiv) {
     for (let label of labels) {
         if (label.nodeName === "path") continue;
         let span = label.querySelector("tspan");
-        if ((state.step0Data.componentTypes !== "RLC") && state.valuesShown.get(svgDiv.id)) {
+        // If RLC circuit or kirchhoff, don't show U/I values
+        if ((state.step0Data.componentTypes !== "RLC")
+            && state.valuesShown.get(svgDiv.id)
+            && (state.currentCircuitMap.selectorGroup !== circuitMapper.selectorIds.kirchhoff)) {
             // If RLC, show U/I values if values are shown
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
         } else {
@@ -339,8 +349,8 @@ function toggleNameValue(svgDiv, nameValueToggleBtn) {
     let containsZ = divContainsZLabels(svgDiv);
     if (containsZ) {
         let rect = svgDiv.getBoundingClientRect();
-        let y = rect.y + window.scrollY + 20;
-        showMessage(document.getElementById("content-col"), languageManager.currentLang.alertNotToggleable, "info", false, y);
+        let y = rect.y + window.scrollY + 200;
+        showMessage(languageManager.currentLang.alertNotToggleable, "info");
         return;
     }
 
@@ -352,12 +362,6 @@ function toggleNameValue(svgDiv, nameValueToggleBtn) {
     } else {
         nameValueToggleBtn.innerText = toggleSymbolDefinition.valuesShown;
     }
-}
-
-function getElementsFromSvgContainer(svgContainer) {
-    const pathElements = svgContainer.querySelectorAll('path');
-    return Array.from(pathElements).filter(path => (path.getAttribute('class') !== 'na')
-        && (!path.getAttribute('class').includes("arrow")))
 }
 
 function setupBboxRect(bbox, bboxId) {
@@ -384,7 +388,12 @@ function removeElementFromList(bboxId, pathElement) {
     const listItem = document.querySelector(`li[data-bbox-id="${bboxId}"]`);
     if (listItem) {
         listItem.remove();
-        state.selectedElements = state.selectedElements.filter(e => e !== pathElement.getAttribute('id'));
+        let id = pathElement.getAttribute('id');
+        if (id.startsWith("V")) {
+            // For voltage source remove _Circle from id, since id in selectedElements is V1
+            id = id.split("_")[0];
+        }
+        state.selectedElements = state.selectedElements.filter(e => e !== id);
     }
 }
 
@@ -449,7 +458,7 @@ async function checkAndSimplifyNext(div){
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
 
     if (state.selectedElements.length <= 1) {
-        showMessage(contentCol, languageManager.currentLang.alertChooseAtLeastTwoElements);
+        showMessage(languageManager.currentLang.alertChooseAtLeastTwoElements, "warning");
     } else {
         let obj = await stepSolve.simplifyNCpts(state.selectedElements).toJs({dict_converter: Object.fromEntries});
         obj.__proto__ = StepObject.prototype;
@@ -469,9 +478,9 @@ function checkAndSimplify(stepObject, contentCol, div) {
         }
         // Remove event listeners from old picture elements
         removeOldEventListeners();
-        display_step(stepObject);
+        nextSimplifierStep(stepObject);
     } else {
-        showMessage(contentCol, languageManager.currentLang.alertCanNotSimplify, "warning");
+        showMessage(languageManager.currentLang.alertCanNotSimplify, "warning");
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
     }
 }
@@ -570,7 +579,6 @@ function generateTexts(stepObject) {
 }
 
 function finishCircuit(contentCol) {
-    //showMessage(contentCol, languageManager.currentLang.msgCongratsFinishedCircuit, "success");
     confetti({
         particleCount: 150,
         angle: 90,
@@ -697,11 +705,7 @@ function addSolutionsButton() {
     let clonedSvgData = cloneAndAdaptStep0Svg();
     clonedSvgData.appendChild(table);
 
-    let arrows = clonedSvgData.getElementsByClassName("arrow");
-    for (let arrow of arrows) {
-        arrow.style.display = "block";
-        arrow.style.opacity = "0.5";
-    }
+    showArrows(clonedSvgData);
     let div = document.createElement("div");
     div.classList.add("circuit-container", "row", "justify-content-center");
     div.appendChild(clonedSvgData);
@@ -792,6 +796,10 @@ function createRLCTable(vMap, helperValueRegex, tableData, color, zMap, zPMap, u
             <td style="color: ${color}">$$\\mathbf{${uKey}} = ${uMap.get(uKey)}$$</td>
             <td style="color: ${color}">$$\\mathbf{${iKey}} = ${iMap.get(iKey)}$$</td>
             </tr>`;
+    }
+    if (state.currentCircuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
+        // Return table without total values since nothing is simplified
+        return tableData;
     }
     // Total values
     let iTot = `I${languageManager.currentLang.totalSuffix}`;

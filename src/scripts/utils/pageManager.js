@@ -7,6 +7,7 @@ class PageManager {
         this.aboutPage = document.getElementById("about-page-container");
         this.languageSelect = document.getElementById("Dropdown");
         this.darkModeSwitch = document.getElementById("darkmode-switch");
+        this.gameModeSwitch = document.getElementById("game-switch");
         this.activeLangFlag = document.getElementById("activeLanguageFlag");
         this.pages = [this.landingPage, this.selectPage, this.simplifierPage, this.cheatSheet, this.aboutPage]
     }
@@ -82,12 +83,14 @@ class PageManager {
     disableSettings() {
         this.languageSelect.disabled = true;
         this.darkModeSwitch.disabled = true;
+        this.gameModeSwitch.disabled = true;
         this.activeLangFlag.style.filter = "brightness(0.5)";
     }
 
     enableSettings() {
         this.languageSelect.disabled = false;
         this.darkModeSwitch.disabled = false;
+        this.gameModeSwitch.disabled = false;
         this.activeLangFlag.style.filter = "brightness(1)";
     }
 
@@ -219,16 +222,14 @@ class PageManager {
         })
         selectEnglish.addEventListener("click", () => {
             languageManager.currentLang = english;
-            const activeFlagIcon = document.getElementById("activeLanguageFlag");
-            activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
+            this.activeLangFlag.setAttribute("src", "src/resources/navigation/uk.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
             pushLanguageEventMatomo(configLanguageValues.English);
         })
         selectGerman.addEventListener("click", () => {
             languageManager.currentLang = german;
-            const activeFlagIcon = document.getElementById("activeLanguageFlag");
-            activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
+            this.activeLangFlag.setAttribute("src", "src/resources/navigation/germany.png");
             closeNavbar();
             languageManager.updatesLanguageFields();
             pushLanguageEventMatomo(configLanguageValues.German);
@@ -239,12 +240,11 @@ class PageManager {
             this.updatePagesOpacity();
         })
 
-        const activeFlagIcon = document.getElementById("activeLanguageFlag");
         if (languageManager.currentLang === german) {
-            activeFlagIcon.setAttribute("src", "src/resources/navigation/germany.png");
+            this.activeLangFlag.setAttribute("src", "src/resources/navigation/germany.png");
         }
         else if (languageManager.currentLang === english) {
-            activeFlagIcon.setAttribute("src", "src/resources/navigation/uk.png");
+            this.activeLangFlag.setAttribute("src", "src/resources/navigation/uk.png");
         }
     }
 
