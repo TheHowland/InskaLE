@@ -236,6 +236,7 @@ function setupSvgDivContainerAndData(stepObject) {
     fillLabels(svgDiv);
     hideSourceLabel(svgDiv);
     hideSvgArrows(svgDiv);
+    colorArrowsColorful(svgDiv);
     // SVG Data written, now add eventListeners, only afterward because they would be removed on rewrite of svgData
     if (state.pictureCounter === 1) {
         addInfoHelpButton(svgDiv);
@@ -704,11 +705,7 @@ function addSolutionsButton() {
     let clonedSvgData = cloneAndAdaptStep0Svg();
     clonedSvgData.appendChild(table);
 
-    let arrows = clonedSvgData.getElementsByClassName("arrow");
-    for (let arrow of arrows) {
-        arrow.style.display = "block";
-        arrow.style.opacity = "0.5";
-    }
+    showArrows(clonedSvgData);
     let div = document.createElement("div");
     div.classList.add("circuit-container", "row", "justify-content-center");
     div.appendChild(clonedSvgData);

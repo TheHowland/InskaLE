@@ -5,12 +5,14 @@ function setSvgWidthTo(svgData, width) {
     return svgData.replace(foundWidth, width);   // replace dd.ddd with width
 }
 
-function showArrows(contentCol) {
+function showArrows(svgDiv) {
     // Show arrows and symbol labels
-    let arrows = contentCol.querySelectorAll(".arrow");
+    let arrows = svgDiv.querySelectorAll(".arrow");
     for (let arrow of arrows) {
         arrow.style.display = "block";
-        arrow.style.opacity = "0.5";
+        if (colors.currentForeground === colors.keyDark) {
+            arrow.style.opacity = "1"; // to make them more visible
+        }
     }
 }
 

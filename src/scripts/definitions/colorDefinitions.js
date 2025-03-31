@@ -5,6 +5,8 @@ class ColorDefinitions {
     keyDark = "black";
     kirchhoffGray = "gray";
     keyGreyedOut = "#b1b1b1";
+    voltageBlue = "#9898ff";
+    currentRed = "red";
     bootstrapDark = "#212529";
     bootstrapWhite = "#f8f9fa";
     languagesDarkBg = "#33393f";

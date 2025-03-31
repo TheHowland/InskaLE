@@ -152,3 +152,20 @@ function setStyleAndEvent(element, nextElementsList) {
         chooseElement(element, nextElementsList)
     );
 }
+
+function colorArrowsColorful(svgDiv) {
+    let labels = svgDiv.querySelectorAll(".arrow");
+    for (let label of labels) {
+        if (label.classList.contains("voltage-label")) {
+            label.style.color = colors.voltageBlue;
+            label.style.stroke = colors.voltageBlue;
+            label.style.fill = colors.voltageBlue;
+            label.style.opacity = "0.8";
+        } else if (label.classList.contains("current-label")) {
+            label.style.color = colors.currentRed;
+            label.style.stroke = colors.currentRed;
+            label.style.fill = colors.currentRed;
+            label.style.opacity = "0.8";
+        }
+    }
+}
