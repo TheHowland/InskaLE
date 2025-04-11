@@ -39,11 +39,8 @@ class PackageManager {
     async importPyodidePackages() {
         // Idea for loading packages:
         // - use unpackArchive instead of loadPackage to reduce overhead on loading
-        // - use "import package" in python to import package
-        console.log("Loading packages");
+        // - use "import package" in python to import package to reduce execution time on first execution
         await this.load_packages();
-        state.loadingProgress = 50;
-        updateStartBtnLoadingPgr(state.loadingProgress);
         await this.import_packages();
     }
 
@@ -87,13 +84,12 @@ class PackageManager {
             let pkgArrBuff = await (await fetch(conf.sourcePackageDir + packageName)).arrayBuffer();
             let packageExtension = packageName.slice(packageName.lastIndexOf("."), packageName.length);
             await state.pyodideAPI.unpackArchive(pkgArrBuff, packageExtension);
-            console.log("Unpacking: " + packageName);
+            console.log("Loading: " + packageName);
             state.loadingProgress += stepSize;
             updateStartBtnLoadingPgr(state.loadingProgress);
         });
 
         await Promise.all(packagePromises);
-        console.log("Loaded packages:" + packages);
     }
 
     async #fetchDirectoryListing(path, extension = "") {
