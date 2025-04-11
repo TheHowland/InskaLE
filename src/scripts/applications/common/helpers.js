@@ -19,7 +19,10 @@ function disableStartBtnAndSimplifierLink() {
 
 function getElementsFromSvgContainer(svgContainer) {
     const pathElements = svgContainer.querySelectorAll('path');
-    return Array.from(pathElements).filter(path => (path.getAttribute('class') !== 'na')
+    return Array.from(pathElements).filter(path =>
+        (path.getAttribute('class') !== 'na')
+        && (path.getAttribute('class') !== null)
+        && (path.getAttribute('class') !== 'undefined')
         && (!path.getAttribute('class').includes("arrow")));
 }
 
@@ -171,16 +174,20 @@ function scrollBodyToTop() {
 }
 
 async function clearSolutionsDir() {
-    try {
-        //An array of file names representing the solution files in the Solutions directory.
-        let solutionFiles = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
-        solutionFiles.forEach(file => {
-            if (file !== "." && file !== "..") {
-                state.pyodide.FS.unlink(`${conf.pyodideSolutionsPath}/${file}`);
-            }
-        });
-    } catch (error) {
-        console.log("%cSolutions directory not found or already cleared", "color: gray;");
+    if (state.pyodideReady) {
+        try {
+            //An array of file names representing the solution files in the Solutions directory.
+            //let solutionFiles = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
+            let solutionFiles = await state.pyodideAPI.readDir(conf.pyodideSolutionsPath);
+            solutionFiles.forEach(file => {
+                if (file !== "." && file !== "..") {
+                    worker.postMessage({action: "unlink", data: {path: `${conf.pyodideSolutionsPath}/${file}`}});
+                    //state.pyodide.FS.unlink(`${conf.pyodideSolutionsPath}/${file}`);
+                }
+            });
+        } catch (error) {
+            console.log("%cSolutions directory not found or already cleared", "color: gray;");
+        }
     }
 }
 
@@ -220,7 +227,10 @@ function removeLivesAndShowLogo() {
 
 function checkIfSimplifierPageNeedsReset() {
     if (simplifierPageCurrentlyVisible()) {
+        // Reset applications
         resetSimplifierPage();
+        resetKirchhoffPage();
+
         if (state.gamification) {
             removeLivesAndShowLogo();
             state.extraLiveUsed = false;
@@ -310,4 +320,89 @@ function getSourceFrequency() {
 
 function sourceIsAC() {
     return getSourceFrequency() !== "0";
+}
+
+function updateStartBtnLoadingPgr(newValue) {
+    let startBtns = document.getElementsByClassName("circuitStartBtn");
+    for (let btn of startBtns) {
+        let rounded = Math.floor(newValue);
+        //btn.style.background = `linear-gradient(to right, ${colors.keyYellow} ${Math.floor(newValue)}%, gray ${Math.floor(newValue)}%)`;
+        //btn.style.backgroundImage = `linear-gradient(to right, ${colors.keyYellow} ${rounded}%, gray ${rounded}%)`;
+        let fillLayer = btn.querySelector(".fill-layer");
+        if (fillLayer) {
+            fillLayer.style.width = `${rounded}%`;
+        }
+        let stripeOverlay = btn.querySelector(".progress-stripes");
+        if (stripeOverlay) {
+            stripeOverlay.style.width = `${rounded}%`;
+        }
+    }
+}
+
+function finishStartBtns() {
+    let startBtns = document.getElementsByClassName("circuitStartBtn");
+    for (let btn of startBtns) {
+        let fillLayer = btn.querySelector(".fill-layer");
+        if (fillLayer) {
+            fillLayer.remove();
+        }
+        let stripeOverlay = btn.querySelector(".progress-stripes");
+        if (stripeOverlay) {
+            stripeOverlay.remove();
+        }
+        btn.style.backgroundColor = colors.keyYellow;
+    }
+}
+
+function showSpinnerLoadingCircuit() {
+    let contentCol = document.getElementById("content-col");
+    let spinner = document.createElement("div");
+    spinner.id = "loading-spinner";
+    spinner.classList.add("spinner-border", "text-warning", "mt-5");
+    spinner.setAttribute("role", "status");
+    contentCol.appendChild(spinner);
+}
+
+function hideSpinnerLoadingCircuit() {
+    let contentCol = document.getElementById("content-col");
+    let spinner = contentCol.querySelector("#loading-spinner");
+    if (spinner) {
+        contentCol.removeChild(spinner);
+    }
+}
+
+function scrollContainerToTop(div) {
+    setTimeout(() => {
+        const y = div.getBoundingClientRect().top + window.scrollY;
+
+        const navBar = document.getElementById("navbar");
+        let offset = navBar.offsetHeight + 2;  // with a little bit of margin
+
+        window.scrollTo({top: y - offset, behavior: "smooth"});
+    }, 100);
+}
+
+function createNextCircuitButton() {
+    let nextCircuitBtn = document.createElement("button");
+    nextCircuitBtn.id = "nextCircuitBtn";
+    nextCircuitBtn.classList.add("btn", "btn-primary", "mt-3", "mx-auto");
+    nextCircuitBtn.style.backgroundColor = colors.keyYellow;
+    nextCircuitBtn.style.border = "none";
+    nextCircuitBtn.style.color = colors.keyDark;
+    nextCircuitBtn.style.width = "fit-content";
+    nextCircuitBtn.innerHTML = languageManager.currentLang.nextCircuit;
+
+    nextCircuitBtn.addEventListener("click", () => {
+
+        circuitMapper.setNextCircuitMap(state.currentCircuitMap);
+
+        if (state.currentCircuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
+            resetKirchhoffPage();
+            startKirchhoff();
+        } else {
+            resetSimplifierPage();
+            startSimplifier();
+        }
+    });
+    return nextCircuitBtn;
 }

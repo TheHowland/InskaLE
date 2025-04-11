@@ -539,13 +539,6 @@ th, td {
     display: block;
     height: 45%; /* height position of the start button in container */
 }
-
-/* applies to every start button overlay on the circuits */
-#bootstrap-overrides .circuitStartBtn {
-    font-weight: bold;
-    border-radius: 40px;
-    z-index: 10;
-}
 /* for the start buttons in the modal overviews */
 #bootstrap-overrides .circuitStartBtnModal {
     font-weight: bold;
@@ -638,18 +631,78 @@ th, td {
 @keyframes floatAndFadeOut {
     0% {
         transform: translateY(0);
-        opacity: 1;
     }
     100% {
-        transform: translateY(200px);
-        opacity: 0;
+        transform: translateY(-150px);
+        color: red;
     }
 }
 
 .equation {
-    transition: opacity 1.5s ease-in-out;
+    transition: color 1.5s ease-in;
 }
 
 .equation.fade-out {
     animation: floatAndFadeOut 1.5s forwards;
+}
+/* For circuit start buttons */
+/* applies to every start button overlay on the circuits */
+#bootstrap-overrides .circuitStartBtn {
+    font-weight: bold;
+    border-radius: 40px;
+    z-index: 10;
+
+    position: relative;
+    width: 200px;
+    height: 40px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    /* background-size: 200% 100%; /* For animation movement */
+    background-repeat: no-repeat;
+    overflow: hidden;
+    background-color: gray;
+
+}
+.button-text {
+    position: relative;
+    z-index: 3; /* highest layer */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    pointer-events: none; /* allow click to fall through */
+}
+/* Fill layer for base color */
+.fill-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background-color: #ffc107;
+    transition: width 0.4s ease;
+    z-index: 1;
+}
+
+.progress-stripes {
+    z-index: 2;
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background-image: repeating-linear-gradient(
+            -30deg,
+            rgba(255, 255, 255, 0.3) 0,
+            rgba(255, 255, 255, 0.3) 10px,
+            rgba(255, 255, 255, 0.1) 10px,
+            rgba(255, 255, 255, 0.1) 20px
+    );
+    background-size: 40px 40px;
+    animation: moveStripes 2s linear infinite;
+    transition: width 0.4s ease;
+}
+
+@keyframes moveStripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 0; }
 }

@@ -7,6 +7,7 @@ class LanguageManager {
         this.updateLanguageSimplifierPage();
         this.updateLanguageCheatSheetPage();
         this.updateLanguageAboutPage();
+        this.updateNavigation();
     }
 
     updateLanguageLandingPage() {
@@ -20,6 +21,25 @@ class LanguageManager {
         document.getElementById("landing-page-explanation1").innerHTML = this.currentLang.landingPageExplanation1;
         document.getElementById("landing-page-explanation2").innerHTML = this.currentLang.landingPageExplanation2;
         document.getElementById("landing-page-explanation3").innerHTML = this.currentLang.landingPageExplanation3;
+    }
+
+    updateNavigation() {
+        const navHomeLink = document.getElementById("nav-home");
+        navHomeLink.innerHTML = this.currentLang.home.toUpperCase();
+        const navSelectLink = document.getElementById("nav-select");
+        navSelectLink.innerHTML = this.currentLang.simplifier.toUpperCase();
+        const navCheatLink = document.getElementById("nav-cheat");
+        navCheatLink.innerHTML = this.currentLang.cheatsheet.toUpperCase();
+        const navAboutLink = document.getElementById("nav-about");
+        navAboutLink.innerHTML = this.currentLang.about.toUpperCase();
+        const navDarkMode = document.getElementById("darkmode-label");
+        navDarkMode.innerHTML = this.currentLang.darkmode.toUpperCase();
+        const navGameMode = document.getElementById("game-label");
+        navGameMode.innerHTML = this.currentLang.gamemode.toUpperCase();
+        const navDataPrivacy = document.getElementById("nav-dataprivacy");
+        navDataPrivacy.innerHTML = this.currentLang.dataprivacy;
+        const navLegal = document.getElementById("nav-legal");
+        navLegal.innerHTML = this.currentLang.legal;
     }
 
     updateLanguageSelectorPage() {

@@ -1,6 +1,6 @@
 window.selectorEnTexts = {
     selectorWaitingNote:
-        "This may take a minute",
+        "Loading circuits...",
     selectorHeadings:
         {
             "quick": "QUICKSTART",

@@ -27,6 +27,7 @@ function nextSimplifierStep(stepObject) {
 
     setupStepButtonsFunctionality(div);
     appendTotalValues(stepObject, electricalElements);
+    scrollContainerToTop(circuitContainer);
     congratsAndVCDisplayIfFinished(electricalElements, contentCol, stepObject);
     MathJax.typeset();
 }
@@ -140,8 +141,8 @@ function getFinishMsg() {
 
     // Give a note what voltage is used and that voltage/current is available
     msg = `
-        <p>${languageManager.currentLang.msgVoltAndCurrentAvailable}.<br></p>
-        <p>${languageManager.currentLang.msgShowVoltage}<br>${sourceInfo}</p>
+        <p class="mx-auto" style="max-width: 400px">${languageManager.currentLang.msgVoltAndCurrentAvailable}.<br></p>
+        <p class="mx-auto" style="max-width: 400px">${languageManager.currentLang.msgShowVoltage}<br>${sourceInfo}</p>
         <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
         <button class="btn btn-primary mx-1 disabled" id="check-btn">check</button>
     `;
@@ -268,6 +269,7 @@ function fillLabels(svgDiv) {
     let labels = svgDiv.querySelectorAll(".element-label");
     for (let label of labels) {
         if (label.nodeName === "path") continue;
+        label.style.fill = colors.currentForeground;
         let span = label.querySelector("tspan");
         if (state.valuesShown.get(svgDiv.id)) {
             span.innerHTML = MJtoText(state.allValuesMap.get(label.classList[label.classList.length - 1]));
@@ -348,8 +350,6 @@ function toggleText(text, svgDiv) {
 function toggleNameValue(svgDiv, nameValueToggleBtn) {
     let containsZ = divContainsZLabels(svgDiv);
     if (containsZ) {
-        let rect = svgDiv.getBoundingClientRect();
-        let y = rect.y + window.scrollY + 200;
         showMessage(languageManager.currentLang.alertNotToggleable, "info");
         return;
     }
@@ -458,9 +458,13 @@ async function checkAndSimplifyNext(div){
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
 
     if (state.selectedElements.length <= 1) {
-        showMessage(languageManager.currentLang.alertChooseAtLeastTwoElements, "warning");
+        setTimeout(() =>
+            showMessage(languageManager.currentLang.alertChooseAtLeastTwoElements, "warning"),
+        0);
+        document.getElementById("check-btn").innerHTML = "check";
     } else {
-        let obj = await stepSolve.simplifyNCpts(state.selectedElements).toJs({dict_converter: Object.fromEntries});
+        //let obj = await stepSolve.simplifyNCpts(state.selectedElements).toJs({dict_converter: Object.fromEntries});
+        let obj = await state.simplifierAPI.simplifyNCpts(state.selectedElements);
         obj.__proto__ = StepObject.prototype;
         checkAndSimplify(obj, contentCol, div);
     }
@@ -474,14 +478,16 @@ function checkAndSimplify(stepObject, contentCol, div) {
         if (notLastPicture()) {
             contentCol.append(div);
             enableLastCalcButton();
-            scrollNextElementsContainerIntoView();
         }
         // Remove event listeners from old picture elements
         removeOldEventListeners();
         nextSimplifierStep(stepObject);
     } else {
-        showMessage(languageManager.currentLang.alertCanNotSimplify, "warning");
+        setTimeout(() =>
+            showMessage(languageManager.currentLang.alertCanNotSimplify, "warning")
+            , 0);
         pushCircuitEventMatomo(circuitActions.ErrCanNotSimpl);
+        document.getElementById("check-btn").innerHTML = "check";
     }
 }
 
@@ -600,20 +606,13 @@ function setupStepButtonsFunctionality(div) {
     // Check btn clicked, set spinner inside and simplify next step
     document.getElementById("check-btn").addEventListener('click', async () => {
         document.getElementById("check-btn").innerHTML = "<span class='spinner-border spinner-border-sm'></span>";
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                checkAndSimplifyNext(div);
-                document.getElementById("check-btn").innerHTML = "check";
-            }, 0);
-        });
+        checkAndSimplifyNext(div);
     });
 }
 
 function removeOldEventListeners() {
     const svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    const pathElements = svgDiv.querySelectorAll('path');
-    let electricElements = Array.from(pathElements).filter(path => (path.getAttribute('class') !== 'na')
-        && (!path.getAttribute('class').includes("arrow")));
+    let electricElements = getElementsFromSvgContainer(svgDiv);
     for (let element of electricElements) {
         // Clone the node and replace its original with the clone, this removes all event listeners
         let clone = element.cloneNode(true);
@@ -643,6 +642,8 @@ function congratsAndVCDisplayIfFinished(electricalElements, contentCol, stepObje
         addFirstVCExplanation(stepObject);
         addSolutionsButton();
         finishCircuit(contentCol);
+        let nextCircuitBtn = createNextCircuitButton();
+        contentCol.appendChild(nextCircuitBtn);
     }
 }
 

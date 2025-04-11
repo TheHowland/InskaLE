@@ -11,10 +11,6 @@ function setSvgColorMode(svgData) {
     }
 }
 
-function setKirchSvgColorToGray(svgData) {
-    return svgData.replaceAll(colors.lightModeSvgStrokeColor, colors.kirchhoffGray);
-}
-
 function enableCheckBtn() {
     document.getElementById("check-btn").disabled = false;
 }
@@ -32,13 +28,13 @@ function resetSimplifierPage(calledFromResetBtn = false) {
         }
     }
     clearSimplifierPageContent();
+    showSpinnerLoadingCircuit();
     state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
-    state.voltEquations = [];
     scrollBodyToTop();
-    if (calledFromResetBtn && state.pyodideReady) {
+    if (calledFromResetBtn) {
         startSimplifier();  // Draw the first picture again
     }
 }
@@ -51,13 +47,6 @@ function enableLastCalcButton() {
     }, 100);
 }
 
-function scrollNextElementsContainerIntoView() {
-    setTimeout(() => {
-        const nextElementsText = document.getElementById("nextElementsContainer");
-        if (nextElementsText != null) {nextElementsText.scrollIntoView()}
-    }, 100);
-}
-
 async function getCircuitInfo() {
     let circuitInfoPath = await stepSolve.createCircuitInfo();
     let circuitInfoFile = await state.pyodide.FS.readFile(circuitInfoPath, {encoding: "utf8"});
@@ -66,7 +55,8 @@ async function getCircuitInfo() {
 }
 
 async function getJsonAndSvgStepFiles() {
-    const files = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
+    //const files = await state.pyodide.FS.readdir(`${conf.pyodideSolutionsPath}`);
+    let files = await state.pyodideAPI.readDir(conf.pyodideSolutionsPath);
     state.jsonFiles_Z = files.filter(file => !file.endsWith("VC.json") && file.endsWith(".json"));
     state.jsonFiles_VC = files.filter(file => file.endsWith("VC.json"));
     if (state.jsonFiles_VC === []) {
@@ -77,29 +67,33 @@ async function getJsonAndSvgStepFiles() {
 }
 
 async function createAndShowStep0(circuitMap) {
-    await clearSolutionsDir();
+    //await clearSolutionsDir();
 
     let paramMap = new Map();
     paramMap.set("volt", languageManager.currentLang.voltageSymbol);
     paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    stepSolve = state.solve.SolveInUserOrder(
-        circuitMap.circuitFile,
-        `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`,
-        "",
-        paramMap);
+    await state.simplifierAPI.initStepSolver(circuitMap.circuitFile, `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`, paramMap);
 
-    let obj = await stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});
+    let obj = await state.simplifierAPI.createStep0();
     obj.__proto__ = Step0Object.prototype;
     state.step0Data = obj;
     state.currentStep = 0;
     state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltageVal());
     state.allValuesMap.set(`I${languageManager.currentLang.totalSuffix}`, getSourceCurrentVal());
+    hideSpinnerLoadingCircuit();
     nextSimplifierStep(state.step0Data);
 }
 
 function startSimplifier() {
     try{
+        if (!state.pyodideReady && (state.currentCircuitMap.selectorGroup === circuitMapper.selectorIds.quick)) {
+            // Use the hardcoded step solver for the quick selector while pyodide is not ready
+            // so the user can already start with a circuit while pyodide is loading in the background
+            state.simplifierAPI = state.hardcodedStepSolverAPI;
+        } else {
+            state.simplifierAPI = state.stepSolverAPI;
+        }
         createAndShowStep0(state.currentCircuitMap);
         //The div element that contains the SVG representation of the circuit diagram.
         const svgDiv = document.querySelector('.svg-container');

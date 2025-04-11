@@ -25,4 +25,8 @@ window.alertsEnTexts = {
         "Invalid order of voltages",
     alertSomethingIsWrong:
         "Something went wrong",
+    alertNotAllVoltLoopsFound:
+        "You have not found all voltage loops yet",
+    alertNotAllEquationsFound:
+        "Not enough equations are found to solve the circuit",
 }

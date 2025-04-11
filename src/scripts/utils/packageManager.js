@@ -20,58 +20,51 @@ class PackageManager {
     }
 
     async doLoadsAndImports() {
-        await this.loadCircuits();
+        // Already in map circuits await this.loadCircuits();
+        state.loadingProgress = 30;
+        updateStartBtnLoadingPgr(state.loadingProgress);
         await this.importPyodidePackages();
         await this.importSolverModule();
-    }
+        state.loadingProgress = 100;
+        updateStartBtnLoadingPgr(state.loadingProgress);
+        finishStartBtns();
+        state.pyodideReady = true;
+        selectorBuilder.enableStartBtns();
 
-    async loadCircuits() {
-        let loadCircuits = "loading circuits";
-        console.time(loadCircuits);
-
-        //An array buffer containing the zipped circuit files fetched from the server.
-        let cirArrBuff = await (await fetch(conf.sourceCircuitPath)).arrayBuffer();
-        await state.pyodide.unpackArchive(cirArrBuff, ".zip");
-
-        state.circuitFiles = state.pyodide.FS.readdir(`${conf.pyodideCircuitPath}`);
-        state.circuitFiles = state.circuitFiles.filter((file) => file !== "." && file !== "..");
-        console.timeEnd(loadCircuits);
+        let endTime = new Date().getTime();
+        let loadTime = endTime - startTime;
+        console.log("Loading time: " + loadTime + "ms");
     }
 
     async importPyodidePackages() {
+        console.log("Loading packages");
         await this.load_packages();
+        state.loadingProgress = 50;
+        updateStartBtnLoadingPgr(state.loadingProgress);
         await this.import_packages();
     }
 
     async importSolverModule() {
-        state.pyodide.FS.writeFile(conf.pyodideSolvePath, await (await fetch(conf.sourceSolvePath)).text());
-        state.solve = await state.pyodide.pyimport("solve");
+        let content = await (await fetch(conf.sourceSolvePath)).text();
+        await state.pyodideAPI.writeFile(conf.pyodideSolvePath, content);
+        await state.pyodideAPI.loadSolver();
     }
 
     async import_packages() {
         let packages = ["matplotlib", "numpy", "sympy", "networkx", "IPython", "schemdrawInskale", "ordered_set", "lcapyInskale"];
-        let progressBarContainer = document.getElementById("pgr-bar-container");
-        // set the bar to 40% because we already did some stuff, just a ruff estimation
-        // this will enable us to start the new calculation from a fixed point
-        let basePercentage = 30;
-        setPgrBarTo(basePercentage);
+        // 50% remaining
+        let len = packages.length;
+        let stepSize = Math.floor(50 / len);
 
-        let progress = 0;
         for(const packageName of packages){
-            await state.pyodide.runPythonAsync("import " + packageName)
-            progress += 1;
-            console.log("finished:" + packageName)
-            let percent = basePercentage + Math.floor((progress / packages.length) * (100 - basePercentage));
-            setPgrBarTo(percent);
+            await state.pyodideAPI.loadPackage(packageName);
+            state.loadingProgress += stepSize;
+            updateStartBtnLoadingPgr(state.loadingProgress);
         }
-
         console.log("Imported: " + packages);
     }
 
     async load_packages(optAddNames) {
-        let basePercentage = 10;
-        setPgrBarTo(basePercentage);
-
         let packageAddress = conf.sourcePackageDir;
         let packages = await this.fetchDirectoryListing(packageAddress, ".whl");
 
@@ -81,23 +74,22 @@ class PackageManager {
             }
         }
 
-        let progress = 0;
-        const updateProgress = () => {
-            progress += 1;
-            let percent = basePercentage + Math.floor(((progress / packages.length) * 100) / 5);
-            setPgrBarTo(percent);
-        };
+        state.loadingProgress = 30;
+        updateStartBtnLoadingPgr(state.loadingProgress);
+        let len = packages.length;
 
+        let stepSize = 20 / len;
         let packagePromises = packages.map(async function (packageName) {
             let pkgArrBuff = await (await fetch(conf.sourcePackageDir + packageName)).arrayBuffer();
             let packageExtension = packageName.slice(packageName.lastIndexOf("."), packageName.length);
-            await state.pyodide.unpackArchive(pkgArrBuff, packageExtension);
-
-            updateProgress();
+            await state.pyodideAPI.unpackArchive(pkgArrBuff, packageExtension);
+            console.log("Unpacking: " + packageName);
+            state.loadingProgress += stepSize;
+            updateStartBtnLoadingPgr(state.loadingProgress);
         });
 
         await Promise.all(packagePromises);
-        console.log("Installed:" + packages);
+        console.log("Loaded packages:" + packages);
     }
 
     async #fetchDirectoryListing(path, extension = "") {

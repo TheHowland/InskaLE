@@ -2,6 +2,7 @@
 // ##################################              GLOBALS            ##################################################
 // #####################################################################################################################
 
+let worker = null;
 let state = new StateObject();
 let colors = new ColorDefinitions();
 let selectorBuilder = new SelectorBuilder();
@@ -11,6 +12,8 @@ let packageManager = null;
 let circuitMapper = null;
 let pageManager;
 
+let startTime = null;
+
 // #####################################################################################################################
 // ##################################              MAIN            #####################################################
 // #####################################################################################################################
@@ -18,14 +21,26 @@ let pageManager;
 // showing different containers that act as pages
 // #####################################################################################################################
 async function main() {
-    modalConfig();
-    disableStartBtnAndSimplifierLink();
-    setLanguageAndScheme();
+    worker = new Worker("src/scripts/pyodideAPI/pyodideWorker.js");
+    state.pyodideAPI = new PyodideAPI(worker);
+    state.stepSolverAPI = new StepSolverAPI(worker);
+    state.hardcodedStepSolverAPI = new HardcodedStepSolverAPI(worker);
+    state.kirchhoffSolverAPI = new KirchhoffSolverAPI(worker);
 
     conf = new Configurations();
     await conf.initialize();
     packageManager = new PackageManager();
     await packageManager.initialize();
+    startTime = new Date().getTime();
+    circuitMapper = new CircuitMapper();
+    state.circuitsLoadedPromise = circuitMapper.mapCircuits();
+    state.circuitsLoadedPromise.then(() => {
+        packageManager.doLoadsAndImports();
+    });
+
+    modalConfig();
+    disableStartBtnAndSimplifierLink();
+    setLanguageAndScheme();
 
     // Setup landing page first to make sure nothing else is shown at start
     pageManager = new PageManager(document);

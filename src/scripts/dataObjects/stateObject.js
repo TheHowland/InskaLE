@@ -2,6 +2,9 @@
 // compact in one object (what otherwise would be global variables)
 
 class StateObject {
+    loadingProgress = 0;
+    circuitsLoadedPromise = null;
+
     //Tracks the current step in the circuit simplification process.
     currentStep = 0;
 
@@ -17,12 +20,15 @@ class StateObject {
     //Stores the currently selected circuit map
     currentCircuitMap = null;
 
-    //The Python module imported from the Pyodide environment for solving circuits.
-    solve;
+    // Pyodide API
+    pyodideAPI = null;
+    kirchhoffSolverAPI = null;
+    simplifierAPI = null;
+    stepSolverAPI = null;
+    hardcodedStepSolverAPI = null;
 
-    // Solver object
-    kirchhoffSolver = null;
-    stepSolve = null;
+    doneVoltages = [];
+    doneCurrents = [];
     voltEquations = [];
     gamification = false;
     extraLiveUsed = false;
@@ -30,7 +36,8 @@ class StateObject {
     //Boolean to track if the Pyodide environment is ready.
     pyodide = null;
     pyodideReady = false;
-    pyodideLoading = false;
+
+    selectorsBuild = false;
 
     //To count how many svgs are on the screen right now
     pictureCounter = 0;
@@ -40,5 +47,4 @@ class StateObject {
 
     // Toggle variables
     valuesShown = new Map();
-
 }

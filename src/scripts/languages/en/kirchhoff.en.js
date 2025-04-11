@@ -22,8 +22,14 @@ window.kirchhoffEnTexts = {
         "You have already used your extra life, try again",
     extraLiveText:
         "Oh no, try again or solve the task correctly to get an extra life",
-    extraLiveQuestion:
-        "Whats the meaning of life?",
     givenValues:
         "Given values",
+    foundAllVoltageLoops:
+        "All voltage loops found",
+    foundEnoughVoltLoops:
+        "Enough equations found to solve the circuit without current equations",
+    finishBtn:
+        "Finish",
+    junctionBtn:
+        "🠖 Junction law"
 }

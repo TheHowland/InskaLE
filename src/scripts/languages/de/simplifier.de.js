@@ -69,5 +69,7 @@ window.simplifierDeTexts = {
         "zur&uumlck",
     onlyImaginaryPart:
         "Rein imagin&aumlr, zur&uumlck zu ",
+    nextCircuit:
+        "N&aumlchste Schaltung",
 
 }

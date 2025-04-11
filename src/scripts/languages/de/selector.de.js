@@ -1,6 +1,6 @@
 window.selectorDeTexts = {
     selectorWaitingNote:
-        "Das kann eine Minute dauern",
+        "Schaltungen werden geladen...",
     selectorHeadings:
         {
             "quick": "SCHNELLSTART",

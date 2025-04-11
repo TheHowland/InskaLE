@@ -171,25 +171,55 @@ class SelectorBuilder {
     }
 
     createCarouselItemForCircuit(circuit) {
+        // The only difference between the quickstart and the rest is the button overlay
+        // For the Quickstart, the button doesn't get loading stripes since it can be started immediately
+        if (circuit.selectorGroup === circuitMapper.selectorIds.quick) {
+            return this.itemForQuickStart(circuit);
+        } else {
+            return this.itemForRest(circuit);
+        }
+    }
+
+    itemForQuickStart(circuit) {
         return `<div class="carousel-item justify-content-center">
                     <div id="${circuit.btnOverlay}" class="img-overlay">
-                        <button id="${circuit.btn}" class="btn btn-warning text-dark px-5 circuitStartBtn">start</button>
+                        <button id="${circuit.btn}" class="btn btn-warning text-dark px-5 circuitStartBtn">
+                            <span class="button-text">start</span>
+                        </button>
                     </div>
                     <div id="${circuit.circuitDivID}" class="svg-selector mx-auto">
                     </div>
                 </div>`;
     }
 
-    // ######################### Setup #######################################
-    setupSelector(circuitSet, pageManager) {
-        for (const [idx, circuit] of circuitSet.set.entries()) {
-            this.setupSpecificCircuitSelector(circuit, pageManager);
-            this._showFirstCircuitAsSelected(idx, circuitSet);
-        }
-        if (moreThanOneCircuitInSet(circuitSet)) {
-            this.setupNextAndPrevButtons(circuitSet);
-        } else {
-            this.hideNextAndPrevButtons(circuitSet);
+    itemForRest(circuit) {
+        return `<div class="carousel-item justify-content-center">
+                    <div id="${circuit.btnOverlay}" class="img-overlay">
+                        <button id="${circuit.btn}" class="btn btn-warning text-dark px-5 circuitStartBtn">
+                            <div class="fill-layer"></div>
+                            <div class="progress-stripes"></div>
+                            <span class="button-text">start</span>
+                        </button>
+                    </div>
+                    <div id="${circuit.circuitDivID}" class="svg-selector mx-auto">
+                    </div>
+                </div>`;
+    }
+
+// ######################### Setup #######################################
+    async setupSelector(circuitSet, pageManager) {
+        try {
+            for (const [idx, circuit] of circuitSet.set.entries()) {
+                await this.setupSpecificCircuitSelector(circuit, pageManager);
+                this._showFirstCircuitAsSelected(idx, circuitSet);
+            }
+            if (moreThanOneCircuitInSet(circuitSet)) {
+                this.setupNextAndPrevButtons(circuitSet);
+            } else {
+                this.hideNextAndPrevButtons(circuitSet);
+            }
+        } catch (error) {
+            console.error(`Error setting up circuit selector for ${circuitSet.identifier}:`, error);
         }
     }
 
@@ -200,28 +230,51 @@ class SelectorBuilder {
         }
     }
 
-    setupSpecificCircuitSelector(circuitMap, pageManager) {
+    async setupSpecificCircuitSelector(circuitMap, pageManager) {
         const circuitDiv = document.getElementById(circuitMap.circuitDivID);
         const startBtn = document.getElementById(circuitMap.btn);
         const btnOverlay = document.getElementById(circuitMap.btnOverlay);
 
         // Fill div with svg
-        let svgData = state.pyodide.FS.readFile(circuitMap.overViewSvgFile, {encoding: "utf8"});
-        svgData = setSvgWidthTo(svgData, "100%");
-        svgData = setSvgColorMode(svgData);
-        circuitDiv.innerHTML = svgData;
-        this.addVoltFreqOverlay(circuitDiv, circuitMap);
+        //let svgData = state.pyodide.FS.readFile(circuitMap.overViewSvgFile, {encoding: "utf8"});
+        try {
+            let svgData = await state.pyodideAPI.readFile(circuitMap.overViewSvgFile, "utf8");
+            svgData = setSvgWidthTo(svgData, "100%");
+            svgData = setSvgColorMode(svgData);
+            circuitDiv.innerHTML = svgData;
+            this.addVoltFreqOverlay(circuitDiv, circuitMap);
 
-        hideSvgArrows(circuitDiv);
-        hideLabels(circuitDiv);
+            hideSvgArrows(circuitDiv);
+            hideLabels(circuitDiv);
 
-        // Setup specific circuit in overview modal
-        this.setupOverviewModalCircuit(circuitMap, circuitDiv, pageManager);
+            // Setup specific circuit in overview modal
+            this.setupOverviewModalCircuit(circuitMap, circuitDiv, pageManager);
 
-        this.setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
-        startBtn.addEventListener("click", () =>
-            this.circuitSelectorStartButtonPressed(circuitMap, pageManager))
+            this.setupSelectionCircuit(circuitDiv, startBtn, btnOverlay);
+            // Disable start buttons for all selector groups except quickstart when pyodide is not ready
+            if (circuitMap.selectorGroup !== circuitMapper.selectorIds.quick) {
+                if (!state.pyodideReady) {
+                    startBtn.disabled = true;
+                }
+            } else {
+                startBtn.style.backgroundColor = colors.keyYellow;
+            }
+            startBtn.addEventListener("click", () =>
+                this.circuitSelectorStartButtonPressed(circuitMap, pageManager));
+        } catch (error) {
+            console.error(`Error loading ${circuitMap.overViewSvgFile}:`, error);
+        }
+    }
 
+    enableStartBtns() {
+        let startBtns = document.getElementsByClassName("circuitStartBtn");
+        for (const startBtn of startBtns) {
+            startBtn.disabled = false;
+        }
+        startBtns = document.getElementsByClassName("circuitStartBtnModal");
+        for (const startBtn of startBtns) {
+            startBtn.disabled = false;
+        }
     }
 
     addVoltFreqOverlay(circuitDiv, circuitMap) {
@@ -259,6 +312,9 @@ class SelectorBuilder {
             const gridElement = document.getElementById(`${circuitMap.circuitDivID}-overviewModal`);
             gridElement.innerHTML = circuitDiv.innerHTML;  // copy svg without arrows to modal
             const overviewStartBtn = document.getElementById(`${circuitMap.btn}-modalBtn`);
+            if (!state.pyodideReady) {
+                overviewStartBtn.disabled = true;
+            }
             overviewStartBtn.addEventListener("click", () => {
                 // we need the bootstrap modal instance in order to close it
                 const modal = document.getElementById(`${circuitMap.selectorGroup}-overviewModal`);
@@ -294,22 +350,29 @@ class SelectorBuilder {
         prev.hidden = true;
     }
 
-    circuitSelectorStartButtonPressed(circuitMap, pageManager){
+    async circuitSelectorStartButtonPressed(circuitMap, pageManager) {
         clearSimplifierPageContent();
+        showSpinnerLoadingCircuit();
         state.currentCircuitMap = circuitMap;
         state.pictureCounter = 0;
         state.allValuesMap = new Map();
-        if (state.pyodideReady) {
-            if (circuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
-                document.title = "Kirchhoff";
-                pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile);
-                startKirchhoff();
-            } else {
-                document.title = "Simplifier";
-                pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
-                startSimplifier();
+
+        /* TODO
+            if (state.gamification) {
+                addLivesField();
             }
+         */
+
+        if (circuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
+            document.title = "Kirchhoff";
+            pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile);
+            startKirchhoff();
+        } else {
+            document.title = "Simplifier";
+            pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile)
+            startSimplifier();
         }
+
 
         pageManager.disableSettings();
         const selectorPage = document.getElementById("select-page-container");

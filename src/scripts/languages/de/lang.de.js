@@ -6,4 +6,6 @@ window.german = {
     ...window.kirchhoffDeTexts,
     ...window.cheatsheetDeTexts,
     ...window.dataLegalAboutDeTexts,
+    ...window.extraLiveQuestionsDe,
+    ...window.navigationDeTexts,
 }

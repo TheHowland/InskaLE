@@ -8,29 +8,30 @@ class CircuitMapper {
 
     async mapCircuits () {
         await this.fillFilesObject();
+        state.circuitFiles = this.files;
 
         for (let dir of this.circuitDirs) {
             if (dir === allowedDirNames.quickstart) {
-                this.addCircuitMaps(dir, this._quickstart, this.selectorIds.quick);
+                await this.addCircuitMaps(dir, this._quickstart, this.selectorIds.quick);
             } else if (dir === allowedDirNames.resistor) {
-                this.addCircuitMaps(dir, this._resistor, this.selectorIds.res);
+                await this.addCircuitMaps(dir, this._resistor, this.selectorIds.res);
             } else if (dir === allowedDirNames.capacitor) {
-                this.addCircuitMaps(dir, this._capacitor, this.selectorIds.cap);
+                await this.addCircuitMaps(dir, this._capacitor, this.selectorIds.cap);
             } else if (dir === allowedDirNames.inductor) {
-                this.addCircuitMaps(dir, this._inductor, this.selectorIds.ind);
+                await this.addCircuitMaps(dir, this._inductor, this.selectorIds.ind);
             } else if (dir === allowedDirNames.mixed) {
-                this.addCircuitMaps(dir, this._mixed, this.selectorIds.mixedId);
+                await this.addCircuitMaps(dir, this._mixed, this.selectorIds.mixedId);
             } else if (dir === allowedDirNames.symbolic) {
-                this.addCircuitMaps(dir, this._symbolic, this.selectorIds.symbolic);
+                await this.addCircuitMaps(dir, this._symbolic, this.selectorIds.symbolic);
             } else if (dir === allowedDirNames.kirchhoff) {
-                this.addCircuitMaps(dir, this._kirchhoff, this.selectorIds.kirchhoff);
+                await this.addCircuitMaps(dir, this._kirchhoff, this.selectorIds.kirchhoff);
             } else {
                 console.error("Unknown directory: " + dir);
                 console.error("Allowed Names: " + Object.values(allowedDirNames));
                 console.info("See allowedDirNames.js for more information");
             }
         }
-        this.updateCircuitSets();
+        this.updateCircuitSets(); // TODO
     }
 
 
@@ -80,7 +81,7 @@ class CircuitMapper {
 
     circuitSets = [];
 
-    updateCircuitSets() {
+    async updateCircuitSets() {
         // This is the order in which the circuits are displayed on the selector page
         if (this._quickstart.set.length !== 0) {
             this.circuitSets.push(this._quickstart);
@@ -105,14 +106,14 @@ class CircuitMapper {
         }
     }
 
-    addCircuitMaps(dir, set, identifier) {
+    async addCircuitMaps(dir, set, identifier) {
         if (!Object.values(this.selectorIds).includes(identifier)) {
             console.error("Unknown identifier: " + identifier);
             console.error("Allowed Identifiers: " + Object.values(this.selectorIds));
         }
 
         for (let circuitFileName of this.files[dir]) {
-            let circuit = this.createCircuitMap(circuitFileName, dir, identifier)
+            let circuit = await this.createCircuitMap(circuitFileName, dir, identifier)
             set.set.push(circuit);
         }
         set.set.sort(this._compareByCircuitDivIds);
@@ -130,11 +131,12 @@ class CircuitMapper {
         return 0;
     }
 
-    createCircuitMap(circuitFileName, dir, id) {
+    async createCircuitMap(circuitFileName, dir, id) {
         let circuitId = circuitFileName.split(".")[0]
-        let result = this.readVoltageAndFreq(`${this._circuitsPath}/${dir}/${circuitId}.txt`);
+        let result = await this.readVoltageAndFreq(`${this._circuitsPath}/${dir}/${circuitId}.txt`);
         if (result === null) {
-            console.error("No voltage or frequency found in file: " + circuitFileName);
+            console.warn("No voltage or frequency found in file: " + circuitFileName);
+            result = {voltage: "", frequency: ""};
         }
         return {
             circuitDivID: `${circuitId}-${id}-div`,
@@ -150,8 +152,8 @@ class CircuitMapper {
         }
     }
 
-    readVoltageAndFreq(path) {
-        let file = state.pyodide.FS.readFile(path, {encoding: "utf8"});
+    async readVoltageAndFreq(path) {
+        let file = await state.pyodideAPI.readFile(path, "utf8");
         const lines = file.split('\n');
 
         for (let line of lines) {
@@ -159,7 +161,7 @@ class CircuitMapper {
             const matchAC = line.match(/^V\d+ \d+ \d+ ac \{(.*?)\} \{.*?\} \{(.*?)\}/);
 
             if (matchDC) {
-                return { voltage: matchDC[1] + "V", frequency: null };
+                return {voltage: matchDC[1] + "V", frequency: null};
             } else if (matchAC) {
                 let omegaStr = matchAC[2].trim();
                 let frequency;
@@ -167,7 +169,7 @@ class CircuitMapper {
                     omegaStr = omegaStr.replace(/pi/g, "Math.PI");
                 }
                 frequency = eval(omegaStr.replace(/pi/g, "Math.PI")) / (2 * Math.PI);
-                return { voltage: matchAC[1] + "V", frequency: this.formatFrequency(Math.round(frequency))};
+                return {voltage: matchAC[1] + "V", frequency: this.formatFrequency(Math.round(frequency))};
             }
         }
 
@@ -188,15 +190,36 @@ class CircuitMapper {
 
     async fillFilesObject() {
         let cirArrBuff = await (await fetch(conf.sourceCircuitPath)).arrayBuffer();
-        await state.pyodide.unpackArchive(cirArrBuff, ".zip");
+        await state.pyodideAPI.unpackArchive(cirArrBuff, ".zip");
+        this.circuitDirs = await state.pyodideAPI.readDir(this._circuitsPath);
+        console.log("Read circuits");
 
-        this.circuitDirs = state.pyodide.FS.readdir(this._circuitsPath);
         this.circuitDirs = this.circuitDirs.filter((file) => file !== "." && file !== ".." && file !== "readme.md");
         this.files = {};
         for (let dir of this.circuitDirs) {
-            let circuits = state.pyodide.FS.readdir(this._circuitsPath + "/" + dir);
-            circuits = circuits.filter((file) => file !== "." && file !== ".." && !file.endsWith(".svg"));
+            let circuits = await state.pyodideAPI.readDir(`${this._circuitsPath}/${dir}`);
+            circuits = circuits.filter((file) =>
+                file !== "."
+                && file !== ".."
+                && !file.endsWith(".svg")
+                && !file.endsWith(".json"));
             this.files[dir] = circuits
         }
+        console.log("Read circuit files");
+    }
+
+    setNextCircuitMap(circuitMap) {
+        // Get current selector set
+        let set = this.circuitSets.find(group => group.identifier === circuitMap.selectorGroup);
+        // Find the index of the current circuit in the set
+        let index = set.set.findIndex(circuitM => circuitM === circuitMap);
+        // Get the next circuit in the set
+        let nextCircuit = set.set[index + 1];
+        // If there is no next circuit, return the first one
+        if (!nextCircuit) {
+            nextCircuit = set.set[0];
+        }
+        // Set the next circuit map
+        state.currentCircuitMap = nextCircuit;
     }
 }

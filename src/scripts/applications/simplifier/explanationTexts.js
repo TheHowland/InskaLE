@@ -451,6 +451,7 @@ function getComplexNonSymbolicSeriesVC(stepObject) {
     let str = "";
     let SimplifiedZinPolar = toPolar(stepObject.simplifiedTo.Z.impedance, stepObject.simplifiedTo.Z.phase);
     let SimplifiedIinPolar = toPolar(stepObject.simplifiedTo.I.val, stepObject.simplifiedTo.I.phase);
+    let SimplifiedUinPolar = toPolar(stepObject.simplifiedTo.U.val, stepObject.simplifiedTo.U.phase);
 
     // Calculate current
     str += `${languageManager.currentLang.currentCalcHeading} \\(${stepObject.simplifiedTo.Z.name}\\)<br>`;
@@ -459,7 +460,7 @@ function getComplexNonSymbolicSeriesVC(stepObject) {
     } else {
         str += `$$\\mathbf{${stepObject.simplifiedTo.I.name}} = \\frac{\\mathbf{${stepObject.simplifiedTo.U.name}}}{\\mathbf{Z_{${stepObject.simplifiedTo.Z.name}}}}$$`;
     }
-    str += `$$\\mathbf{${stepObject.simplifiedTo.I.name}} = \\frac{${stepObject.simplifiedTo.U.val}}{${SimplifiedZinPolar}}$$`;
+    str += `$$\\mathbf{${stepObject.simplifiedTo.I.name}} = \\frac{${SimplifiedUinPolar}}{${SimplifiedZinPolar}}$$`;
     str += `$$\\mathbf{${stepObject.simplifiedTo.I.name}} = ${toPolar(stepObject.simplifiedTo.I.val, stepObject.simplifiedTo.I.phase)}$$<br>`;
     // Text
     str += `${languageManager.currentLang.relationTextSeries}.<br>`;

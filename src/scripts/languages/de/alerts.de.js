@@ -25,4 +25,8 @@ window.alertsDeTexts = {
         "Ung&uumlltige Reihenfolge der Spannungen",
     alertSomethingIsWrong:
         "Etwas lief falsch",
+    alertNotAllVoltLoopsFound:
+        "Du hast noch nicht alle Spannungsmaschen gefunden",
+    alertNotAllEquationsFound:
+        "Es fehlen noch Gleichungen um die Schaltung zu l&oumlsen",
 }

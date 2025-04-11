@@ -117,71 +117,53 @@ class PageManager {
     }
 
     async landingPageStartBtnClicked() {
-        if (state.pyodideLoading || state.pyodideReady) {
+        try {
             this.showSelectPage();
-        } else {
-            try{
-                let loadingProcess = "loadingProcess"
-                console.time(loadingProcess);
-
-                this.showSelectPage();
-                setPgrBarTo(0);
+            if (!state.selectorsBuild) {
+                state.selectorsBuild = true;
                 const note = showWaitingNote();
-                setPgrBarTo(1);
-                state.pyodideLoading = true;
-                // Get the pyodide instance and setup pages with functionality
-                state.pyodide = await loadPyodide();
-                setInterval(() => {
-                        note.innerHTML = languageManager.currentLang.messages[Math.floor(Math.random() * languageManager.currentLang.messages.length)]},
-                    8000);
-                setPgrBarTo(5);
-                // Map all circuits into map and build the selectors
-                circuitMapper = new CircuitMapper();
-                await circuitMapper.mapCircuits();
+                setPgrBarTo(60);
 
-                setPgrBarTo(10);
+                // TODO make sure first svgs are loaded :)
+                await state.circuitsLoadedPromise;
+
                 selectorBuilder.buildSelectorsForAllCircuitSets();
-                updateSelectorPageColors();
+                pageManager.setupSelectPage(); // Fill carousels with svg data
 
+                updateSelectorPageColors();
                 hideQuickstart();
                 hideAccordion();
+                setPgrBarTo(100);
 
-                // Starts with 10%
-                await packageManager.doLoadsAndImports();
-                if (packageManager.catchedError){
+                if (packageManager.catchedError) {
                     //this has local error handling, so we need to rethrow an error to break out
                     pageManager.onError()
                     throw new Error("packageManager error")
                 }
 
                 selectorBuilder.adaptSelectorFrameColor();
-
                 this.hideProgressBar();
-
                 showQuickstart();
                 showAccordion();
                 note.innerHTML = "";
-
-                pageManager.setupSelectPage();
-
-                console.timeEnd(loadingProcess);
             }
-            catch (error){
-                console.error(error)
-                pageManager.onError()
-            }
+        } catch (error){
+            console.error(error)
+            pageManager.onError()
         }
     }
 
-    setupSelectPage() {
+    async setupSelectPage() {
         // Fill accordion and carousels with svg data
         languageManager.updateLanguageSelectorPage();
         for (const circuitSet of circuitMapper.circuitSets) {
-            selectorBuilder.setupSelector(circuitSet, this);
+            await selectorBuilder.setupSelector(circuitSet, this);
         }
     }
 
     setupNavigation() {
+        languageManager.updateNavigation();
+
         const navHomeLink = document.getElementById("nav-home");
         const navSelectLink = document.getElementById("nav-select");
         const navCheatLink = document.getElementById("nav-cheat");
@@ -334,7 +316,5 @@ class PageManager {
         progressBarContainer.style.display = "none";
         document.title = "Circuit Selection";
         pushPageViewMatomo("Ready");
-        state.pyodideReady = true;
-        state.pyodideLoading = false;
     }
 }

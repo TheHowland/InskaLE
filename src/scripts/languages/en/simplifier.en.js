@@ -66,4 +66,6 @@ window.simplifierEnTexts = {
         "back",
     onlyImaginaryPart:
         "Only imaginary part, back to ",
+    nextCircuit:
+        "Next circuit",
 }

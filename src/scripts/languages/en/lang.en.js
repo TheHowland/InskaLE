@@ -6,4 +6,6 @@ window.english = {
     ...window.kirchhoffEnTexts,
     ...window.cheatsheetEnTexts,
     ...window.dataLegalAboutEnTexts,
+    ...window.extraLiveQuestionsEn,
+    ...window.navigationEnTexts,
 }

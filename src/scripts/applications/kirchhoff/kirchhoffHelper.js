@@ -7,16 +7,39 @@ function setupNextElementsVoltageLawContainer() {
     nextElementsContainer.innerHTML = `
         <h5>${languageManager.currentLang.nextElementsVoltLawHeading}</h5>
         <ul class="px-0" id="next-elements-list"></ul>
-        <button class="btn btn-secondary mx-1 disabled" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        <div class="mb-3">
+            <button class="btn btn-secondary mx-1 ${state.pictureCounter===1?"disabled":""}" id="reset-btn">reset</button>
+            <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        </div>  
+        <button class="btn btn-secondary mx-1" id="next-btn">${languageManager.currentLang.junctionBtn}</button>
     `;
     nextElementsContainer.querySelector("#reset-btn").addEventListener('click', () => {
         pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
-        resetKirchhoffPage();
+        resetKirchhoffPage(true);
     });
     let checkBtn = nextElementsContainer.querySelector("#check-btn");
-    checkBtn.addEventListener('click', () => {
-        checkVoltageLoop();
+    checkBtn.addEventListener('click', async () => {
+        checkBtn.innerHTML = "<span class='spinner-border spinner-border-sm'></span>";
+        await checkVoltageLoop();
+        checkBtn.innerHTML = "check";
+    });
+    let nextBtn = nextElementsContainer.querySelector("#next-btn");
+    nextBtn.addEventListener('click', async () => {
+        if (await state.kirchhoffSolverAPI.foundAllVoltEquations()) {
+            // Remove last svg
+            let svgDiv = document.getElementById(`svgDivVolt${state.pictureCounter}`).parentElement;
+            svgDiv.remove();
+            //for (let i = 0; i <= state.pictureCounter; i++) {
+             //   removeSvgEventHandlers(`svgDivVolt${i}`);
+            //}
+            state.selectedElements = [];
+            await nextKirchhoffCurrStep(true);
+            scrollContainerToTop(document.getElementById("junctionHeading"));
+        } else {
+            setTimeout(() => {
+                showMessage(languageManager.currentLang.alertNotAllVoltLoopsFound, "warning");
+            });
+        }
     });
 
     return nextElementsContainer;
@@ -31,23 +54,41 @@ function setupNextElementsCurrentLawContainer() {
     nextElementsContainer.innerHTML = `
         <h5>${languageManager.currentLang.nextElementsCurrentHeading}</h5>
         <ul class="px-0" id="next-elements-list"></ul>
-        <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
-        <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        <div class="mb-3">
+            <button class="btn btn-secondary mx-1" id="reset-btn">reset</button>
+            <button class="btn btn-primary mx-1" id="check-btn">check</button>
+        </div>
+        <button class="btn btn-secondary mx-1" id="finish-btn">${languageManager.currentLang.finishBtn}</button>
     `;
     nextElementsContainer.querySelector("#reset-btn").addEventListener('click', () => {
         pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
-        resetKirchhoffPage();
+        resetKirchhoffPage(true);
     });
     let checkBtn = nextElementsContainer.querySelector("#check-btn");
-    checkBtn.addEventListener('click', () => {
+    checkBtn.addEventListener('click', async () => {
         checkJunctionLaw();
-
+    });
+    let finishBtn = nextElementsContainer.querySelector("#finish-btn");
+    finishBtn.addEventListener('click', async () => {
+        checkFinishKirchhoff();
     });
     return nextElementsContainer;
 }
 
+async function checkFinishKirchhoff() {
+    let contentCol = document.getElementById("content-col");
+    let allEqsFound = await state.kirchhoffSolverAPI.foundAllEquations();
+    if (allEqsFound) {
+        finishKirchhoff(contentCol);
+    } else {
+        setTimeout(() => {
+            showMessage(languageManager.currentLang.alertNotAllEquationsFound, "warning");
+        }, 0);
+    }
+}
+
 async function solveFirstStep() {
-    let obj = await state.stepSolve.createStep0().toJs({dict_converter: Object.fromEntries});
+    let obj = await state.simplifierAPI.createStep0();
     obj.__proto__ = Step0Object.prototype;
     state.step0Data = obj;
     state.currentStep = 0;
@@ -124,32 +165,30 @@ function subtract1Live() {
 }
 
 function setupModalQuestions() {
-    let question = document.getElementById("extra-live-question");
-    question.innerHTML = languageManager.currentLang.extraLiveQuestion;
+    let questionParagraph = document.getElementById("extra-live-question");
+    // Choose question
+    // TODO random question
+    let set = languageManager.currentLang.q1;
 
-    let eq1 = document.getElementById("saveLive1");
-    let eq2 = document.getElementById("saveLive2");
-    let eq3 = document.getElementById("saveLive3");
-    let eq4 = document.getElementById("saveLive4");
-    for (let eq of [eq1, eq2, eq3, eq4]) {
+    let question = set.q;
+    let answers = set.a;
+    shuffleArray(answers);
+
+    questionParagraph.innerHTML = question;
+
+    let answerBox1 = document.getElementById("saveLive1");
+    let answerBox2 = document.getElementById("saveLive2");
+    let answerBox3 = document.getElementById("saveLive3");
+    let answerBox4 = document.getElementById("saveLive4");
+    for (let [i, eq] of [answerBox1, answerBox2, answerBox3, answerBox4].entries()) {
         eq.style.margin = "5px";
         eq.style.padding = "10px";
         eq.style.border = `1px solid ${colors.currentForeground}`;
         eq.style.borderRadius = "5px";
         eq.style.color = colors.currentForeground;
-        if (eq.id === "saveLive1") {
-            eq.innerHTML = "17";
-            eq.value = 0;
-        } else if (eq.id === "saveLive2") {
-            eq.innerHTML = "42";
-            eq.value = 1;
-        } else if (eq.id === "saveLive3") {
-            eq.innerHTML = "Wie viele Straßen muss ein Mensch entlanggehen?"
-            eq.value = 0;
-        } else if (eq.id === "saveLive4") {
-            eq.innerHTML = "Baum";
-            eq.value = 0;
-        }
+        eq.innerHTML = answers[i][0];
+        eq.value = answers[i][1];
+
         eq.addEventListener("click", () => {
             if (eq.value === 1) {
                 eq.style.border = `1px solid ${colors.keyYellow}`;
@@ -250,10 +289,38 @@ function showBrokenHeart() {
     }, 2500);
 }
 
+function adaptTranslation(checkBox) {
+    // Adapt equation float to the correct height
+    const sheet = Array.from(document.styleSheets).find(sheet =>
+        Array.from(sheet.cssRules).some(rule => rule instanceof CSSKeyframesRule && rule.name === 'floatAndFadeOut')
+    );
+
+    const keyframesRule = Array.from(sheet.cssRules).find(
+        rule => rule instanceof CSSKeyframesRule && rule.name === 'floatAndFadeOut'
+    );
+
+    if (keyframesRule) {
+        const toRule = Array.from(keyframesRule.cssRules).find(rule => rule.keyText === '100%');
+        if (toRule) {
+            // get the correct translation, being the difference between the correct equation
+            // and the bottom of the last svg + offset
+            let y;
+            let equationPos = checkBox.getBoundingClientRect().top + checkBox.getBoundingClientRect().height / 2;
+            let goalPos = document.getElementById(`svgDivCurr${state.pictureCounter}`).getBoundingClientRect().bottom;
+            y = equationPos - goalPos + 60;
+            toRule.style.transform = `translateY(${y})`;
+        }
+    }
+}
+
 async function showCorrectSelection(checkBoxId) {
     let nextElementList = document.querySelector('#nextElementsContainer ul');
     let checkBox = nextElementList.querySelector(`#${checkBoxId}`);
     let label = document.querySelector(`label[for=${checkBoxId}]`);
+
+    // Adapt translation for the correct equation
+    adaptTranslation(checkBox);
+
     setTimeout(() => {
         checkBox.style.backgroundColor = colors.correctEquationColor;
         checkBox.style.borderColor = colors.correctEquationColor;
@@ -263,30 +330,37 @@ async function showCorrectSelection(checkBoxId) {
     await new Promise(resolve => setTimeout(resolve, 750)); // Wait for animation to fade out
 }
 
-function showEquations(contentCol) {
-    let equationsContainer = document.getElementById("equations-container");
-    equationsContainer.innerHTML = "";
-    let equations = createEquationsOverviewContainer();
+async function showEquations(contentCol) {
+    //let equationsContainer = document.getElementById("equations-container");
+    //equationsContainer.innerHTML = "";
+    let equations = await createEquationsOverviewContainer();
     contentCol.append(equations);
 }
 
-function updateEquationsAndReset(svgDiv) {
-    let nextElementsContainer = document.getElementById("nextElementsContainer");
-    let equationContainer = document.getElementById("equations-overview-container");
-    equationContainer.innerHTML = languageManager.currentLang.missingEquations;
-    equationContainer.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
-    resetArrowHighlights(svgDiv);
-    resetNextElementsTextAndList(nextElementsContainer);
+async function getCurrentEquationNr() {
+    let equations = await state.kirchhoffSolverAPI.equations();
+    // get nr of equation from this list where the element is not "-"
+    let eqNr = 0;
+    for (let i = 0; i < equations.length; i++) {
+        if (equations[i] !== "-") {
+            eqNr++;
+        }
+    }
+    return eqNr;
 }
 
-async function waitForCorrectSelection(svgDiv) {
+async function updateEquations() {
+    let equationContainer = document.getElementById("equations-overview-container");
+    equationContainer.innerHTML = languageManager.currentLang.missingEquations;
+    equationContainer.appendChild(getEquationsTable(await state.kirchhoffSolverAPI.equations()));
+}
+
+async function waitForCorrectSelection() {
     for (let i = 0; i < 10; i++) {
         const {checkBoxId, isCorrectEq} = await waitForCheckboxSelection();
 
         if (isCorrectEq) {
             await showCorrectSelection(checkBoxId);
-            updateEquationsAndReset(svgDiv);
-            document.getElementById("check-btn").classList.remove("disabled");
             break;
         } else {
             showWrongSelection(checkBoxId);
@@ -323,8 +397,6 @@ function shuffleArray(array) {
 }
 
 function handleVoltageError(errorCode, svgDiv) {
-    let rect = svgDiv.getBoundingClientRect();
-    let y = rect.y + window.scrollY + 200;
     if (errorCode === 1) {
         // Equation already exists
         setTimeout(() => {
@@ -353,9 +425,6 @@ function handleVoltageError(errorCode, svgDiv) {
 }
 
 function handleJunctionError(errorCode, svgDiv) {
-    let contentCol = document.getElementById("content-col");
-    let rect = svgDiv.getBoundingClientRect();
-    let y = rect.y + window.scrollY + 200;
     if (errorCode === 1) {
         // Equation already exists
         setTimeout(() => {
@@ -386,21 +455,24 @@ function handleJunctionError(errorCode, svgDiv) {
     }
 }
 
-function initSolverObjects() {
+async function initSolverObjects(circuitMap) {
+    if (state.simplifierAPI !== null) {
+        await state.simplifierAPI.resetStepSolver();
+    }
+    if (state.kirchhoffSolverAPI !== null) {
+        await state.kirchhoffSolverAPI.resetKirchhoffSolver();
+    }
+
     let paramMap = new Map();
     paramMap.set("volt", languageManager.currentLang.voltageSymbol);
     paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    state.stepSolve = state.solve.SolveInUserOrder(
-        state.currentCircuitMap.circuitFile,
-        `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`,
-        "",
-        paramMap);
+    // For Kirchhoff, we know, that pyodide must be ready, so we can use the StepSolverAPI instead of the hardcoded API
+    state.simplifierAPI = new StepSolverAPI(worker);
+    await state.simplifierAPI.initStepSolver(circuitMap.circuitFile, `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`, paramMap);
 
-    state.kirchhoffSolver = state.solve.KirchhoffSolver(
-        state.currentCircuitMap.circuitFile,
-        `${conf.pyodideCircuitPath}/${state.currentCircuitMap.sourceDir}`,
-        paramMap);
+    state.kirchhoffSolverAPI = new KirchhoffSolverAPI(worker);
+    await state.kirchhoffSolverAPI.initKirchhoffSolver(circuitMap.circuitFile, `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`, paramMap);
 }
 
 function createVoltHeading() {
@@ -412,18 +484,26 @@ function createVoltHeading() {
 
 function createEquationsContainer() {
     let equationsContainer = document.createElement("div");
-    equationsContainer.id = `equations-container`;
+    equationsContainer.id = "equations-container";
     equationsContainer.style.color = colors.currentForeground;
     return equationsContainer;
 }
 
-function createEquationsOverviewContainer() {
+async function createEquationsOverviewContainer() {
     let equations = document.createElement("div");
     equations.id = "equations-overview-container";
     equations.style.color = colors.currentForeground;
     equations.classList.add("text-center", "py-1", "mb-3", "mx-auto");
-    equations.innerHTML = languageManager.currentLang.missingEquations;
-    equations.appendChild(getEquationsTable(state.kirchhoffSolver.equations().toJs()));
+    let text = document.createElement("p");
+    text.classList.add("text-center", "my-3", "mx-auto");
+    text.innerHTML = languageManager.currentLang.missingEquations;
+    text.style.color = colors.currentForeground;
+    text.style.maxWidth = "350px";
+    equations.appendChild(text);
+    let eqs = await state.kirchhoffSolverAPI.equations();
+    // Filter out "-" equations
+    eqs = eqs.filter(eq => eq !== "-");
+    equations.appendChild(getEquationsTable(eqs));
 
     return equations;
 }
@@ -432,7 +512,8 @@ function createCurrentHeading() {
     let currentHeading = document.createElement("h3");
     currentHeading.innerHTML = languageManager.currentLang.kirchhoffCurrentHeading;
     currentHeading.style.color = colors.currentForeground;
-    currentHeading.classList.add("mt-4");
+    currentHeading.classList.add("pt-3");
+    currentHeading.id = "junctionHeading";
     return currentHeading;
 }
 
@@ -481,15 +562,15 @@ function addKirchhoffComponentValues(component) {
     }
 }
 
-function makeElementsClickableForKirchhoff(nextElementsContainer, electricalElements) {
+function makeElementsClickableForKirchhoff(svgContainer, nextElementsContainer, electricalElements, selector) {
     const nextElementsList = nextElementsContainer.querySelector(`#next-elements-list`);
-    electricalElements.forEach(element => setKirchhoffStyleAndEvent(element, nextElementsList));
+    electricalElements.forEach(element => setKirchhoffStyleAndEvent(svgContainer, element, nextElementsList, selector));
 }
 
-function setKirchhoffStyleAndEvent(element, nextElementsList) {
+function setKirchhoffStyleAndEvent(svgContainer, element, nextElementsList, selector) {
     element.style.cursor = "pointer";
     element.addEventListener('click', () => {
-        chooseKirchhoffElement(element, nextElementsList);
+        chooseKirchhoffElement(svgContainer, element, nextElementsList, selector);
     });
 }
 
@@ -506,27 +587,22 @@ function checkIfAlreadySelected(nextElementsList, element) {
     return alreadyClicked;
 }
 
-function selectKirchArrow(element) {
+function selectKirchArrow(svgContainer, element) {
     highlightElement(element);
-    let svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    let arrows = svgDiv.querySelectorAll(`path.arrow.${element.classList[2]}`);
+    let arrows = svgContainer.querySelectorAll(`path.arrow.${element.classList[2]}`);
     for (let arrow of arrows) {
         highlightElement(arrow);
     }
 }
 
-function chooseKirchhoffElement(element, nextElementsList) {
+function chooseKirchhoffElement(svgContainer, element, nextElementsList, selector) {
     let alreadyClicked = checkIfAlreadySelected(nextElementsList, element);
     if (alreadyClicked) {
-        unselectKirchArrow(element);
+        unselectKirchArrow(svgContainer, element, selector);
     }
     else {
-        selectKirchArrow(element);
-        if (state.pictureCounter === 1) {
-            addKirchhoffVoltageTextToBox(element, nextElementsList);
-        } else if (state.pictureCounter === 2) {
-            addKirchhoffCurrentTextToBox(element, nextElementsList);
-        }
+        selectKirchArrow(svgContainer, element);
+        addKirchhoffElementToTextBox(element, nextElementsList);
     }
     MathJax.typeset();
 }
@@ -534,11 +610,7 @@ function chooseKirchhoffElement(element, nextElementsList) {
 function resetArrowHighlights(svgDiv) {
     let arrows = svgDiv.querySelectorAll(".arrow");
     for (let arrow of arrows) {
-        if (elementMarkedDone(arrow)) {
-            grayOutElement(arrow);
-        } else {
-            removeHighlight(arrow);
-        }
+        removeHighlight(arrow);
     }
 }
 
@@ -552,6 +624,46 @@ function highlightElement(element) {
         element.style.color = "red";
         element.style.stroke = "red";
         element.style.fill = "red";
+    }
+}
+
+function lightHighlightElement(svgDiv, element, selector) {
+    // Check if element is of type string
+    let volt_name = "";
+    let curr_name = "";
+
+    if (typeof element === "string") {
+        let id = element;
+        // Translate Rx to Ux
+        if (selector === "volt") {
+            volt_name = state.allValuesMap.get("volt_" + id);
+        } else {
+            curr_name = state.allValuesMap.get("curr_" + id);
+        }
+    } else {
+        // Element is node (for example arrow), symbol is in class name
+        if (selector === "volt") {
+            volt_name = element.classList[2];
+        } else {
+            curr_name = element.classList[2];
+        }
+    }
+    if (selector === "volt") {
+        let ele = svgDiv.querySelectorAll(`.voltage-label.arrow.${volt_name}`);
+        for (let e of ele) {
+            e.style.fontWeight = "normal";
+            e.style.color = colors.lightVoltageBlue;
+            e.style.stroke = colors.lightVoltageBlue;
+            e.style.fill = colors.lightVoltageBlue;
+        }
+    } else if (selector === "curr") {
+        let ele = svgDiv.querySelectorAll(`.current-label.arrow.${curr_name}`);
+        for (let e of ele) {
+            e.style.fontWeight = "normal";
+            e.style.color = colors.lightCurrentRed;
+            e.style.stroke = colors.lightCurrentRed;
+            e.style.fill = colors.lightCurrentRed;
+        }
     }
 }
 
@@ -569,25 +681,35 @@ function removeHighlight(element) {
     element.style.fill = colors.currentForeground;
 }
 
-function elementMarkedDone(element) {
-    return element.getAttribute("value") === "done";
+function elementMarkedDone(element, selector) {
+    let elementId = "";
+    if (selector === "volt") {
+        elementId = state.allValuesMap.get("element_" + element.classList[2]);
+    } else {
+        elementId = state.allValuesMap.get("element_" + element.classList[2]);
+    }
+    if (selector === "volt") {
+        return state.doneVoltages.includes(elementId);
+    } else if (selector === "curr") {
+        return state.doneCurrents.includes(elementId);
+    }
 }
 
-function unselectKirchArrow(element) {
-    if (elementMarkedDone(element)) {
-        grayOutElement(element);
+function unselectKirchArrow(svgContainer, element, selector) {
+    let arrows = svgContainer.querySelectorAll(`path.arrow.${element.classList[2]}`);
+
+    if (elementMarkedDone(element, selector)) {
+        lightHighlightElement(svgContainer, element, selector);
+        for (let arrow of arrows) {
+            lightHighlightElement(svgContainer, arrow, selector);
+        }
     } else {
         removeHighlight(element);
-    }
-    let svgDiv = document.getElementById(`svgDiv${state.pictureCounter}`);
-    let arrows = svgDiv.querySelectorAll(`path.arrow.${element.classList[2]}`);
-    for (let arrow of arrows) {
-        if (elementMarkedDone(arrow)) {
-            grayOutElement(arrow);
-        } else {
+        for (let arrow of arrows) {
             removeHighlight(arrow);
         }
     }
+
     const listItem = document.querySelector(`#li-${element.classList[2]}`);
     if (listItem) {
         listItem.remove();
@@ -596,16 +718,7 @@ function unselectKirchArrow(element) {
     }
 }
 
-function addKirchhoffVoltageTextToBox(element, nextElementsList) {
-    let name = element.classList[2];
-    let listItem = document.createElement('li');
-    listItem.innerHTML = `\\(${name}\\)`;
-    listItem.setAttribute("id", "li-" + name);
-    nextElementsList.appendChild(listItem);
-    state.selectedElements.push(state.allValuesMap.get("element_" + name));
-}
-
-function addKirchhoffCurrentTextToBox(element, nextElementsList) {
+function addKirchhoffElementToTextBox(element, nextElementsList) {
     let name = element.classList[2];
     let listItem = document.createElement('li');
     listItem.innerHTML = `\\(${name}\\)`;
@@ -634,17 +747,22 @@ function getEquationsTable(equations) {
     return table;
 }
 
-function resetKirchhoffPage() {
+async function resetKirchhoffPage(calledFromResetBtn = false) {
     clearSimplifierPageContent();
+    showSpinnerLoadingCircuit();
     state.valuesShown = new Map();
     state.selectedElements = [];
     state.pictureCounter = 0;
     state.allValuesMap = new Map();
+    state.doneVoltages = [];
+    state.doneCurrents = [];
     state.voltEquations = [];
     state.extraLiveUsed = false;
     resetExtraLiveModal();
     scrollBodyToTop();
-    startKirchhoff();  // Draw the first picture again
+    if (calledFromResetBtn) {
+        startKirchhoff();  // Draw the first picture again
+    }
 }
 
 
@@ -656,7 +774,7 @@ function appendResetBtn(contentCol) {
                 `;
     resetContainer.querySelector("#reset-btn").addEventListener('click', () => {
         pushCircuitEventMatomo(circuitActions.Reset, state.pictureCounter);
-        resetKirchhoffPage();
+        resetKirchhoffPage(true);
     });
     contentCol.appendChild(resetContainer);
 }
@@ -718,8 +836,7 @@ function removeSvgEventHandlers(id) {
     if (svgDiv === null) return;
     let svg = svgDiv.querySelector("svg");
     let svgClone = svg.cloneNode(true);
-    svgDiv.removeChild(svg);
-    svgDiv.appendChild(svgClone);
+    svgDiv.replaceChild(svgClone, svg);
 }
 
 function resetExtraLiveModal() {
@@ -751,14 +868,15 @@ function allVoltagesDone(svgDiv) {
     return true;
 }
 
-function markVoltagesDone(svgDiv) {
-    let selectedElements = state.selectedElements;
-    for (let elementId of selectedElements) {
-        let arrowClass = state.allValuesMap.get(`volt_${elementId}`);
-        let arrow = svgDiv.querySelectorAll(`.voltage-label.arrow.${arrowClass}`);
-        for (let a of arrow) {
-            a.setAttribute("value", "done");
-        }
+function markVoltagesDone() {
+    for (let elementId of state.selectedElements) {
+        state.doneVoltages.push(elementId);
+    }
+}
+
+function markCurrentsDone() {
+    for (let elementId of state.selectedElements) {
+        state.doneCurrents.push(elementId);
     }
 }
 
@@ -771,18 +889,22 @@ function createSolutionsContainer() {
     return solutionsContainer;
 }
 
-function setupKirchhoffStep() {
+function setupKirchhoffStep(selector, first=false) {
     const circuitContainer = document.createElement('div');
-    circuitContainer.classList.add("circuit-container", "row", "justify-content-center", "my-2");
-    const svgContainer = setupKirchhoffSVGandData(state.step0Data);
+    circuitContainer.classList.add("circuit-container", "row", "justify-content-center", "mt-4", "mb-2");
+    const svgContainer = setupKirchhoffSVGandData(selector, state.step0Data, first);
     circuitContainer.appendChild(svgContainer)
     return {circuitContainer, svgContainer};
 }
 
-function setupKirchhoffSVGandData(stepObject) {
+function setupKirchhoffSVGandData(selector, stepObject, first) {
     let svgData = stepObject.svgData;
     const svgDiv = document.createElement('div');
-    svgDiv.id = `svgDiv${state.pictureCounter}`;
+    if (selector === "volt") {
+        svgDiv.id = `svgDivVolt${state.pictureCounter}`;
+    } else if (selector === "curr") {
+        svgDiv.id = `svgDivCurr${state.pictureCounter}`;
+    }
     svgDiv.classList.add("svg-container", "p-2");
     svgData = setSvgWidthTo(svgData, "100%");
     svgDiv.style.border = `1px solid ${colors.currentForeground}`;
@@ -796,37 +918,71 @@ function setupKirchhoffSVGandData(stepObject) {
     svgDiv.innerHTML = svgData;
     let containsZ = divContainsZLabels(svgDiv);
 
-    if (svgDiv.id === "svgDiv1" || containsZ) {
+    if (svgDiv.id === "svgDivVolt1" || containsZ) {
         // First svg, set valuesShown to false
         // Also set to zero if labels contain Z because they can't be toggled
         state.valuesShown.set(svgDiv.id, false);
     } else {
         // Set valuesShown to the previous state
-        state.valuesShown.set(svgDiv.id, state.valuesShown.get(`svgDiv${state.pictureCounter - 1}`));
+        if (selector === "volt") {
+            state.valuesShown.set(svgDiv.id, state.valuesShown.get(`svgDivVolt${state.pictureCounter - 1}`));
+        } else if (selector === "curr") {
+            state.valuesShown.set(svgDiv.id, state.valuesShown.get(`svgDivCurr${state.pictureCounter - 1}`));
+        }
     }
 
     fillLabels(svgDiv);
     colorArrows(svgDiv);
+
     increaseLabelFontSize(svgDiv);
     hideSourceLabel(svgDiv);
     hideElementLabels(svgDiv);
 
-    if (state.pictureCounter === 1) {
+    if (selector === "volt") {
         hideCurrentArrows(svgDiv);
-        //addVoltageOverlay(svgDiv);
-    } else if (state.pictureCounter === 2) {
+        for (let element of state.doneVoltages) {
+            lightHighlightElement(svgDiv, element, selector);
+        }
+    } else if (selector === "curr") {
         hideVoltageArrows(svgDiv);
         hideItotArrow(svgDiv);
+        for (let element of state.doneCurrents) {
+            lightHighlightElement(svgDiv, element, selector);
+        }
     }
 
     // SVG Data written, now add eventListeners, only afterward because they would be removed on rewrite of svgData
-    addKirchhoffInfoHelpButton(svgDiv);
-    //addNameValueToggleBtn(svgDiv);
-    /*if (state.pictureCounter === 1) {
-        addLoopDirectionBtn(svgDiv);
-    }*/
+    // Add button on first voltage and first current svg
+    if (state.pictureCounter === 1 || first) {
+        addKirchhoffInfoHelpButton(svgDiv);
+    }
 
     return svgDiv;
+}
+
+function addEquationToSvg(svgDiv, nr, eq, color) {
+    let overlay = document.createElement("div");
+    overlay.id = `equation-overlay${state.pictureCounter}`;
+    let table = document.createElement("table");
+    table.classList.add("table", "table-borderless", "mx-auto");
+    if (colors.currentBackground === colors.keyDark) {
+        table.classList.add("table-dark");
+    } else {
+        table.classList.add("table-light");
+    }
+    table.style.width = "fit-content";
+    let row = table.insertRow();
+    let cell = row.insertCell();
+    cell.innerHTML = `\\(\\mathrm{${romanNumbersMap.get(nr)}})\\)`;
+    cell = row.insertCell();
+    cell.innerHTML = `\\(${eq}\\)`;
+    table.querySelectorAll("td").forEach(td => {
+            td.style.textAlign = "left";
+            td.style.color = color;
+        }
+    );
+    overlay.appendChild(table);
+    svgDiv.appendChild(overlay);
 }
 
 function colorArrows(svgDiv) {
@@ -891,11 +1047,15 @@ function addKirchhoffInfoHelpButton(svgDiv) {
         // Add explanation for voltage law
         infoBtn.setAttribute("data-bs-target", "#kirchhoffVInfoGif");
         infoBtn.id = "open-info-gif-btn-1";
-    } else if (state.pictureCounter === 2) {
+    } else {
         // Add explanation for current law
         infoBtn.setAttribute("data-bs-target", "#kirchhoffIInfoGif");
         infoBtn.id = "open-info-gif-btn-2";
     }
     infoBtn.onclick = () => {infoBtn.blur()};  // make sure focus is removed when opening modal
     svgDiv.insertAdjacentElement("afterbegin", infoBtn);
+}
+
+function setKirchSvgColorToGray(svgData) {
+    return svgData.replaceAll(colors.lightModeSvgStrokeColor, "gray");
 }

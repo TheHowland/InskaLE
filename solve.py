@@ -1,4 +1,4 @@
-# for simplipfy version: 0.1
+# for simplipfy version: 0.1.dev1
 import warnings
 warnings.filterwarnings('ignore')
 from simplipfy.SimplifyStepWise.simplifyStepwise import solve as ssw
