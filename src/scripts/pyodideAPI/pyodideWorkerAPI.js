@@ -38,7 +38,7 @@ class PyodideAPI {
         });
     }
 
-    readFile(path, encoding) {
+    readFile(path, encoding="utf8") {
         return requestResponse(this.worker, {
             action: "readFile",
             data: { path: path, encoding: encoding }

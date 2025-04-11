@@ -23,7 +23,7 @@ class HardcodedStepSolverAPI {
         this.solutionsFile = this.circuitFile.replace(".txt", `_solutions.${langSuffix}.json`);
         let solutionsPath = this.circuitPath + "/" + this.solutionsFile;
         try {
-            let content = await (await state.pyodideAPI.readFile(solutionsPath)).text();
+            let content = await state.pyodideAPI.readFile(solutionsPath);
             this.solutions = JSON.parse(content);
         } catch (error) {
             console.error("Error fetching solutions file: " + error);
