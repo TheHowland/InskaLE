@@ -68,21 +68,24 @@ async function getJsonAndSvgStepFiles() {
 
 async function createAndShowStep0(circuitMap) {
     //await clearSolutionsDir();
+    try {
+        let paramMap = new Map();
+        paramMap.set("volt", languageManager.currentLang.voltageSymbol);
+        paramMap.set("total", languageManager.currentLang.totalSuffix);
 
-    let paramMap = new Map();
-    paramMap.set("volt", languageManager.currentLang.voltageSymbol);
-    paramMap.set("total", languageManager.currentLang.totalSuffix);
+        await state.simplifierAPI.initStepSolver(circuitMap.circuitFile, `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`, paramMap);
 
-    await state.simplifierAPI.initStepSolver(circuitMap.circuitFile, `${conf.pyodideCircuitPath}/${circuitMap.sourceDir}`, paramMap);
-
-    let obj = await state.simplifierAPI.createStep0();
-    obj.__proto__ = Step0Object.prototype;
-    state.step0Data = obj;
-    state.currentStep = 0;
-    state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltageVal());
-    state.allValuesMap.set(`I${languageManager.currentLang.totalSuffix}`, getSourceCurrentVal());
-    hideSpinnerLoadingCircuit();
-    nextSimplifierStep(state.step0Data);
+        let obj = await state.simplifierAPI.createStep0();
+        obj.__proto__ = Step0Object.prototype;
+        state.step0Data = obj;
+        state.currentStep = 0;
+        state.allValuesMap.set(`${languageManager.currentLang.voltageSymbol}${languageManager.currentLang.totalSuffix}`, getSourceVoltageVal());
+        state.allValuesMap.set(`I${languageManager.currentLang.totalSuffix}`, getSourceCurrentVal());
+        hideSpinnerLoadingCircuit();
+        nextSimplifierStep(state.step0Data);
+    } catch (error) {
+        throw error;
+    }
 }
 
 function startSimplifier() {
