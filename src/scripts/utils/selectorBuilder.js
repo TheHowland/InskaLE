@@ -357,13 +357,10 @@ class SelectorBuilder {
         state.pictureCounter = 0;
         state.allValuesMap = new Map();
 
-        /* TODO
+        if (circuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
             if (state.gamification) {
                 addLivesField();
             }
-         */
-
-        if (circuitMap.selectorGroup === circuitMapper.selectorIds.kirchhoff) {
             document.title = "Kirchhoff";
             pushPageViewMatomo(circuitMap.selectorGroup + "/" + circuitMap.circuitFile);
             startKirchhoff();

@@ -37,6 +37,9 @@ class PackageManager {
     }
 
     async importPyodidePackages() {
+        // Idea for loading packages:
+        // - use unpackArchive instead of loadPackage to reduce overhead on loading
+        // - use "import package" in python to import package
         console.log("Loading packages");
         await this.load_packages();
         state.loadingProgress = 50;
@@ -57,7 +60,7 @@ class PackageManager {
         let stepSize = Math.floor(50 / len);
 
         for(const packageName of packages){
-            await state.pyodideAPI.loadPackage(packageName);
+            await state.pyodideAPI.importPackage(packageName);
             state.loadingProgress += stepSize;
             updateStartBtnLoadingPgr(state.loadingProgress);
         }
@@ -80,6 +83,7 @@ class PackageManager {
 
         let stepSize = 20 / len;
         let packagePromises = packages.map(async function (packageName) {
+            // Fetch package with dirname + package.whl
             let pkgArrBuff = await (await fetch(conf.sourcePackageDir + packageName)).arrayBuffer();
             let packageExtension = packageName.slice(packageName.lastIndexOf("."), packageName.length);
             await state.pyodideAPI.unpackArchive(pkgArrBuff, packageExtension);

@@ -52,7 +52,7 @@ class PyodideAPI {
         });
     }
 
-    loadPackage(packageName) {
+    importPackage(packageName) {
         return this.runPython("import " + packageName);
     }
 
